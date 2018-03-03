@@ -332,13 +332,15 @@ module driver_pulley() {
     }
     translate([shaft_diam/2-d_cut_depth-0.1+nut_thickness/2,0,nut_diam/2]) {
       rotate([0,90,0]) {
-        # hole(nut_diam,nut_thickness,6);
+        rotate([0,0,90]) {
+          # hole(nut_diam,nut_thickness,6);
+        }
         translate([0,0,10]) {
           hole(screw_diam,20,16);
         }
       }
       translate([0,0,-nut_diam/2]) {
-        cube([nut_thickness,6.4,nut_diam],center=true);
+        cube([nut_thickness,nut_diam,nut_diam],center=true);
       }
     }
   }
