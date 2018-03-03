@@ -228,6 +228,7 @@ module filament_pulley(circumference=16*2, base_height=6, wraps=5,hole_od=0,od_h
 
   base_pos_z     = groove_depth-base_height/2;
   top_pos_z      = height;
+  final_pos_z    = (base_height) ? -base_pos_z+base_height/2 : 0;
 
   module profile() {
     difference() {
@@ -303,7 +304,7 @@ module filament_pulley(circumference=16*2, base_height=6, wraps=5,hole_od=0,od_h
     }
   }
 
-  translate([0,0,-base_pos_z+base_height/2]) {
+  translate([0,0,final_pos_z]) {
     difference() {
       body();
       holes();
