@@ -1,5 +1,5 @@
-use <main.scad>;
+include <main.scad>;
 
-rotate([180,0,0]) {
-  driver_pulley();
-}
+resolution = 128;
+
+driver_pulley();

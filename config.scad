@@ -405,7 +405,7 @@ nema14_shaft_diam = 5;
 nema14_shaft_len = 20;
 
 motor_side = nema14_side;
-motor_len = motor_side;
+motor_len = 35;
 motor_hole_spacing = nema14_hole_spacing;
 motor_shoulder_diam = nema14_shoulder_diam;
 motor_screw_diam = nema14_screw_diam;

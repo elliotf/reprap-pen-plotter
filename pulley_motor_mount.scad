@@ -1,5 +1,5 @@
 use <main.scad>;
 
-rotate([180,0,0]) {
+rotate([0,90,0]) {
   motor_mount();
 }

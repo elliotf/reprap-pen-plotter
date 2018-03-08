@@ -10,10 +10,10 @@ include <util.scad>;
 
 inch = 25.4;
 
-print_width = 8*inch;
-print_depth = 11*inch;
+print_width = 18*inch;
+print_depth = 24*inch;
 
-extrusion_width = 0.5;
+extrusion_width = 0.4;
 motor_bracket_height = motor_shaft_len + 1;
 motor_pulley_mount_height = 25;
 wall_thickness = extrusion_width*4;
@@ -29,6 +29,7 @@ motor_screw_head_diam = 7; // m3 is ~6 to 6.5 + some space
 
 front_back_line_x = print_width/2 + pulley_diam/2;
 
+motor_mount_width = 30;
 
 // assuming F623ZZ
 line_bearing_diam      = 10;
@@ -43,7 +44,7 @@ rear_idler_pos_z = front_back_line_x - line_bearing_diam/2;
 angle_aluminum_width     = (3/4)*inch;
 angle_aluminum_thickness = (1/8)*inch;
 
-driver_wraps         = 5;
+driver_wraps         = 6;
 idler_wraps          = driver_wraps + 1;
 
 steps_per_turn = 200*32; // 1.8deg stepper at 1/32 microstepping
@@ -71,6 +72,14 @@ lower_line_pos_x = upper_line_pos_x + top_bottom_groove_dist;
 lower_line_pos_z = wall_thickness + motor_side/2 - idler_diam/2;
 upper_line_pos_z = lower_line_pos_z + idler_diam;
 
+mount_motor_plate_thickness = 3;
+
+mount_pos_y = -print_depth/2+motor_shaft_len;
+x_motor_pos_x = -motor_side-20;
+x_motor_pos_y = mount_pos_y+motor_mount_width;
+y_motor_pos_x = -x_motor_pos_x;
+y_motor_pos_y = mount_pos_y;
+
 module line_bearing() {
   hole(line_bearing_diam,line_bearing_thickness-1,resolution);
   for(z=[top,bottom]) {
@@ -93,103 +102,9 @@ module angle_aluminum(length,width=angle_aluminum_width,height=angle_aluminum_wi
   }
 }
 
-module motor_bracket() {
-  rounded_diam = motor_screw_head_diam + wall_thickness*2;
-  attachment_screw_dist = motor_side/2 + rounded_diam/2;
-  attachment_screw_diam = 6;
-
-  module body() {
-    linear_extrude(height=motor_bracket_height,center=true,convexity=3) {
-      difference() {
-        union() {
-          // sides
-          for(x=[left,right]) {
-            hull() {
-              for(y=[front,rear]) {
-                translate([x*motor_hole_spacing/2,y*motor_hole_spacing/2,0]) {
-                  accurate_circle(rounded_diam,resolution);
-                }
-              }
-              translate([x*(attachment_screw_dist),0,0]) {
-                accurate_circle(rounded_diam,resolution);
-              }
-            }
-          }
-
-          // join the sides
-          hull() {
-            for(x=[left,right]) {
-              translate([x*motor_hole_spacing/2,front*motor_hole_spacing/2,0]) {
-                accurate_circle(rounded_diam,resolution);
-              }
-            }
-            translate([0,front*rounded_diam/2,]) {
-              square([motor_hole_spacing,rounded_diam],center=true);
-            }
-            translate([0,front*(attachment_screw_dist),0]) {
-              accurate_circle(rounded_diam,resolution);
-            }
-          }
-        }
-
-        accurate_circle(motor_shoulder_diam,resolution*2);
-        for(x=[left,right]) {
-          for(y=[front,rear]) {
-            translate([x*motor_hole_spacing/2,y*motor_hole_spacing/2,0]) {
-              accurate_circle(motor_screw_diam,motor_bracket_height*2.5,resolution);
-            }
-          }
-          translate([x*attachment_screw_dist,0,0]) {
-            accurate_circle(attachment_screw_diam,motor_bracket_height*2.5,resolution);
-          }
-        }
-        translate([0,front*attachment_screw_dist,0]) {
-          accurate_circle(attachment_screw_diam,motor_bracket_height*2.5,resolution);
-        }
-      }
-    }
-  }
-
-  module holes() {
-    for(x=[left,right]) {
-      for(y=[front,rear]) {
-        translate([x*motor_hole_spacing/2,y*motor_hole_spacing/2,-motor_bracket_height/2-5]) {
-          hole(motor_screw_head_diam,motor_bracket_height*2,resolution);
-        }
-      }
-    }
-  }
-
-  translate([0,0,motor_bracket_height/2]) {
-    difference() {
-      body();
-      holes();
-    }
-  }
-}
-
-module idler_bracket() {
-  module body() {
-    for (z=[0,1]) {
-      translate([0,0,wall_thickness+line_bearing_thickness/2+z*(washer_thickness+line_bearing_thickness)]) {
-        % line_bearing();
-      }
-    }
-  }
-
-  module holes() {
-    
-  }
-
-  difference() {
-    body();
-    holes();
-  }
-}
-
 module motor() {
   difference() {
-    translate([0,0,-motor_side/2]) cube([motor_side,motor_side,motor_side],center=true);
+    translate([0,0,-motor_len/2]) cube([motor_side,motor_side,motor_len],center=true);
     for(end=[left,right]) {
       for(side=[front,rear]) {
         translate([motor_hole_spacing/2*side,motor_hole_spacing/2*end,0]) cylinder(r=motor_screw_diam/2,h=100,center=true);
@@ -201,36 +116,25 @@ module motor() {
 }
 
 module assembly() {
-  for(x=[left,right]) {
-    translate([x*print_width/2,front*print_depth/2,0]) {
-      mirror([x-1,0,0]) {
-        translate([motor_side/2,print_depth/2,0]) {
-          rotate([90,0,0]) {
-            % angle_aluminum(print_depth);
-          }
-        }
-      }
+  translate([0,0,-1]) {
+    % cube([print_width,print_depth,2],center=true);
+  }
 
-      motor_bracket();
-      translate([0,0,motor_bracket_height]) {
-        rotate([0,180,0]) {
-          % motor();
-        }
-      }
-    }
-
-    translate([x*print_width/2,rear*print_depth/2,0]) {
-      //mirror([1+x,0,0]) {
-        idler_bracket();
-      //}
-    }
-
-    translate([0,0,belt_width]) {
-      translate([x*front_back_line_x,0,0]) {
-        % cube([1,print_depth,belt_width],center=true);
-      }
+  translate([x_motor_pos_x,x_motor_pos_y,0]) {
+    rotate([0,0,90]) {
+      motor_mount();
     }
   }
+
+  translate([y_motor_pos_x,y_motor_pos_y,0]) {
+    rotate([0,0,-90]) {
+      motor_mount();
+    }
+  }
+}
+
+module x_lines() {
+  
 }
 
 module filament_pulley(circumference=16*2, base_height=6, wraps=5,hole_od=0,od_height=0) {
@@ -244,10 +148,9 @@ module filament_pulley(circumference=16*2, base_height=6, wraps=5,hole_od=0,od_h
   echo("BASE_DIAM: ", base_diam);
   echo("HEIGHT:    ", height+base_height-groove_depth);
 
-  base_pos_z     = groove_depth-base_height/2;
-  final_pos_z    = (base_height) ? -base_pos_z+base_height/2 : 0;
-  top_pos_z      = height;
-  bottom_pos_z   = base_pos_z - groove_depth;
+  base_pos_z     = height+base_height/2-groove_depth;
+  bottom_pos_z   = 0;
+  top_pos_z      = (base_height > 0) ? base_pos_z + base_height/2 : height;
 
   module profile() {
     difference() {
@@ -316,59 +219,49 @@ module filament_pulley(circumference=16*2, base_height=6, wraps=5,hole_od=0,od_h
   }
 
   module holes() {
+    // for driver
+    nut_thickness = 2.70;
+    nut_diam      = 5.55;
+    screw_diam    = 3.15;
+    shaft_diam    = 5.1;
+    d_cut_depth   = shaft_diam-4.6;
+    d_cut_height  = base_height+3;
+    d_cut_height  = 100;
+
+    // idler branch
     if (hole_od) {
       rotate_extrude(convexity=10,$fn=12) {
         hole_profile();
       }
-    }
-    for(z=[top_pos_z+0.5,bottom_pos_z-0.5]) {
-      translate([0,0,z]) {
-        // % hole(hole_od,0.5,resolution);
-      }
-    }
-  }
 
-  translate([0,0,final_pos_z]) {
-    difference() {
-      body();
-      holes();
-    }
-  }
-}
-
-module driver_pulley() {
-  shaft_diam = 5.1;
-  d_cut_depth = shaft_diam-4.6;
-  d_cut_height  = base_height+3;
-  d_cut_height  = 100;
-  nut_thickness = 2.70;
-  nut_diam      = 5.55;
-  screw_diam    = 3.15;
-  base_height   = 6;
-
-  module body() {
-    filament_pulley(idler_circumference,base_height,driver_wraps);
-  }
-
-  module holes() {
-    difference() {
-      hole(shaft_diam,50,12);
-
-      translate([shaft_diam/2,0,0]) {
-        cube([d_cut_depth*2,shaft_diam+1,d_cut_height*2],center=true);
-      }
-    }
-    translate([shaft_diam/2-d_cut_depth-0.1+nut_thickness/2,0,nut_diam/2]) {
-      rotate([0,90,0]) {
-        rotate([0,0,90]) {
-          # hole(nut_diam,nut_thickness,6);
-        }
-        translate([0,0,10]) {
-          hole(screw_diam,20,16);
+      for(z=[top_pos_z+0.1,bottom_pos_z-0.1]) {
+        translate([0,0,z]) {
+          % hole(hole_od,0.05,resolution);
         }
       }
-      translate([0,0,-nut_diam/2]) {
-        cube([nut_thickness,nut_diam,nut_diam],center=true);
+    }
+
+    // driver
+    if (base_height) {
+      difference() {
+        hole(shaft_diam,50,12);
+
+        translate([shaft_diam/2,0,0]) {
+          cube([d_cut_depth*2,shaft_diam+1,d_cut_height*2],center=true);
+        }
+      }
+      translate([shaft_diam/2-d_cut_depth-0.1+nut_thickness/2,0,top_pos_z-nut_diam/2]) {
+        rotate([0,90,0]) {
+          rotate([0,0,90]) {
+            hole(nut_diam,nut_thickness,6);
+          }
+          translate([0,0,10]) {
+            hole(screw_diam,20,16);
+          }
+        }
+        translate([0,0,nut_diam/2]) {
+          cube([nut_thickness,nut_diam,nut_diam],center=true);
+        }
       }
     }
   }
@@ -377,6 +270,12 @@ module driver_pulley() {
     body();
     holes();
   }
+}
+
+module driver_pulley() {
+  base_height   = 6;
+
+  filament_pulley(idler_circumference,base_height,driver_wraps);
 }
 
 module idler_pulley() {
@@ -388,314 +287,9 @@ module idler_pulley() {
   bearing_od     = 10.2;
   bearing_height = 4;
 
-  module body() {
-    filament_pulley(idler_circumference,0,idler_wraps,bearing_od,bearing_height);
-  }
-
-  module holes() {
-  }
-
-  translate([0,0,-bearing_height]) {
-    % hole(5,1.5*inch,8);
-  }
-
-  difference() {
-    body();
-    holes();
-  }
+  filament_pulley(idler_circumference,0,idler_wraps,bearing_od,bearing_height);
 }
 
-module motor_mount() {
-  mount_height = motor_pulley_mount_height;
-  mount_side   = motor_side+wall_thickness*2;
-
-  clamp_pos_x = -motor_side/2-wall_thickness-m3_nut_diam/2-1;
-
-  // MR105 or 623
-  bearing_od     = 10.125;
-  bearing_height = 4;
-
-  module body() {
-    hull() {
-      cube([mount_side,mount_side,mount_height],center=true);
-      translate([driver_idler_dist,0,0]) {
-        hole(idler_shaft_nut_diam+wall_thickness*2,mount_height,6);
-      }
-    }
-
-    hull() {
-      translate([-motor_side/2-wall_thickness/2,0,0]) {
-        cube([wall_thickness,20,mount_height],center=true);
-      }
-
-      translate([clamp_pos_x,0,0]) {
-        rotate([90,0,0]) {
-          rotate([0,0,90]) {
-            hole(m3_nut_diam+wall_thickness*2,20,6);
-          }
-        }
-      }
-    }
-
-    translate([0,0,motor_shaft_len/2]) {
-      % hole(motor_shaft_diam,motor_shaft_len,8);
-    }
-  }
-
-  module holes() {
-    for(x=[left,right]) {
-      for(y=[front,rear]) {
-        translate([x*motor_hole_spacing/2,y*motor_hole_spacing/2,motor_bracket_height/2]) {
-          # hole(motor_screw_diam+0.1,motor_bracket_height+1,8);
-        }
-      }
-    }
-
-    translate([0,0,motor_shaft_len+bearing_height/2-2]) {
-      hole(bearing_od,bearing_height,resolution);
-    }
-
-    translate([clamp_pos_x,-10,0]) {
-      rotate([90,0,0]) {
-        rotate([0,0,90]) {
-          hole(m3_nut_diam,3,6);
-          hole(m3_diam,motor_side*2,6);
-        }
-      }
-
-    }
-
-    translate([clamp_pos_x,0,0]) {
-      cube([motor_side,10,motor_len],center=true);
-    }
-
-    cube([motor_side,motor_side,motor_len],center=true);
-
-    translate([driver_idler_dist,0,0]) {
-      hole(idler_shaft_diam,mount_height+2,6);
-
-      translate([0,0,-mount_height/2]) {
-        hole(idler_shaft_nut_diam,5,6);
-      }
-    }
-  }
-
-  difference() {
-    body();
-    holes();
-  }
-}
-
-module drive_assembly() {
-  //rotate([0,0,90]) {
-    //rotate([90,0,0]) {
-      translate([0,0,1]) {
-        driver_pulley();
-      }
-      translate([0,0,-motor_len/2-8]) {
-        // cube([motor_side,motor_side,motor_len],center=true);
-      }
-
-      translate([driver_idler_dist,0,groove_depth+groove_height/2]) {
-        idler_pulley();
-      }
-
-      translate([0,0,-motor_pulley_mount_height/2]) {
-        motor_mount();
-      }
-    //}
-  //}
-}
-
-//drive_assembly();
-
-/*
-translate([0,0,-1]) {
-  % cube([print_width,print_depth,2],center=true);
-}
-translate([0,0,0]) {
-  rotate([0,-90,0]) {
-    //angle_aluminum(print_width-angle_aluminum_width*2-10);
-  }
-}
-for(side=[left,right]) {
-//for(side=[right]) {
-  mirror([1-side,0,0]) {
-    translate([print_width/2-angle_aluminum_width,motor_side*.75,angle_aluminum_width/2]) {
-      rotate([90,0,0]) {
-        rotate([0,0,-90]) {
-          //angle_aluminum(print_depth-motor_side*1.5);
-        }
-      }
-    }
-    color("red") {
-      translate([upper_line_pos_x,0,upper_line_pos_z]) {
-        cube([0.6,print_depth-motor_side*2,0.6],center=true);
-      }
-      translate([lower_line_pos_x,0,lower_line_pos_z]) {
-        cube([0.6,print_depth-motor_side*2,0.6],center=true);
-      }
-    }
-    translate([motor_pos_x,-print_depth/2+motor_side/2,motor_side/2+wall_thickness]) {
-      drive_assembly();
-    }
-  }
-}
-*/
-
-module winding_retainer() {
-  module body() {
-    
-  }
-
-  module holes() {
-    
-  }
-
-  difference() {
-    body();
-    holes();
-  }
-}
-
-//winding_retainer();
-
-module motor_mount_v2() {
-  mount_height = motor_pulley_mount_height;
-  mount_side   = motor_side+wall_thickness*2;
-
-  bed_screw_diam = 4;
-
-  clamp_nut_height = 5;
-  clamp_width = 20;
-  clamp_pos_x = -motor_side/2-wall_thickness-m3_nut_diam/2-2;
-  clamp_pos_y = -motor_side/2-wall_thickness+clamp_width/2;
-
-  // MR105 or 623
-  bearing_od     = 10.125;
-  bearing_height = 4;
-
-  bed_screw_pos_x = driver_idler_dist + idler_shaft_diam/2 + wall_thickness*3 + bed_screw_diam/2;
-  bed_screw_pos_z = mount_height/2-wall_thickness-bed_screw_diam/2;
-
-  module body() {
-    hull() {
-      cube([mount_side,mount_side,mount_height],center=true);
-      translate([driver_idler_dist,0,0]) {
-        hole(idler_shaft_diam+wall_thickness*3,mount_height,16);
-      }
-    }
-
-    hull() {
-      translate([0,clamp_pos_y,0]) {
-        cube([mount_side,clamp_width,mount_height],center=true);
-      }
-      for(x=[clamp_pos_x,bed_screw_pos_x]) {
-        for(z=[-bed_screw_pos_z,bed_screw_pos_z]) {
-          translate([x,clamp_pos_y,z]) {
-            rotate([90,0,0]) {
-              hole(bed_screw_diam+wall_thickness*2,clamp_width,8);
-            }
-          }
-        }
-      }
-    }
-
-    rounded_diam = 5;
-    hull() {
-      translate([-motor_side/2-wall_thickness/2,clamp_pos_y,0]) {
-        cube([wall_thickness,clamp_width,mount_height],center=true);
-      }
-
-      translate([clamp_pos_x-clamp_screw_nut_diam/2-wall_thickness+rounded_diam/2,clamp_pos_y,0]) {
-        for(z=[top, bottom]) {
-          translate([0,0,z*(mount_height/2-rounded_diam/2)]) {
-            rotate([90,0,0]) {
-              hole(rounded_diam,clamp_width,8);
-            }
-          }
-        }
-      }
-
-      translate([clamp_pos_x,clamp_pos_y,0]) {
-        rotate([90,0,0]) {
-          rotate([0,0,90]) {
-            //hole(m3_nut_diam+wall_thickness*2,clamp_width,6);
-          }
-        }
-      }
-    }
-
-    translate([0,0,motor_shaft_len/2]) {
-      % hole(motor_shaft_diam,motor_shaft_len,8);
-    }
-  }
-
-  module holes() {
-    for(x=[left,right]) {
-      for(y=[front,rear]) {
-        translate([x*motor_hole_spacing/2,y*motor_hole_spacing/2,motor_bracket_height/2]) {
-          # hole(motor_screw_diam+0.1,motor_bracket_height+1,8);
-        }
-      }
-    }
-
-    // clamp screw
-    translate([clamp_pos_x,clamp_pos_y-clamp_width/2,0]) {
-      rotate([90,0,0]) {
-        rotate([0,0,90]) {
-          hole(m3_nut_diam,clamp_nut_height*2,6);
-          hole(m3_diam,motor_side*2,6);
-        }
-      }
-    }
-
-    // bed screws
-    for(z=[top,bottom]) {
-      for(x=[clamp_pos_x,bed_screw_pos_x]) {
-        translate([x,0,z*bed_screw_pos_z]) {
-          rotate([90,0,0]) {
-            hole(bed_screw_diam,motor_side*2,8);
-          }
-        }
-      }
-    }
-
-    // clamp opening
-    translate([clamp_pos_x,clamp_pos_y+2,0]) {
-      cube([motor_side,1.5,motor_len],center=true);
-    }
-
-    // motor body
-    cube([motor_side,motor_side,motor_len],center=true);
-
-    threaded_idler_shaft_diam = idler_shaft_diam-1;
-    translate([driver_idler_dist,0,-mount_height/2+10]) {
-      translate([0,0,mount_height/2]) {
-        hull() {
-          hole(idler_shaft_diam,mount_height,6);
-          hole(threaded_idler_shaft_diam,mount_height+3,6);
-        }
-      }
-      // threaded portion of idler shaft
-      translate([0,0,-mount_height/2]) {
-        hole(threaded_idler_shaft_diam,mount_height,6);
-      }
-    }
-
-    // cutaway to see idler shaft area
-    translate([driver_idler_dist+10,0,0]) {
-      // cube([20,motor_side*2,motor_side*2],center=true);
-    }
-  }
-
-  difference() {
-    body();
-    holes();
-  }
-}
-
-//motor_mount_v2();
 module drive_assembly_v2() {
   //rotate([0,0,90]) {
     //rotate([90,0,0]) {
@@ -717,4 +311,139 @@ module drive_assembly_v2() {
   //}
 }
 
-drive_assembly_v2();
+module motor_mount() {
+  mount_base_thickness = 5;
+  mount_depth = motor_side+10;
+  mount_height = mount_base_thickness+motor_side/2;
+  wall_around_motor = 5;
+
+  motor_pos_z = mount_height/2+mount_base_thickness+motor_side/2-mount_height/2;
+
+  idler_shaft_supported_len = 20;
+
+  // m5 bolt/nut
+  bed_anchor_area = 10;
+  bed_anchor_screw_diam = 5.2;
+
+  // MR105 or 623
+  bearing_od     = 10.125;
+  bearing_height = 4;
+
+  shaft_support_diam = idler_shaft_diam+8;
+
+  module body_profile() {
+    hull() {
+      // motor body
+      translate([0,0,0]) {
+        for(x=[left,right]) {
+          for(y=[front,rear]) {
+            translate([x*motor_side/2,y*motor_side/2,0]) {
+              accurate_circle(wall_around_motor*2,resolution);
+            }
+          }
+        }
+      }
+
+      // shaft support
+      translate([-driver_idler_dist,0,0]) {
+        accurate_circle(shaft_support_diam,resolution);
+      }
+    }
+
+    hull() {
+      for(side=[left,right]) {
+        translate([motor_side/2+wall_around_motor/2,side*(motor_side/2+wall_around_motor+bed_anchor_area)]) {
+          accurate_circle(wall_around_motor,resolution);
+        }
+      }
+    }
+  }
+
+  module body_profile_holes() {
+    // motor mount holes
+    translate([0,0,0]) {
+      for(x=[left,right]) {
+        for(y=[front,rear]) {
+          translate([x*motor_hole_spacing/2,y*motor_hole_spacing/2,0]) {
+            accurate_circle(motor_screw_diam+0.1,8);
+          }
+        }
+      }
+    }
+
+    // motor shoulder diam
+    accurate_circle(motor_shoulder_diam+1,resolution);
+  }
+
+  module body() {
+    translate([-motor_mount_width/2,0,motor_pos_z]) {
+      rotate([0,90,0]) {
+        linear_extrude(height=motor_mount_width,center=true,convexity=2) {
+          difference() {
+            body_profile();
+            body_profile_holes();
+          }
+        }
+      }
+    }
+  }
+
+  module holes() {
+    // motor body
+    translate([-mount_motor_plate_thickness,0,motor_pos_z]) {
+      rotate([0,90,0]) {
+        % motor();
+      }
+      translate([-motor_len/2,0,0]) {
+        cube([motor_len,motor_side,motor_side],center=true);
+      }
+      for(y=[front,rear]) {
+        for(z=[top,bottom]) {
+          translate([0,y*motor_hole_spacing/2,z*motor_hole_spacing/2]) {
+            rotate([0,90,0]) {
+              hole(motor_screw_diam+0.1,motor_bracket_height+1,8);
+            }
+          }
+        }
+      }
+    }
+
+    // idler shaft support
+    threaded_idler_shaft_diam = idler_shaft_diam-0.75;
+    translate([0,0,motor_pos_z+driver_idler_dist]) {
+      rotate([0,90,0]) {
+        translate([0,0,0]) {
+          hull() {
+            hole(idler_shaft_diam,2*(idler_shaft_supported_len-6),8);
+            hole(threaded_idler_shaft_diam,2*(idler_shaft_supported_len-4),8); // last 4mm is for threaded
+          }
+        }
+        // threaded portion of idler shaft
+        translate([0,0,0]) {
+          hole(threaded_idler_shaft_diam,2*(motor_mount_width-5),8); // FIXME: make the correct depth according to shaft len
+        }
+      }
+    }
+
+    // bed anchor holes
+    for(side=[left,right]) {
+      translate([-motor_mount_width/2,side*(motor_side/2+wall_around_motor+bed_anchor_area/2),0]) {
+        hole(bed_anchor_screw_diam,wall_around_motor*4,8);
+      }
+    }
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+
+  /*
+  translate([0,0,motor_side*2]) {
+    difference() {
+      body_profile();
+      body_profile_holes();
+    }
+  }
+  */
+}
