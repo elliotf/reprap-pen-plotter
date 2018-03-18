@@ -190,12 +190,14 @@ module x_carriage_plate() {
   }
 }
 
+y_carriage_depth = extrusion_width*2+20+wheel_diam;
+
 module y_carriage_position_at_wheels() {
   translate([extrusion_width/2+wheel_extrusion_spacing,0]) {
     children();
   }
   for(y=[front,rear]) {
-    translate([-extrusion_width/2-wheel_extrusion_spacing,y*(extrusion_width+10+wheel_diam/2),0]) {
+    translate([-extrusion_width/2-wheel_extrusion_spacing,y*(y_carriage_depth/2),0]) {
       children();
     }
   }
@@ -285,9 +287,8 @@ for(side=[0,1]) {
     // belt path
     colors = ["lightgreen", "pink"];
     color(colors[side], 1) {
-
       // x carriage to motor side y carriage
-      % hull() {
+      hull() {
         translate([0,-x_carriage_belt_spacing/2,belt_pos_z]) {
           translate([motor_pos_x-z_pulley_diam/2-z_line_bearing_diam/2,0,0]) {
             // y carriage
@@ -301,11 +302,11 @@ for(side=[0,1]) {
       }
 
       translate([motor_pos_x-z_pulley_diam/2-z_line_bearing_diam/2,-x_carriage_belt_spacing/2-z_line_bearing_diam/2,belt_pos_z]) {
-        % hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
+        hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
       }
 
       // y carriage to motor
-      % hull() {
+      hull() {
         translate([motor_pos_x-z_pulley_diam/2,0,belt_pos_z]) {
           // motor side
           translate([0,motor_pos_y,0]) {
@@ -319,7 +320,7 @@ for(side=[0,1]) {
       }
 
       // motor to rear
-      % hull() {
+      hull() {
         translate([motor_pos_x+z_pulley_diam/2,motor_pos_y,belt_pos_z]) {
           cube([1,1,6],center=true);
         }
@@ -329,11 +330,11 @@ for(side=[0,1]) {
       }
 
       translate([motor_pos_x,rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z+z_line_bearing_thickness+1]) {
-        % hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
+        hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
       }
 
       // rear across
-      % hull() {
+      hull() {
         translate([motor_pos_x,rear_idler_pos_y+(rear_idler_line_gap*side)+z_line_bearing_diam/2,belt_pos_z+z_line_bearing_thickness+1]) {
           cube([1,1,6],center=true);
         }
@@ -343,20 +344,11 @@ for(side=[0,1]) {
       }
 
       translate([left*(motor_pos_x-z_line_bearing_diam/2-z_line_bearing_diam/2),rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z]) {
-        % hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
+        hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
       }
 
       // rear to non-motor-side y carriage
-      % hull() {
-        /*
-        translate([-motor_pos_x+z_pulley_diam/2,rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z]) {
-          cube([1,1,6],center=true);
-        }
-        // y carriage
-        translate([0,-x_carriage_belt_spacing/2-z_line_bearing_diam/2,0]) {
-          cube([1,1,6],center=true);
-        }
-        */
+      hull() {
         translate([left*(motor_pos_x-z_line_bearing_diam/2),0,belt_pos_z]) {
           // motor side
           translate([0,rear_idler_pos_y+(rear_idler_line_gap*side),0]) {
@@ -370,11 +362,11 @@ for(side=[0,1]) {
       }
 
       translate([left*(motor_pos_x-z_line_bearing_diam/2-z_line_bearing_diam/2),rear*(x_carriage_belt_spacing/2+z_line_bearing_diam/2),belt_pos_z]) {
-        % hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
+        hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
       }
 
       // non-motor-side y carriage to x carriage
-      % hull() {
+      hull() {
         translate([0,rear*(x_carriage_belt_spacing/2),belt_pos_z]) {
           translate([left*(motor_pos_x-z_pulley_diam/2-z_line_bearing_diam/2),0,0]) {
             // y carriage
@@ -392,6 +384,15 @@ for(side=[0,1]) {
       linear_extrude(height=plate_thickness,center=true,convexity=2) {
         y_carriage_plate();
       }
+
+      for(y=[front,rear]) {
+        translate([-extrusion_width/2-wheel_extrusion_spacing,y*(y_carriage_depth/2),-plate_thickness/2-extrusion_wheel_gap-extrusion_width/2]) {
+          color("lightblue") wheel();
+        }
+      }
+      translate([extrusion_width/2+wheel_extrusion_spacing,0,-plate_thickness/2-extrusion_wheel_gap-extrusion_width/2]) {
+        color("lightblue") wheel();
+      }
     }
 
     translate([0,0,x_carriage_pos_z]) {
@@ -402,6 +403,9 @@ for(side=[0,1]) {
         translate([x*x_carriage_width/2,-extrusion_height/2-wheel_extrusion_spacing,-plate_thickness/2-extrusion_wheel_gap-extrusion_width/2]) {
           color("lightblue") wheel();
         }
+      }
+      translate([0,extrusion_height/2+wheel_extrusion_spacing,-plate_thickness/2-extrusion_wheel_gap-extrusion_width/2]) {
+        color("lightblue") wheel();
       }
     }
 
