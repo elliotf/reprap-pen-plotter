@@ -52,6 +52,7 @@ z = 2;
 
 resolution = 16;
 resolution = 64;
+resolution = 32;
 
 extrusion_width  = 0.5;
 extrusion_height = 0.2;
