@@ -12,10 +12,16 @@ inch = 25.4;
 
 print_width = 1*1000;
 print_depth = 1.5*1000;
+print_width = 18*inch;
+print_depth = 24*inch;
+
+// potential size
 print_width = 36*inch;
 print_depth = 48*inch;
-print_width = 8*inch;
-print_depth = 11*inch;
+
+// debug/develop
+print_width = 11*inch;
+print_depth = 8.5*inch;
 
 extrusion_width = 20;
 extrusion_height = 40;
@@ -26,14 +32,35 @@ extrusion_wheel_gap = 2;
 wheel_screw_diam = 5;
 plate_min_material = 5;
 
-y_carriage_plate_width = extrusion_height+2*(wheel_screw_diam/2+plate_min_material);
+wheel_diam              = 15.23;
+wheel_extrusion_spacing = 11.90/2; // edge of extrusion to wheel axle
+
+y_carriage_plate_width = extrusion_height+2*(wheel_extrusion_spacing + wheel_diam/2);
+
+module wheel() {
+  // see http://makerstore.cc/wp-content/uploads/2015/03/Xtreme-Mini-V-Wheel-Kit-7.jpg
+  module profile() {
+    hull() {
+      translate([wheel_diam/4,0,0]) {
+        square([wheel_diam/2,5.78],center=true);
+      }
+      translate([12.21/4,0,0]) {
+        square([12.21/2,8.80],center=true);
+      }
+    }
+  }
+
+  rotate_extrude(convexity=10,$fn=resolution) {
+    profile();
+  }
+}
 
 module motor_nema17() {
   difference() {
-    translate([0,0,-motor_len/2]) cube([motor_side,motor_side,motor_len],center=true);
+    translate([0,0,-nema17_len/2]) cube([nema17_side,nema17_side,nema17_len],center=true);
     for(end=[left,right]) {
       for(side=[front,rear]) {
-        translate([motor_hole_spacing/2*side,motor_hole_spacing/2*end,0]) cylinder(r=motor_screw_diam/2,h=100,center=true);
+        translate([nema17_hole_spacing/2*side,nema17_hole_spacing/2*end,0]) cylinder(r=motor_screw_diam/2,h=100,center=true);
       }
     }
   }
@@ -130,56 +157,266 @@ module extrusion(length) {
   }
 }
 
+x_carriage_width = extrusion_height + wheel_diam;
+module x_carriage_position_at_wheels() {
+  translate([0,extrusion_height/2+wheel_extrusion_spacing,0]) {
+    children();
+  }
+  for(x=[left,right]) {
+    translate([x*x_carriage_width/2,front*(extrusion_height/2+wheel_extrusion_spacing),0]) {
+      children();
+    }
+  }
+}
+
+module x_carriage_plate() {
+  module body() {
+    hull() {
+      x_carriage_position_at_wheels() {
+        accurate_circle(wheel_diam,resolution);
+      }
+    }
+  }
+
+  module holes() {
+    x_carriage_position_at_wheels() {
+      accurate_circle(5,resolution);
+    }
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
+module y_carriage_position_at_wheels() {
+  translate([extrusion_width/2+wheel_extrusion_spacing,0]) {
+    children();
+  }
+  for(y=[front,rear]) {
+    translate([-extrusion_width/2-wheel_extrusion_spacing,y*(extrusion_width+10+wheel_diam/2),0]) {
+      children();
+    }
+  }
+}
+
 module y_carriage_plate() {
-  square([extrusion_height+20,extrusion_height+20],center=true);
+  module body() {
+    hull() {
+      y_carriage_position_at_wheels() {
+        accurate_circle(wheel_diam,resolution);
+      }
+
+      //translate([-extrusion_width/2-x_carriage_width/2,extrusion_height/2-extrusion_width/2,0]) {
+      //  accurate_circle(wheel_diam,resolution);
+      //}
+      translate([-extrusion_width/2-30,0,0]) {
+        square([wheel_diam,extrusion_height],center=true);
+      }
+    }
+  }
+
+  module holes() {
+    y_carriage_position_at_wheels() {
+      accurate_circle(5,resolution);
+    }
+
+    // attach to X rail
+    for(x=[-12,-30]) {
+      for(y=[front,rear]) {
+        translate([-extrusion_width/2+x,y*extrusion_width/2,0]) {
+          accurate_circle(5,resolution);
+        }
+      }
+    }
+
+    // belt idlers
+    // motor side
+    translate([(motor_pos_x-y_rail_pos_x)-z_pulley_diam/2-z_line_bearing_diam/2,front*(z_line_bearing_diam/2+x_carriage_belt_spacing/2),0]) {
+      accurate_circle(3,resolution);
+    }
+    // rear
+    translate([(motor_pos_x-y_rail_pos_x)-z_line_bearing_diam,rear*(z_line_bearing_diam/2+x_carriage_belt_spacing/2),0]) {
+      accurate_circle(3,resolution);
+    }
+  }
+
+  difference() {
+    body();
+    holes();
+  }
 }
 
 translate([0,0,10]) {
   //color("red") extrusion(10);
 }
 
-x_rail_len = print_width;
+rear_idler_pos_y = print_depth/2+6;
+rear_idler_line_gap = 3;
 
-for(side=[left,right]) {
-  mirror([1-side,0,0]) {
-    translate([print_width/2-extrusion_height/2,0,0]) {
-      translate([0,0,extrusion_width/2]) {
+y_rail_pos_x = print_width/2-extrusion_width/2;
+y_rail_pos_z = extrusion_height/2;
+
+x_rail_len = print_width - extrusion_width*2 - 5;
+motor_pos_x = y_rail_pos_x+extrusion_width/4;
+motor_pos_y = -print_depth/2-nema17_side/2;
+y_carriage_pos_x = y_rail_pos_x;
+y_carriage_pos_z = y_rail_pos_z + extrusion_height/2 + extrusion_wheel_gap + plate_thickness/2;
+x_rail_pos_z     = y_carriage_pos_z - plate_thickness/2 - extrusion_width/2;
+belt_pos_z  = y_carriage_pos_z + plate_thickness/2 + spacer + z_line_bearing_thickness/2;
+
+motor_pos_z = y_rail_pos_z + extrusion_height/2;
+
+x_carriage_pos_z = y_carriage_pos_z + extrusion_wheel_gap;
+
+x_carriage_belt_spacing = 5;
+
+for(side=[0,1]) {
+  mirror([side,0,0]) {
+    translate([y_rail_pos_x,0,0]) {
+      translate([0,0,y_rail_pos_z]) {
         rotate([90,0,0]) {
-          rotate([0,0,90]) {
-            color("silver") extrusion(print_depth);
+          color("silver") extrusion(print_depth);
+        }
+      }
+    }
+
+    // belt path
+    colors = ["lightgreen", "pink"];
+    color(colors[side], 1) {
+
+      // x carriage to motor side y carriage
+      % hull() {
+        translate([0,-x_carriage_belt_spacing/2,belt_pos_z]) {
+          translate([motor_pos_x-z_pulley_diam/2-z_line_bearing_diam/2,0,0]) {
+            // y carriage
+            cube([1,1,6],center=true);
+          }
+          // x carriage
+          translate([4,0,0]) {
+            cube([1,1,6],center=true);
+          }
+        }
+      }
+
+      translate([motor_pos_x-z_pulley_diam/2-z_line_bearing_diam/2,-x_carriage_belt_spacing/2-z_line_bearing_diam/2,belt_pos_z]) {
+        % hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
+      }
+
+      // y carriage to motor
+      % hull() {
+        translate([motor_pos_x-z_pulley_diam/2,0,belt_pos_z]) {
+          // motor side
+          translate([0,motor_pos_y,0]) {
+            cube([1,1,6],center=true);
+          }
+          // y carriage
+          translate([0,-x_carriage_belt_spacing/2-z_line_bearing_diam/2,0]) {
+            cube([1,1,6],center=true);
+          }
+        }
+      }
+
+      // motor to rear
+      % hull() {
+        translate([motor_pos_x+z_pulley_diam/2,motor_pos_y,belt_pos_z]) {
+          cube([1,1,6],center=true);
+        }
+        translate([motor_pos_x+z_line_bearing_diam/2,rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z+z_line_bearing_thickness+1]) {
+          cube([1,1,6],center=true);
+        }
+      }
+
+      translate([motor_pos_x,rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z+z_line_bearing_thickness+1]) {
+        % hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
+      }
+
+      // rear across
+      % hull() {
+        translate([motor_pos_x,rear_idler_pos_y+(rear_idler_line_gap*side)+z_line_bearing_diam/2,belt_pos_z+z_line_bearing_thickness+1]) {
+          cube([1,1,6],center=true);
+        }
+        translate([-motor_pos_x+z_pulley_diam/2+z_line_bearing_diam/2,rear_idler_pos_y+(rear_idler_line_gap*side)+z_line_bearing_diam/2,belt_pos_z]) {
+          cube([1,1,6],center=true);
+        }
+      }
+
+      translate([left*(motor_pos_x-z_line_bearing_diam/2-z_line_bearing_diam/2),rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z]) {
+        % hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
+      }
+
+      // rear to non-motor-side y carriage
+      % hull() {
+        /*
+        translate([-motor_pos_x+z_pulley_diam/2,rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z]) {
+          cube([1,1,6],center=true);
+        }
+        // y carriage
+        translate([0,-x_carriage_belt_spacing/2-z_line_bearing_diam/2,0]) {
+          cube([1,1,6],center=true);
+        }
+        */
+        translate([left*(motor_pos_x-z_line_bearing_diam/2),0,belt_pos_z]) {
+          // motor side
+          translate([0,rear_idler_pos_y+(rear_idler_line_gap*side),0]) {
+            cube([1,1,6],center=true);
+          }
+          // y carriage
+          translate([0,rear*(x_carriage_belt_spacing/2+z_line_bearing_diam/2),0]) {
+            cube([1,1,6],center=true);
+          }
+        }
+      }
+
+      translate([left*(motor_pos_x-z_line_bearing_diam/2-z_line_bearing_diam/2),rear*(x_carriage_belt_spacing/2+z_line_bearing_diam/2),belt_pos_z]) {
+        % hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
+      }
+
+      // non-motor-side y carriage to x carriage
+      % hull() {
+        translate([0,rear*(x_carriage_belt_spacing/2),belt_pos_z]) {
+          translate([left*(motor_pos_x-z_pulley_diam/2-z_line_bearing_diam/2),0,0]) {
+            // y carriage
+            cube([1,1,6],center=true);
+          }
+          // x carriage
+          translate([-4,0,0]) {
+            cube([1,1,6],center=true);
           }
         }
       }
     }
 
-    translate([print_width/2-y_carriage_plate_width/2+wheel_screw_diam/2+plate_min_material,0,extrusion_width+extrusion_wheel_gap+plate_thickness/2]) {
+    translate([y_carriage_pos_x,0,y_carriage_pos_z]) {
       linear_extrude(height=plate_thickness,center=true,convexity=2) {
         y_carriage_plate();
       }
     }
 
-    translate([print_width/2-extrusion_height*.75,-print_depth/2-motor_side/2,extrusion_width-z_pulley_diam*0.25]) {
-      rotate([0,90,0]) {
-        % motor_nema17();
+    translate([0,0,x_carriage_pos_z]) {
+      linear_extrude(height=plate_thickness,center=true,convexity=2) {
+        x_carriage_plate();
       }
+      for(x=[left,right]) {
+        translate([x*x_carriage_width/2,-extrusion_height/2-wheel_extrusion_spacing,-plate_thickness/2-extrusion_wheel_gap-extrusion_width/2]) {
+          color("lightblue") wheel();
+        }
+      }
+    }
+
+    translate([motor_pos_x,motor_pos_y,motor_pos_z]) {
+      color("grey", 0.8) motor_nema17();
     }
   }
 }
 
-translate([0,0,extrusion_width + extrusion_wheel_gap + plate_thickness + extrusion_height/2]) {
+translate([0,0,x_rail_pos_z]) {
   rotate([0,90,0]) {
-    rotate([0,0,90]) {
       color("silver") extrusion(x_rail_len);
-    }
-  }
-
-  translate([x_rail_len/2+nema14_side/2,-extrusion_width/2+z_pulley_diam*0.25,extrusion_height*0.25]) {
-    rotate([0,180,0]) {
-      % motor_nema14();
-    }
   }
 }
 
 translate([0,0,-1]) {
-  % cube([print_width,print_depth,2],center=true);
+  // % cube([print_width,print_depth,2],center=true);
 }
