@@ -12,6 +12,8 @@ inch = 25.4;
 
 print_width = 1*1000;
 print_depth = 1.5*1000;
+print_width = 36*inch;
+print_depth = 48*inch;
 print_width = 8*inch;
 print_depth = 11*inch;
 
@@ -26,7 +28,7 @@ plate_min_material = 5;
 
 y_carriage_plate_width = extrusion_height+2*(wheel_screw_diam/2+plate_min_material);
 
-module motor() {
+module motor_nema17() {
   difference() {
     translate([0,0,-motor_len/2]) cube([motor_side,motor_side,motor_len],center=true);
     for(end=[left,right]) {
@@ -35,9 +37,27 @@ module motor() {
       }
     }
   }
+  hole(nema17_shoulder_diam,nema17_shoulder_height*2,16);
 
-  translate([0,0,motor_shaft_len/2]) {
-    hole(motor_shaft_diam,motor_shaft_len,16);
+  translate([0,0,nema17_shaft_len/2]) {
+    hole(nema17_shaft_diam,nema17_shaft_len,16);
+    hole(z_pulley_diam,z_pulley_height,16);
+  }
+}
+
+module motor_nema14() {
+  difference() {
+    translate([0,0,-nema14_len/2]) cube([nema14_side,nema14_side,nema14_len],center=true);
+    for(end=[left,right]) {
+      for(side=[front,rear]) {
+        translate([nema14_hole_spacing/2*side,nema14_hole_spacing/2*end,0]) cylinder(r=motor_screw_diam/2,h=100,center=true);
+      }
+    }
+  }
+  hole(nema14_shoulder_diam,nema14_shoulder_height*2,16);
+
+  translate([0,0,nema14_shaft_len/2]) {
+    hole(nema14_shaft_diam,nema14_shaft_len,16);
     hole(z_pulley_diam,z_pulley_height,16);
   }
 }
@@ -118,10 +138,7 @@ translate([0,0,10]) {
   //color("red") extrusion(10);
 }
 
-motor_pos_x = print_width/2-motor_side/2;
-motor_pos_y = -print_depth/2-motor_side/2;
-y_carriage_pos_z = extrusion_width + extrusion_wheel_gap + plate_thickness/2;
-belt_pos_z  = y_carriage_pos_z + plate_thickness/2 + spacer + z_line_bearing_thickness/2;
+x_rail_len = print_width;
 
 for(side=[left,right]) {
   mirror([1-side,0,0]) {
@@ -135,25 +152,16 @@ for(side=[left,right]) {
       }
     }
 
-    % hull() {
-      translate([motor_pos_x+z_pulley_diam/2,0,belt_pos_z]) {
-        translate([0,motor_pos_y,0]) {
-          cube([1,1,6],center=true);
-        }
-        translate([0,-motor_pos_y,0]) {
-          cube([1,1,6],center=true);
-        }
-      }
-    }
-
-    translate([print_width/2-y_carriage_plate_width/2+wheel_screw_diam/2+plate_min_material,0,y_carriage_pos_z]) {
+    translate([print_width/2-y_carriage_plate_width/2+wheel_screw_diam/2+plate_min_material,0,extrusion_width+extrusion_wheel_gap+plate_thickness/2]) {
       linear_extrude(height=plate_thickness,center=true,convexity=2) {
         y_carriage_plate();
       }
     }
 
-    translate([motor_pos_x,motor_pos_y,extrusion_width+extrusion_wheel_gap+plate_thickness/2]) {
-      % motor();
+    translate([print_width/2-extrusion_height*.75,-print_depth/2-motor_side/2,extrusion_width-z_pulley_diam*0.25]) {
+      rotate([0,90,0]) {
+        % motor_nema17();
+      }
     }
   }
 }
@@ -161,7 +169,13 @@ for(side=[left,right]) {
 translate([0,0,extrusion_width + extrusion_wheel_gap + plate_thickness + extrusion_height/2]) {
   rotate([0,90,0]) {
     rotate([0,0,90]) {
-      color("silver") extrusion(print_width-motor_side);
+      color("silver") extrusion(x_rail_len);
+    }
+  }
+
+  translate([x_rail_len/2+nema14_side/2,-extrusion_width/2+z_pulley_diam*0.25,extrusion_height*0.25]) {
+    rotate([0,180,0]) {
+      % motor_nema14();
     }
   }
 }
