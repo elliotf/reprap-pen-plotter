@@ -436,6 +436,10 @@ z_motor_shaft_len = nema17_shaft_len;
 z_line_bearing_diam      = 10;
 z_line_bearing_inner     = 3;
 z_line_bearing_thickness = 8; // F623ZZ * 2
+
+z_line_bearing_diam      = 10;
+z_line_bearing_inner     = 5;
+z_line_bearing_thickness = 8; // MF105ZZ * 2
 z_pulley_diam            = (16*2)/approx_pi;
 z_pulley_diam            = (20*2)/approx_pi;
 z_pulley_height          = 10;
