@@ -55,6 +55,23 @@ line_pulley_diam = (16*2)/approx_pi;
 line_pulley_diam = (20*2)/approx_pi;
 line_pulley_height = 10;
 
+y_rail_pos_x = print_width/2-extrusion_width/2;
+y_rail_pos_z = extrusion_height/2;
+
+x_rail_len = print_width - extrusion_width*2 - 5;
+motor_pos_x = y_rail_pos_x+extrusion_width/4;
+motor_pos_y = -print_depth/2-nema17_side/2;
+y_carriage_pos_x = y_rail_pos_x;
+y_carriage_pos_z = y_rail_pos_z + extrusion_height/2 + extrusion_wheel_gap + plate_thickness/2;
+x_rail_pos_z     = y_carriage_pos_z - plate_thickness/2 - extrusion_width/2;
+belt_pos_z  = y_carriage_pos_z + plate_thickness/2 + spacer + line_bearing_thickness/2;
+
+motor_pos_z = y_rail_pos_z + extrusion_height/2;
+
+x_carriage_pos_z = y_carriage_pos_z + extrusion_wheel_gap;
+
+x_carriage_belt_spacing = 5;
+
 module wheel() {
   // see http://makerstore.cc/wp-content/uploads/2015/03/Xtreme-Mini-V-Wheel-Kit-7.jpg
   module profile() {
@@ -316,23 +333,6 @@ module rear_idler_mount(side) {
 translate([0,0,10]) {
   //color("red") extrusion(10);
 }
-
-y_rail_pos_x = print_width/2-extrusion_width/2;
-y_rail_pos_z = extrusion_height/2;
-
-x_rail_len = print_width - extrusion_width*2 - 5;
-motor_pos_x = y_rail_pos_x+extrusion_width/4;
-motor_pos_y = -print_depth/2-nema17_side/2;
-y_carriage_pos_x = y_rail_pos_x;
-y_carriage_pos_z = y_rail_pos_z + extrusion_height/2 + extrusion_wheel_gap + plate_thickness/2;
-x_rail_pos_z     = y_carriage_pos_z - plate_thickness/2 - extrusion_width/2;
-belt_pos_z  = y_carriage_pos_z + plate_thickness/2 + spacer + line_bearing_thickness/2;
-
-motor_pos_z = y_rail_pos_z + extrusion_height/2;
-
-x_carriage_pos_z = y_carriage_pos_z + extrusion_wheel_gap;
-
-x_carriage_belt_spacing = 5;
 
 for(side=[0,1]) {
   mirror([side,0,0]) {
