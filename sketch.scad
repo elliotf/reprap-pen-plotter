@@ -45,6 +45,16 @@ rear_line_bearing_thickness = 10;
 rear_idler_pos_y = print_depth/2+8;
 rear_idler_line_gap = 4;
 
+line_height            = 6;
+
+line_bearing_diam      = 10;
+line_bearing_thickness = 8;
+line_bearing_inner     = 5;
+
+line_pulley_diam = (16*2)/approx_pi;
+line_pulley_diam = (20*2)/approx_pi;
+line_pulley_height = 10;
+
 module wheel() {
   // see http://makerstore.cc/wp-content/uploads/2015/03/Xtreme-Mini-V-Wheel-Kit-7.jpg
   module profile() {
@@ -76,7 +86,7 @@ module motor_nema17() {
 
   translate([0,0,nema17_shaft_len/2]) {
     hole(nema17_shaft_diam,nema17_shaft_len,16);
-    hole(z_pulley_diam,z_pulley_height,16);
+    hole(line_pulley_diam,line_pulley_height,16);
   }
 }
 
@@ -93,7 +103,7 @@ module motor_nema14() {
 
   translate([0,0,nema14_shaft_len/2]) {
     hole(nema14_shaft_diam,nema14_shaft_len,16);
-    hole(z_pulley_diam,z_pulley_height,16);
+    hole(line_pulley_diam,line_pulley_height,16);
   }
 }
 
@@ -246,11 +256,11 @@ module y_carriage_plate(endstop=true) {
 
     // belt idlers
     // motor side
-    translate([(motor_pos_x-y_rail_pos_x)-z_pulley_diam/2-z_line_bearing_diam/2,front*(z_line_bearing_diam/2+x_carriage_belt_spacing/2),0]) {
+    translate([(motor_pos_x-y_rail_pos_x)-line_pulley_diam/2-line_bearing_diam/2,front*(line_bearing_diam/2+x_carriage_belt_spacing/2),0]) {
       accurate_circle(4.2,resolution);
     }
     // rear
-    translate([(motor_pos_x-y_rail_pos_x)-z_line_bearing_diam,rear*(z_line_bearing_diam/2+x_carriage_belt_spacing/2),0]) {
+    translate([(motor_pos_x-y_rail_pos_x)-line_bearing_diam,rear*(line_bearing_diam/2+x_carriage_belt_spacing/2),0]) {
       accurate_circle(4.2,resolution);
     }
   }
@@ -263,9 +273,9 @@ module y_carriage_plate(endstop=true) {
 
 module rear_idler_mount(side) {
   motor_idler_pos_x = motor_pos_x - y_rail_pos_x;
-  non_motor_idler_pos_x = (motor_pos_x - z_line_bearing_diam) - y_rail_pos_x;
+  non_motor_idler_pos_x = (motor_pos_x - line_bearing_diam) - y_rail_pos_x;
 
-  height_above_extrusion = belt_pos_z - z_line_bearing_thickness/2 - spacer - extrusion_height;
+  height_above_extrusion = belt_pos_z - line_bearing_thickness/2 - spacer - extrusion_height;
 
   module body() {
     translate([0,extrusion_width/2,-extrusion_height/2]) {
@@ -316,7 +326,7 @@ motor_pos_y = -print_depth/2-nema17_side/2;
 y_carriage_pos_x = y_rail_pos_x;
 y_carriage_pos_z = y_rail_pos_z + extrusion_height/2 + extrusion_wheel_gap + plate_thickness/2;
 x_rail_pos_z     = y_carriage_pos_z - plate_thickness/2 - extrusion_width/2;
-belt_pos_z  = y_carriage_pos_z + plate_thickness/2 + spacer + z_line_bearing_thickness/2;
+belt_pos_z  = y_carriage_pos_z + plate_thickness/2 + spacer + line_bearing_thickness/2;
 
 motor_pos_z = y_rail_pos_z + extrusion_height/2;
 
@@ -340,117 +350,117 @@ for(side=[0,1]) {
       // x carriage to motor side y carriage
       hull() {
         translate([0,-x_carriage_belt_spacing/2,belt_pos_z]) {
-          translate([motor_pos_x-z_pulley_diam/2-z_line_bearing_diam/2,0,0]) {
+          translate([motor_pos_x-line_pulley_diam/2-line_bearing_diam/2,0,0]) {
             // y carriage
-            cube([1,1,6],center=true);
+            cube([1,1,line_height],center=true);
           }
           // x carriage
           translate([4,0,0]) {
-            cube([1,1,6],center=true);
+            cube([1,1,line_height],center=true);
           }
         }
       }
 
-      translate([motor_pos_x-z_pulley_diam/2-z_line_bearing_diam/2,-x_carriage_belt_spacing/2-z_line_bearing_diam/2,belt_pos_z]) {
+      translate([motor_pos_x-line_pulley_diam/2-line_bearing_diam/2,-x_carriage_belt_spacing/2-line_bearing_diam/2,belt_pos_z]) {
         difference() {
-          hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
-          hole(z_line_bearing_inner,z_line_bearing_thickness+1,resolution);
+          hole(line_bearing_diam,line_bearing_thickness,resolution);
+          hole(line_bearing_inner,line_bearing_thickness+1,resolution);
         }
       }
 
       // y carriage to motor
       hull() {
-        translate([motor_pos_x-z_pulley_diam/2,0,belt_pos_z]) {
+        translate([motor_pos_x-line_pulley_diam/2,0,belt_pos_z]) {
           // motor side
           translate([0,motor_pos_y,0]) {
-            cube([1,1,6],center=true);
+            cube([1,1,line_height],center=true);
           }
           // y carriage
-          translate([0,-x_carriage_belt_spacing/2-z_line_bearing_diam/2,0]) {
-            cube([1,1,6],center=true);
+          translate([0,-x_carriage_belt_spacing/2-line_bearing_diam/2,0]) {
+            cube([1,1,line_height],center=true);
           }
         }
       }
 
       // motor to rear
       hull() {
-        translate([motor_pos_x+z_pulley_diam/2,motor_pos_y,belt_pos_z]) {
-          cube([1,1,6],center=true);
+        translate([motor_pos_x+line_pulley_diam/2,motor_pos_y,belt_pos_z]) {
+          cube([1,1,line_height],center=true);
         }
-        translate([motor_pos_x+z_line_bearing_diam/2,rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z+z_line_bearing_thickness+1]) {
-          cube([1,1,6],center=true);
+        translate([motor_pos_x+line_bearing_diam/2,rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z+line_bearing_thickness+1]) {
+          cube([1,1,line_height],center=true);
         }
       }
 
-      translate([motor_pos_x,rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z+z_line_bearing_thickness+1]) {
+      translate([motor_pos_x,rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z+line_bearing_thickness+1]) {
         difference() {
-          hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
-          hole(z_line_bearing_inner,z_line_bearing_thickness+1,resolution);
+          hole(line_bearing_diam,line_bearing_thickness,resolution);
+          hole(line_bearing_inner,line_bearing_thickness+1,resolution);
         }
       }
       /*
       hull() {
-        translate([motor_pos_x+z_pulley_diam/2,motor_pos_y,belt_pos_z]) {
-          cube([1,1,6],center=true);
+        translate([motor_pos_x+line_pulley_diam/2,motor_pos_y,belt_pos_z]) {
+          cube([1,1,line_height],center=true);
         }
         translate([motor_pos_x+rear_line_bearing_od/2,rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z+rear_line_bearing_thickness+1]) {
-          cube([1,1,6],center=true);
+          cube([1,1,line_height],center=true);
         }
       }
 
-      translate([motor_pos_x,rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z+z_line_bearing_thickness+1]) {
+      translate([motor_pos_x,rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z+line_bearing_thickness+1]) {
         hole(rear_line_bearing_od,rear_line_bearing_thickness,resolution);
       }
       */
 
       // rear across
       hull() {
-        translate([motor_pos_x,rear_idler_pos_y+(rear_idler_line_gap*side)+z_line_bearing_diam/2,belt_pos_z+z_line_bearing_thickness+1]) {
-          cube([1,1,6],center=true);
+        translate([motor_pos_x,rear_idler_pos_y+(rear_idler_line_gap*side)+line_bearing_diam/2,belt_pos_z+line_bearing_thickness+1]) {
+          cube([1,1,line_height],center=true);
         }
-        translate([-motor_pos_x+z_pulley_diam/2+z_line_bearing_diam/2,rear_idler_pos_y+(rear_idler_line_gap*side)+z_line_bearing_diam/2,belt_pos_z]) {
-          cube([1,1,6],center=true);
+        translate([-motor_pos_x+line_pulley_diam/2+line_bearing_diam/2,rear_idler_pos_y+(rear_idler_line_gap*side)+line_bearing_diam/2,belt_pos_z]) {
+          cube([1,1,line_height],center=true);
         }
       }
 
-      translate([left*(motor_pos_x-z_line_bearing_diam/2-z_line_bearing_diam/2),rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z]) {
+      translate([left*(motor_pos_x-line_bearing_diam/2-line_bearing_diam/2),rear_idler_pos_y+(rear_idler_line_gap*side),belt_pos_z]) {
         difference() {
-          hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
-          hole(z_line_bearing_inner,z_line_bearing_thickness+1,resolution);
+          hole(line_bearing_diam,line_bearing_thickness,resolution);
+          hole(line_bearing_inner,line_bearing_thickness+1,resolution);
         }
       }
 
       // rear to non-motor-side y carriage
       hull() {
-        translate([left*(motor_pos_x-z_line_bearing_diam/2),0,belt_pos_z]) {
+        translate([left*(motor_pos_x-line_bearing_diam/2),0,belt_pos_z]) {
           // motor side
           translate([0,rear_idler_pos_y+(rear_idler_line_gap*side),0]) {
-            cube([1,1,6],center=true);
+            cube([1,1,line_height],center=true);
           }
           // y carriage
-          translate([0,rear*(x_carriage_belt_spacing/2+z_line_bearing_diam/2),0]) {
-            cube([1,1,6],center=true);
+          translate([0,rear*(x_carriage_belt_spacing/2+line_bearing_diam/2),0]) {
+            cube([1,1,line_height],center=true);
           }
         }
       }
 
-      translate([left*(motor_pos_x-z_line_bearing_diam/2-z_line_bearing_diam/2),rear*(x_carriage_belt_spacing/2+z_line_bearing_diam/2),belt_pos_z]) {
+      translate([left*(motor_pos_x-line_bearing_diam/2-line_bearing_diam/2),rear*(x_carriage_belt_spacing/2+line_bearing_diam/2),belt_pos_z]) {
         difference() {
-          hole(z_line_bearing_diam,z_line_bearing_thickness,resolution);
-          hole(z_line_bearing_inner,z_line_bearing_thickness+1,resolution);
+          hole(line_bearing_diam,line_bearing_thickness,resolution);
+          hole(line_bearing_inner,line_bearing_thickness+1,resolution);
         }
       }
 
       // non-motor-side y carriage to x carriage
       hull() {
         translate([0,rear*(x_carriage_belt_spacing/2),belt_pos_z]) {
-          translate([left*(motor_pos_x-z_pulley_diam/2-z_line_bearing_diam/2),0,0]) {
+          translate([left*(motor_pos_x-line_pulley_diam/2-line_bearing_diam/2),0,0]) {
             // y carriage
-            cube([1,1,6],center=true);
+            cube([1,1,line_height],center=true);
           }
           // x carriage
           translate([-4,0,0]) {
-            cube([1,1,6],center=true);
+            cube([1,1,line_height],center=true);
           }
         }
       }
