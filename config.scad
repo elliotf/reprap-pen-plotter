@@ -57,7 +57,7 @@ resolution = 32;
 extrusion_width  = 0.5;
 extrusion_height = 0.2;
 min_material_thickness = extrusion_width*2;
-wall_thickness         = extrusion_width*4;
+//wall_thickness         = extrusion_width*4;
 rounded_diam           = 4;
 
 // material dimensions
@@ -390,7 +390,7 @@ pulley_idler_bearing_thickness = 5;
 
 // Motor
 nema17_side = 43;
-nema17_len = nema17_side;
+nema17_len = 43;
 nema17_hole_spacing = 31;
 nema17_shoulder_diam = 22;
 nema17_shoulder_height = 2;
@@ -408,7 +408,7 @@ nema14_shaft_diam = 5;
 nema14_shaft_len = 20;
 
 motor_side = nema17_side;
-motor_len = 35;
+motor_len = nema17_len;
 motor_hole_spacing = nema17_hole_spacing;
 motor_shoulder_diam = nema17_shoulder_diam;
 motor_screw_diam = nema17_screw_diam;

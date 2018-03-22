@@ -1,14 +1,83 @@
-include <config.scad>;
+//include <config.scad>;
 include <util.scad>;
+include <28BYJ-48-Stepper-Motor.scad>;
 
-// YAGNI (TODO):
-//   * get retentive about line positions by taking line thickness into account
+/*
 
-// x carriage is a piece of wood/metal riding on bearings
-// base plate is a piece of plywood
-// could also use conduit?
+TODO
+* z axis
+  * instead of a set screw, make the cam a clamp around the stepper shaft
+  * (maybe) instead of cam pushing on z carriage, cam could *pull* it up via some string/belt?
+* pen holder
+* motor mounts
+  * have two for each motor?
+    * one to attach motor to extrusion/base plate
+    * one on the other side to keep motor from tilting up due to line tension?
+* tensioning
+  * belt
+  * line (guitar tuners)
+* endstops
+  * x endstop on x carriage
+  * y endstop on motor mount
+  * z axis?
+    * mount below carriage?
+    * magnetic sensor with magnet on z carriage?
+    * cam trips endstop at bottom of travel?
+      * hall effect might be easier to fit in and mount
+* board attachment points for motor and rear idler mount
+* pulley for line-based
+
+YAGNI
+* get retentive about line positions by taking line thickness into account
+* bracing to prevent tipping? (for rear idler mount)
+
+PLANS
+* base is melamine-coated particle board
+  * https://www.homedepot.com/p/Melamine-White-Panel-Common-3-4-in-x-4-ft-x-8-ft-Actual-750-in-x-49-in-x-97-in-461877/100070209
+* x/y carriages are wood/aluminum
+
+ */
 
 inch = 25.4;
+resolution = 32;
+left    = -1;
+right   = 1;
+front   = -1;
+rear    = 1;
+top     = 1;
+bottom  = -1;
+m3_diam = 3;
+spacer  = 1;
+
+approx_pi = 3.14159;
+
+nema17_side = 43;
+nema17_len = 43;
+nema17_hole_spacing = 31;
+nema17_shoulder_diam = 22;
+nema17_shoulder_height = 2;
+nema17_screw_diam = m3_diam;
+nema17_shaft_diam = 5;
+nema17_shaft_len = 24;
+
+nema14_side = 35.3;
+nema14_len = nema14_side;
+nema14_hole_spacing = 26;
+nema14_shoulder_diam = 22;
+nema14_shoulder_height = 2;
+nema14_screw_diam = m3_diam;
+nema14_shaft_diam = 5;
+nema14_shaft_len = 20;
+
+motor_side = nema17_side;
+motor_len = nema17_len;
+motor_hole_spacing = nema17_hole_spacing;
+motor_shoulder_diam = nema17_shoulder_diam;
+motor_screw_diam = nema17_screw_diam;
+motor_shaft_diam = nema17_shaft_diam;
+motor_shaft_len = nema17_shaft_len;
+motor_wire_hole_width = 9;
+motor_wire_hole_height = 6;
 
 print_width = 1*1000;
 print_depth = 1.5*1000;
@@ -24,6 +93,7 @@ print_width = 11*inch;
 print_depth = 8.5*inch;
 
 extrude_width = 0.4;
+wall_thickness = extrude_width*4;
 
 extrusion_width = 20;
 extrusion_height = 40;
@@ -47,11 +117,16 @@ rear_line_bearing_thickness = 10;
 
 rear_idler_line_gap = 4;
 function rear_idler_pos_y(side) = print_depth/2+8+rear_idler_line_gap*side;
+// lift one side to provide line/belt clearance
 function rear_idler_pos_z(side,is_motor) = belt_pos_z + (is_motor*abs(side-1)*line_bearing_thickness);
 
+z_stepper_thickness = 19;
+z_stepper_diam      = 28;
+z_stepper_hole_spacing = 35;
 
 // filament-driven
 line_height            = 1;
+line_thickness         = 1;
 line_bearing_diam      = 14-0.5*2; // 625zz v-groove for filament
 line_bearing_thickness = 5;  // 625zz v-groove for filament
 
@@ -70,16 +145,19 @@ y_rail_pos_x = print_width/2-extrusion_width/2;
 y_rail_pos_z = extrusion_height/2;
 
 x_rail_len = print_width - extrusion_width*2 - 5;
+motor_mount_thickness = 10;
+motor_mount_offset    = - extrusion_screw_hole/2 - extrude_width*2 - line_bearing_inner/2 + line_bearing_diam/2 + line_thickness + line_pulley_diam/2;
 motor_pos_x = y_rail_pos_x-extrusion_width/2+nema17_side/2;
 motor_pos_x = y_rail_pos_x + 6;
-motor_pos_x = y_rail_pos_x - extrusion_screw_hole/2 - extrude_width*2 - line_bearing_inner/2 + line_bearing_diam/2 + line_pulley_diam/2;
-motor_pos_y = -print_depth/2-nema17_side/2;
+motor_pos_x = y_rail_pos_x + motor_mount_offset;
+
+motor_pos_y = -print_depth/2-nema17_side/2-motor_mount_thickness;
 y_carriage_pos_x = y_rail_pos_x;
 y_carriage_pos_z = y_rail_pos_z + extrusion_height/2 + extrusion_wheel_gap + plate_thickness/2;
 x_rail_pos_z     = y_carriage_pos_z - plate_thickness/2 - extrusion_width/2;
 belt_pos_z  = y_carriage_pos_z + plate_thickness/2 + spacer + line_bearing_thickness/2;
 
-motor_pos_z = y_rail_pos_z + extrusion_height/2;
+motor_pos_z = motor_len + 1;
 
 inner_line_idler_pos_x = motor_pos_x - line_pulley_diam/2 - line_bearing_diam/2;
 outer_line_idler_pos_x = inner_line_idler_pos_x + line_bearing_diam + 2.5; // not sure how much room to leave for flanges/grooves/belt teeth
@@ -88,7 +166,7 @@ x_carriage_pos_z = y_carriage_pos_z + extrusion_wheel_gap;
 
 x_carriage_belt_spacing = 5;
 
-y_carriage_depth = extrusion_width*2+20+wheel_diam;
+y_carriage_depth = extrusion_width*2+8+wheel_diam;
 
 module wheel() {
   // see http://makerstore.cc/wp-content/uploads/2015/03/Xtreme-Mini-V-Wheel-Kit-7.jpg
@@ -179,7 +257,7 @@ module extrusion(length) {
       square([extrusion_width,extrusion_height],center=true);
 
       square([open_space_between_sides,5.4],center=true);
-      
+
       hull() {
         square([open_space_between_sides-1.96*2,5.4],center=true);
         square([5.68,12.2],center=true);
@@ -212,11 +290,11 @@ module extrusion(length) {
 
 x_carriage_width = extrusion_height + wheel_diam;
 module x_carriage_position_at_wheels() {
-  translate([0,extrusion_height/2+wheel_extrusion_spacing,0]) {
+  translate([0,extrusion_width/2+wheel_extrusion_spacing,0]) {
     children();
   }
   for(x=[left,right]) {
-    translate([x*x_carriage_width/2,front*(extrusion_height/2+wheel_extrusion_spacing),0]) {
+    translate([x*x_carriage_width/2,front*(extrusion_width/2+wheel_extrusion_spacing),0]) {
       children();
     }
   }
@@ -227,6 +305,11 @@ module x_carriage_plate() {
     hull() {
       x_carriage_position_at_wheels() {
         accurate_circle(wheel_diam,resolution);
+      }
+      for(side=[left,right]) {
+        translate([side*(x_carriage_width/2),0,0]) {
+          // accurate_circle(wheel_diam,resolution);
+        }
       }
     }
   }
@@ -247,13 +330,11 @@ module x_carriage_assembly() {
   linear_extrude(height=plate_thickness,center=true,convexity=2) {
     x_carriage_plate();
   }
-  for(x=[left,right]) {
-    translate([x*x_carriage_width/2,-extrusion_height/2-wheel_extrusion_spacing,-plate_thickness/2-extrusion_wheel_gap-extrusion_width/2]) {
+
+  x_carriage_position_at_wheels() {
+    translate([0,0,-plate_thickness/2-extrusion_wheel_gap-extrusion_width/2]) {
       color("lightblue", 0.75) wheel();
     }
-  }
-  translate([0,extrusion_height/2+wheel_extrusion_spacing,-plate_thickness/2-extrusion_wheel_gap-extrusion_width/2]) {
-    color("lightblue", 0.75) wheel();
   }
 }
 
@@ -408,13 +489,41 @@ module rear_idler_mount(side) {
   }
 }
 
+// likely needs to be different between line/belt :(
+module extrusion_motor_mount() {
+  module body() {
+    translate([0,motor_mount_thickness/2,-extrusion_height/2]) {
+      cube([motor_side+extrude_width*16,motor_side+motor_mount_thickness,extrusion_height],center=true);
+    }
+  }
+
+  module holes() {
+    translate([-motor_mount_offset,0,0]) {
+      for(z=[-extrusion_height*0.25,-extrusion_height*0.75]) {
+        translate([0,0,z]) {
+          rotate([90,0,0]) {
+            hole(5,extrusion_height*2,16);
+          }
+        }
+      }
+    }
+  }
+
+  % motor_nema17();
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
 translate([0,0,10]) {
   //color("red") extrusion(10);
 }
 
 module line_path(side=0) {
   // belt path
-  colors = ["lightgreen", "pink"];
+  colors = ["red", "blue"];
   % color(colors[side], 0.5) {
     // x carriage to motor side y carriage
     hull() {
@@ -538,8 +647,10 @@ for(side=[0,1]) {
       y_carriage_assembly();
     }
 
-    translate([0,0,x_carriage_pos_z]) {
-      x_carriage_assembly();
+    translate([0,-extrusion_height/2-extrusion_wheel_gap-plate_thickness/2,x_rail_pos_z]) {
+      rotate([90,0,0]) {
+        x_carriage_assembly();
+      }
     }
 
     translate([y_rail_pos_x,print_depth/2+0.1,0]) {
@@ -547,7 +658,8 @@ for(side=[0,1]) {
     }
 
     translate([motor_pos_x,motor_pos_y,motor_pos_z]) {
-      color("grey", 0.8) motor_nema17();
+      extrusion_motor_mount();
+      // color("grey", 0.8) motor_nema17();
     }
   }
 }
@@ -556,6 +668,296 @@ translate([0,0,x_rail_pos_z]) {
   rotate([0,90,0]) {
       color("silver") extrusion(x_rail_len);
   }
+}
+
+pen_diam  = 9;
+pen_len   = 6*inch;
+module pen() {
+  hull() {
+    translate([0,0,pen_diam]) {
+      hole(1,pen_diam*2,resolution);
+
+      translate([0,0,pen_len/2]) {
+        hole(pen_diam,pen_len,resolution);
+      }
+    }
+  }
+}
+
+z_stepper_diam             = 28;
+z_stepper_depth            = 19;
+z_stepper_flange_thickness = 0.5;
+z_stepper_rotate_around_y = 90;
+z_stepper_shaft_diam = 5.05;
+z_cam_thickness = 5.5;
+z_cam_len = 16;
+z_cam_diam = z_stepper_shaft_diam + wall_thickness*2;
+z_cam_shaft_height = 0;
+
+stepper_hole_mount_spacing = 35;
+z_rod_diam  = 3;
+z_rod_pos_x = stepper_hole_mount_spacing/2+wall_thickness+z_rod_diam/2;
+z_rod_pos_y = front*(z_rod_diam/2+4);
+z_rod_len   = 3*inch;
+
+module stepper28BYJ() {
+  // 28BYJ-48 Stepper Motor Model
+  // Mark Benson
+  // 23/07/2013
+  // Creative Commons Non Commerical
+  // http://www.thingiverse.com/thing:122070
+
+  translate([0,0,-19]) {
+    difference() {
+      union() {
+        //Body
+        color("SILVER") cylinder(r=28/2, h=19, $fn=60);
+
+        //Base of motor shaft
+        color("SILVER") translate([0,8,19]) cylinder(r=9/2, h=1.5, $fn=40);
+
+        //Motor shaft
+        color("SILVER") translate([0,8,20.5])
+        rotate([0,0,90-z_stepper_rotate_around_y]) {
+          intersection() {
+            cylinder(r=5/2, h=9, $fn=40);
+            cube([3,6,9],center=true);
+          }
+        }
+
+        //Left mounting lug
+        color("SILVER") translate([-35/2,0,18.5]) mountingLug();
+
+        //Right mounting lug
+        color("SILVER") translate([35/2,0,18.5]) rotate([0,0,180]) mountingLug();
+
+        difference() {
+          //Cable entry housing
+          color("BLUE") translate([-14.6/2,-17,1.9]) cube([14.6,17,17]);
+
+          cylinder(r=27/2, h=29, $fn=60);
+        }
+      }
+
+      union() {
+        //Flat on motor shaft
+        //translate([-5,0,22]) cube([10,7,25]);
+      }
+    }
+  }
+
+  module mountingLug() {
+    difference() {
+      hull() {
+        cylinder(r=7/2, h=0.5, $fn=40);
+        translate([0,-7/2,0]) {
+          cube([7,7,0.5]);
+        }
+      }
+
+      translate([0,0,-1]) cylinder(r=4.2/2, h=2, $fn=40);
+    }
+  }
+}
+
+module z_axis_cam() {
+  shaft_flat_thickness = 3.1;
+  tip_diam = z_cam_diam/2;
+
+  module shaft(len) {
+    linear_extrude(height=len,center=true,convexity=2) {
+      hull() {
+        accurate_circle(z_cam_diam,16);
+
+        translate([0,-z_cam_diam/2,0]) {
+          square([z_cam_diam,2],center=true);
+        }
+      }
+    }
+  }
+
+  module body() {
+    translate([0,0,z_cam_shaft_height]) {
+      shaft(z_cam_thickness);
+    }
+
+    hull() {
+      shaft(z_cam_thickness);
+      translate([z_cam_len-tip_diam/2,0,0]) {
+        hole(tip_diam,z_cam_thickness,resolution);
+      }
+    }
+  }
+
+  module holes() {
+    intersection() {
+      hole(z_stepper_shaft_diam,z_cam_thickness+0.2,resolution);
+
+      cube([10,shaft_flat_thickness,z_cam_thickness+0.2],center=true);
+    }
+    // set screw
+    translate([0,-z_cam_diam/2,z_cam_shaft_height]) {
+      rotate([90,0,0]) {
+        rotate([0,0,90]) {
+          hole(3,z_cam_diam,6);
+        }
+      }
+    }
+  }
+
+  translate([0,0,z_cam_thickness/2]) {
+    rotate([0,0,z_stepper_rotate_around_y]) {
+      difference() {
+        body();
+        holes();
+      }
+    }
+  }
+}
+
+module z_axis_mount() {
+  rod_mount_height = 28;
+  body_rear_pos_y  = 15;
+  mount_plate_thickness = 4;
+
+  module body() {
+    for(x=[left,right]) {
+      hull() {
+        translate([x*z_rod_pos_x,0,0]) {
+          translate([0,0,rod_mount_height/2]) {
+            translate([0,z_rod_pos_y,0]) {
+              hole(z_rod_diam+wall_thickness*2,rod_mount_height,resolution);
+            }
+            translate([0,body_rear_pos_y,0]) {
+              hole(z_rod_diam+wall_thickness*2,rod_mount_height,resolution);
+            }
+          }
+        }
+      }
+    }
+
+    for(x=[left,right]) {
+      hull() {
+        translate([x*z_rod_pos_x,0,0]) {
+          translate([0,0,rod_mount_height/2]) {
+            translate([0,z_rod_pos_y,0]) {
+              hole(z_rod_diam+wall_thickness*2,rod_mount_height,resolution);
+            }
+            translate([0,body_rear_pos_y/2,0]) {
+              hole(z_rod_diam+wall_thickness*2,rod_mount_height,resolution);
+            }
+          }
+
+          translate([0,body_rear_pos_y,mount_plate_thickness/2]) {
+            hole(z_rod_diam+wall_thickness*2,mount_plate_thickness,resolution);
+          }
+        }
+      }
+    }
+  }
+
+  module holes() {
+    for(x=[left,right]) {
+      translate([x*z_rod_pos_x,z_rod_pos_y,0]) {
+        hole(z_rod_diam+0.1,150,8);
+      }
+    }
+
+    translate([0,0,mount_plate_thickness+z_stepper_diam/2]) {
+      rotate([90,0,0]) {
+        hole(z_stepper_diam+0.5,z_stepper_depth*3,resolution);
+      }
+    }
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
+module z_axis_() {
+}
+
+module z_axis_assembly() {
+  /*
+  color("pink") z_axis_mount();
+
+  translate([0,z_rod_pos_y+front*(z_rod_diam/2+3+pen_diam/2),-x_carriage_pos_z-plate_thickness/2]) {
+    % pen();
+  }
+  */
+
+  /*
+  translate([0,19-0.5,28/2+4]) {
+    rotate([0,0,0]) {
+      rotate([0,0,180]) {
+        rotate([0,90,0]) {
+          stepper28BYJ();
+
+          translate([0,8,1.75]) {
+            rotate([0,180,0]) {
+              rotate([0,0,0]) {
+                translate([0,0,-z_cam_shaft_height-z_cam_thickness]) {
+                  z_axis_cam();
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  for(side=[left,right]) {
+    translate([side*z_rod_pos_x,z_rod_pos_y,0]) {
+      % hole(z_rod_diam,z_rod_len,resolution*2);
+    }
+  }
+
+  translate([0,z_rod_pos_y+front*(z_rod_diam/2+3+pen_diam/2),-x_carriage_pos_z-plate_thickness/2]) {
+    % pen();
+  }
+
+  color("pink") z_axis_mount();
+
+  translate([0,19-0.5,28/2+4]) {
+    rotate([0,0,180]) {
+      rotate([-90,0,0]) {
+        rotate([0,0,z_stepper_rotate_around_y]) {
+          stepper28BYJ();
+
+          translate([0,8,19+1.75]) {
+            rotate([0,180,0]) {
+              rotate([0,0,180]) {
+                translate([0,0,-z_cam_shaft_height-z_cam_thickness]) {
+                  z_axis_cam();
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  */
+}
+
+translate([0,0,extrusion_height*2]) {
+}
+
+translate([0,front*(extrusion_height/2+wheel_extrusion_spacing+wheel_diam/2),x_carriage_pos_z+plate_thickness/2]) {
+  z_axis_assembly();
+
+  translate([0,0,0]) {
+  }
+
+  for(side=[left,right]) {
+    translate([0,-0.5,0]) {
+      //# cube([z_stepper_hole_spacing,1,1],center=true);
+    }
+  }
+
 }
 
 translate([0,0,-1]) {
