@@ -1,0 +1,3 @@
+include <sketch.scad>;
+
+assembly();

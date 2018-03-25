@@ -1175,5 +1175,3 @@ module z_carriage() {
 translate([0,0,-1]) {
   // % cube([print_width,print_depth,2],center=true);
 }
-
-assembly();
