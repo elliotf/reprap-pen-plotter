@@ -44,6 +44,8 @@ module motor_bracket() {
       }
     }
 
+    hole(motor_shoulder_diam+2,test_motor_mount_overall_height*2,resolution);
+
     // room for the motor
     translate([0,0,-motor_len]) {
       cube([motor_side+test_motor_tolerance*2,motor_side+test_motor_tolerance*2,motor_len*2],center=true);
