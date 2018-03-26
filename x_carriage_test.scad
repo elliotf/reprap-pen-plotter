@@ -79,7 +79,7 @@ module idler_bracket() {
 
   module bridges() {
     translate([0,-idler_bracket_depth/2-extrusion_brace_depth/2,-extrusion_width-motor_mount_thickness]) {
-      cube([extrusion_height,extrusion_brace_depth,0.2],center=true);
+      cube([extrusion_height,extrusion_brace_depth,0.3],center=true);
     }
   }
 
