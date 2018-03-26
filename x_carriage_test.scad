@@ -74,14 +74,21 @@ module idler_bracket() {
           }
         }
       }
-
     }
-}
+  }
+
+  module bridges() {
+    translate([0,-idler_bracket_depth/2-extrusion_brace_depth/2,-extrusion_width-motor_mount_thickness]) {
+      cube([extrusion_height,extrusion_brace_depth,0.2],center=true);
+    }
+  }
 
   translate([0,idler_bracket_depth/2,0]) {
     translate([0,0,belt_relative_pos_z]) {
       % hole(idler_bearing_outer_diam,idler_bearing_thickness,resolution);
     }
+
+    bridges();
 
     difference() {
       body();
