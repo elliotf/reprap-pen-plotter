@@ -98,7 +98,6 @@ module idler_bracket() {
 }
 
 module motor_bracket() {
-
   module body() {
     hull() {
       translate([0,0,-test_motor_mount_overall_height/2+motor_mount_thickness]) {

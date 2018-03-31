@@ -46,6 +46,14 @@ top     = 1;
 bottom  = -1;
 m3_diam = 3.3;
 m3_nut_diam = 5.7; // actually 5.5, but add fudge
+
+m5_bolt_diam        = 5.25;
+m5_bolt_head_height = 5;
+m5_bolt_head_diam = 10;
+m3_bolt_diam        = 3.25;
+m3_bolt_head_height = 5;
+m3_bolt_head_diam   = 7;
+
 spacer  = 1;
 
 approx_pi = 3.14159;
@@ -156,7 +164,7 @@ y_carriage_pos_z = y_rail_pos_z + extrusion_height/2 + extrusion_wheel_gap + pla
 x_rail_pos_z     = y_carriage_pos_z - plate_thickness/2 - extrusion_width/2;
 belt_pos_z  = y_carriage_pos_z + plate_thickness/2 + spacer + line_bearing_thickness/2;
 
-motor_pos_z = motor_len + 1;
+motor_pos_z = motor_len + 2;
 
 inner_line_idler_pos_x = motor_pos_x - line_pulley_diam/2 - line_bearing_diam/2;
 outer_line_idler_pos_x = inner_line_idler_pos_x + line_bearing_diam + 2.5; // not sure how much room to leave for flanges/grooves/belt teeth
@@ -724,20 +732,79 @@ module rear_idler_mount(side) {
 }
 
 // likely needs to be different between line/belt :(
-module extrusion_motor_mount() {
+module motor_mount() {
+  thickness = extrude_width*12;
+  motor_tolerance = 0.1;
+  overall_width = motor_side+(motor_tolerance+thickness)*2;
+  overall_depth = motor_side+(motor_tolerance+thickness)*2;
+
+  motor_cavity_side = motor_side + motor_tolerance*2;
+
+  rail_pos_x = y_rail_pos_x - abs(motor_pos_x);
+  rail_pos_y = abs(motor_pos_y) - print_depth/2;
+  rail_pos_z = y_rail_pos_z - motor_pos_z;
+
+  space_between_motor_and_extrusion = rail_pos_y - motor_side/2;
+  echo("RAIL POS Y", rail_pos_y);
+  echo("motor side", motor_side);
+  echo("space_between_motor_and_extrusion", space_between_motor_and_extrusion);
+
+  module position_at_rail() {
+    translate([rail_pos_x,rail_pos_y,rail_pos_z]) {
+      children();
+    }
+  }
+
   module body() {
-    translate([0,motor_mount_thickness/2,-extrusion_height/2]) {
-      cube([motor_side+extrude_width*16,motor_side+motor_mount_thickness,extrusion_height],center=true);
+    hull() {
+      position_at_rail() {
+        translate([0,-space_between_motor_and_extrusion,0]) {
+          cube([extrusion_width,space_between_motor_and_extrusion*2,extrusion_height],center=true);
+        }
+      }
+      for(z=[-motor_pos_z+1,thickness-1]) {
+        translate([0,0,z]) {
+          cube([overall_width,overall_depth,2],center=true);
+        }
+      }
     }
   }
 
   module holes() {
-    translate([-motor_mount_offset,0,0]) {
-      for(z=[-extrusion_height*0.25,-extrusion_height*0.75]) {
-        translate([0,0,z]) {
+    // motor shoulder
+    hole(motor_shoulder_diam+2,motor_len*3,8);
+
+    // motor mounting holes
+    for(x=[left,right]) {
+      for(y=[front,rear]) {
+        translate([x*(motor_hole_spacing/2),y*(motor_hole_spacing/2),0]) {
+          hole(m3_bolt_diam,motor_len*3,8);
+        }
+      }
+    }
+
+    // motor cavity
+    translate([0,0,-motor_len]) {
+      cube([motor_cavity_side,motor_cavity_side,motor_len*2],center=true);
+    }
+
+    // extrusion bolts
+    position_at_rail() {
+      for(z=[top,bottom]) {
+        translate([0,-space_between_motor_and_extrusion,z*(extrusion_width/2)]) {
           rotate([90,0,0]) {
-            hole(5,extrusion_height*2,16);
+            hole(m5_bolt_diam,100,8);
+            hole(m5_bolt_head_diam,m5_bolt_head_height*2,8);
           }
+        }
+      }
+    }
+
+    // make printable at an angle
+    translate([0,-overall_depth/2-1,thickness]) {
+      rotate([-45,0,0]) {
+        translate([0,overall_depth,-motor_len]) {
+          cube([overall_width*2,overall_depth*2,motor_len*2],center=true);
         }
       }
     }
@@ -885,7 +952,7 @@ module assembly() {
       }
 
       translate([motor_pos_x,motor_pos_y,motor_pos_z]) {
-        extrusion_motor_mount();
+        motor_mount();
         // color("grey", 0.8) motor_nema17();
       }
     }
