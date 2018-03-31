@@ -1,4 +1,4 @@
-include <sketch.scad>;
+include <main.scad>;
 
 rail_length = 140;
 

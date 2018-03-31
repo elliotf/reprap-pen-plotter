@@ -1,3 +1,3 @@
-include <sketch.scad>;
+include <main.scad>;
 
 z_axis_mount();
