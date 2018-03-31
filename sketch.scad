@@ -78,8 +78,8 @@ motor_shaft_len = nema17_shaft_len;
 motor_wire_hole_width = 9;
 motor_wire_hole_height = 6;
 
-zip_tie_thickness = 1;
-zip_tie_width     = 2;
+zip_tie_thickness = 1.5;
+zip_tie_width     = 2.75;
 
 print_width = 1*1000;
 print_depth = 1.5*1000;
@@ -1257,7 +1257,7 @@ module z_axis_mount() {
       translate([left*z_rod_pos_x,long_rod_pos_z,0]) {
         cube([z_rod_diam,long_rod_length,z_rod_diam],center=true);
 
-        translate([0,long_rod_length/2-0.25,5.5]) {
+        translate([0,long_rod_length/2,5.5]) {
           cube([rod_to_side+1,rod_retainer_thickness+3,10],center=true);
 
           translate([0,-zip_tie_width/2,0]) {
@@ -1269,7 +1269,7 @@ module z_axis_mount() {
         cube([z_rod_diam,short_rod_length,z_rod_diam],center=true);
         cube([short_rod_small_diam,short_rod_length*2,short_rod_small_diam+1],center=true);
 
-        translate([0,short_rod_length/2-0.25,5.5]) {
+        translate([0,short_rod_length/2,5.5]) {
           cube([rod_to_side+1,rod_retainer_thickness+3,10],center=true);
 
           translate([0,-zip_tie_width/2,0]) {
