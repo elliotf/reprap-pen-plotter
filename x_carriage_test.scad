@@ -174,13 +174,11 @@ module motor_bracket() {
   }
 }
 
-/*
 translate([0,-rail_length/2,motor_len*2]) {
   rotate([45,0,0]) {
     // motor_bracket();
   }
 }
-
 
 translate([0,0,0]) {
   rotate([0,0,-90]) {
@@ -198,7 +196,6 @@ translate([test_motor_pos_x,test_motor_pos_y,extrusion_width/2]) {
   motor_bracket();
   % motor_nema17();
 }
-*/
 
 translate([0,rail_length/2,extrusion_width/2]) {
   idler_bracket();
