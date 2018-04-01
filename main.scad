@@ -222,8 +222,8 @@ z_stepper_hump_width = 15;
 z_stepper_hump_depth = 17-z_stepper_diam/2;
 
 z_cam_thickness = 7;
-z_motor_angle = -40;
-z_cam_angle = -z_motor_angle+90;
+z_motor_angle = -25;
+z_cam_angle = -z_motor_angle+0;
 z_cam_len = 15;
 z_cam_diam = z_stepper_shaft_diam + wall_thickness*2;
 z_cam_shaft_height = 0;
@@ -1099,18 +1099,9 @@ module stepper28BYJ() {
 }
 
 module z_axis_cam() {
-  shaft_flat_thickness = 3; // FIXME: hoist the stepper definitions and use those
-
   tolerance = 0.1;
 
-  shaft_flat_len       = 6;
-  shaft_total_len      = 7.8; // actually 8mm, but there's some slop with the shaft so it comes in and out
-  z_line_hole = 1.25;
-  tip_diam = z_cam_diam/2;
-  tip_diam = z_line_hole + 2*(extrude_width*4);
-  tip_pos_x = z_cam_len-tip_diam/2;
-
-  clamp_screw_pos_x = left*(z_stepper_shaft_diam/2+1.2+m3_diam/2);
+  clamp_screw_pos_x = left*(z_stepper_shaft_diam/2+m3_diam/2);
   clamp_body_width = extrude_width*6*2+m3_nut_diam;
   clamp_gap_width = 1;
 
@@ -1122,10 +1113,6 @@ module z_axis_cam() {
         hull() {
           accurate_circle(z_cam_diam,16);
 
-          translate([tip_pos_x,0,0]) {
-            accurate_circle(tip_diam,resolution);
-          }
-
           translate([clamp_screw_pos_x,0,0]) {
             square([clamp_body_width,z_cam_diam],center=true);
           }
@@ -1133,16 +1120,12 @@ module z_axis_cam() {
         // shaft with flat
         intersection() {
           accurate_circle(z_stepper_shaft_diam+tolerance,resolution);
-          square([10,shaft_flat_thickness+tolerance],center=true);
+          square([10,z_stepper_shaft_flat_thickness+tolerance],center=true);
         }
+
         // clamp gap
         translate([clamp_screw_pos_x,0,0]) {
           square([clamp_body_width+1,clamp_gap_width],center=true);
-        }
-
-        // hole for line to z carriage
-        translate([tip_pos_x,0,0]) {
-          accurate_circle(z_line_hole,8);
         }
       }
     }
@@ -1154,7 +1137,7 @@ module z_axis_cam() {
       translate([0,z_cam_diam/2,0]) {
         rotate([90,0,0]) {
           rotate([0,0,90]) {
-            hole(3.2,z_cam_diam*2+1,6);
+            hole(3.1,z_cam_diam*2+1,8);
           }
         }
       }
@@ -1213,7 +1196,7 @@ module z_axis_mount() {
   }
 
   module position_motor() {
-    translate([1.5,x_carriage_mounting_plate_height/2+z_stepper_diam/2+0.2,plate_thickness]) {
+    translate([4,x_carriage_mounting_plate_height/2+z_stepper_diam/2+2,plate_thickness]) {
       rotate([0,0,z_motor_angle]) {
         children();
       }
