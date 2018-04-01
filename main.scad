@@ -199,18 +199,30 @@ z_axis_mount_thickness    = x_carriage_wall_thickness;
 x_carriage_mounting_plate_hole_spacing_z = x_carriage_overall_height+m3_nut_diam+extrude_width*12;
 x_carriage_mounting_plate_height = x_carriage_mounting_plate_hole_spacing_z+m3_nut_diam+extrude_width*12;
 
-z_stepper_diam             = 28;
-z_stepper_thickness        = 19;
-z_stepper_flange_thickness = 0.5;
-z_stepper_flange_diam      = 7;
-z_stepper_hole_spacing     = 35;
-z_stepper_rotate_around_y = -50;
-z_stepper_rotate_around_y = 0;
-z_stepper_shaft_diam = 5.05;
-z_stepper_pos_x = 6;
-z_stepper_pos_z = z_stepper_diam/2+1;
-z_cam_thickness = 7.5;
-z_motor_angle = -30;
+z_stepper_diam = 28;
+z_stepper_height = 19.5; // body is 19, but flanges stick up
+
+z_stepper_shaft_diam = 5;
+z_stepper_flange_width = 42;
+z_stepper_flange_diam = 7;
+z_stepper_flange_thickness = 0.8;
+z_stepper_flange_hole_diam = 4.2;
+z_stepper_flange_hole_spacing = 35;
+
+z_stepper_shaft_from_center = 8;
+z_stepper_shaft_length = 7.9; // varies between 7.9 and 8.5, due to slop in the shaft
+z_stepper_shaft_flat_length = 6.1;
+z_stepper_shaft_flat_thickness = 3;
+z_stepper_shaft_flat_cut_depth = (z_stepper_shaft_diam-z_stepper_shaft_flat_thickness)/2;
+z_stepper_shaft_base_diam = 9.25;
+z_stepper_shaft_base_height = 1.7; // what drawings say.  Actual measurement is 1.6
+
+z_stepper_hump_height = 16.8;
+z_stepper_hump_width = 15;
+z_stepper_hump_depth = 17-z_stepper_diam/2;
+
+z_cam_thickness = 7;
+z_motor_angle = -40;
 z_cam_angle = -z_motor_angle+90;
 z_cam_len = 15;
 z_cam_diam = z_stepper_shaft_diam + wall_thickness*2;
@@ -432,7 +444,7 @@ module rounded_cube(width,depth,height,diam,resolution) {
 }
 
 module x_carriage() {
-  stepper_mount_depth = z_stepper_thickness/2;
+  stepper_mount_depth = z_stepper_height/2;
 
   inner_diam = x_carriage_extrusion_carriage_gap*2;
   outer_diam = x_carriage_overall_height - x_carriage_opening_height - inner_diam;
@@ -489,7 +501,7 @@ module x_carriage() {
       }
     }
 
-    stepper_mount_width = x_carriage_width/2 - z_stepper_thickness - z_stepper_flange_thickness;
+    stepper_mount_width = x_carriage_width/2 - z_stepper_height - z_stepper_flange_thickness;
   }
 
   module holes() {
@@ -558,6 +570,7 @@ module x_carriage_assembly() {
     x_carriage();
   }
 
+  z_carriage_pos_z_at_min = -x_carriage_mounting_plate_height/2+z_rod_retainer_thickness+z_carriage_height/2;
   translate([0,front*(x_carriage_overall_depth/2+0.5),0]) {
     rotate([90,0,0]) {
       z_axis_mount();
@@ -565,7 +578,7 @@ module x_carriage_assembly() {
 
     echo("from surface: ", z_axis_mount_thickness+z_rod_from_surface+z_rod_diam/2+1.8);
 
-    translate([0,front*(z_axis_mount_thickness+z_rod_from_surface+z_rod_diam/2+1.5),0]) {
+    translate([0,front*(z_axis_mount_thickness+z_rod_from_surface+z_rod_diam/2+1.5),z_carriage_pos_z_at_min+0]) {
       color("dodgerblue") z_carriage();
     }
   }
@@ -984,33 +997,11 @@ module pen(diam=pen_diam) {
 }
 
 module stepper28BYJ() {
-  stepper_diam = 28;
-  stepper_height = 19.5; // body is 19, but flanges stick up
-
-  stepper_flange_width = 42;
-  stepper_flange_diam = 7;
-  stepper_flange_thickness = 0.8;
-  stepper_flange_hole_diam = 4.2;
-  stepper_flange_hole_spacing = 35;
-
-  stepper_shaft_from_center = 8;
-  stepper_shaft_length = 7.9; // varies between 7.9 and 8.5, due to slop in the shaft
-  stepper_shaft_diam = 5;
-  stepper_shaft_flat_length = 6;
-  stepper_shaft_flat_thickness = 3;
-  stepper_shaft_flat_cut_depth = (stepper_shaft_diam-stepper_shaft_flat_thickness)/2;
-  stepper_shaft_base_diam = 9.25;
-  stepper_shaft_base_height = 1.7; // what drawings say.  Actual measurement is 1.6
-
-  stepper_hump_height = 16.8;
-  stepper_hump_width = 15;
-  stepper_hump_depth = 17-stepper_diam/2;
-
   cable_distance_from_face = 1.75;
   cable_diam    = 1;
   num_cables    = 5;
   cable_pos_x   = [-2.4,-1.2,0,1.2,2.4];
-  cable_colors  = ["yellow","orange","red","pink","dodgerblue"];
+  cable_colors  = ["yellow","orange","red","pink","royalblue"];
   cable_spacing = 1.2;
   cable_sample_len = 5;
   cable_opening_width = 7.3;
@@ -1019,7 +1010,7 @@ module stepper28BYJ() {
 
   module position_at_flange_centers() {
     for(side=[left,right]) {
-      translate([side*(stepper_flange_hole_spacing/2),0,0]) {
+      translate([side*(z_stepper_flange_hole_spacing/2),0,0]) {
         children();
       }
     }
@@ -1027,43 +1018,43 @@ module stepper28BYJ() {
 
   color("lightgrey") {
     // main body
-    translate([0,0,-stepper_height/2]) {
-      hole(stepper_diam,stepper_height,resolution*1.25);
+    translate([0,0,-z_stepper_height/2]) {
+      hole(z_stepper_diam,z_stepper_height,resolution*1.25);
     }
 
     // flanges
-    translate([0,0,-stepper_flange_thickness/2]) {
-      linear_extrude(height=stepper_flange_thickness,center=true,convexity=3) {
+    translate([0,0,-z_stepper_flange_thickness/2]) {
+      linear_extrude(height=z_stepper_flange_thickness,center=true,convexity=3) {
         difference() {
           hull() {
             position_at_flange_centers() {
-              accurate_circle(stepper_flange_diam,resolution/2);
+              accurate_circle(z_stepper_flange_diam,resolution/2);
             }
           }
           position_at_flange_centers() {
-            accurate_circle(stepper_flange_hole_diam,resolution/2);
+            accurate_circle(z_stepper_flange_hole_diam,resolution/2);
           }
         }
       }
     }
 
     // shaft base
-    translate([0,-stepper_shaft_from_center,0]) {
-      hole(stepper_shaft_base_diam,stepper_shaft_base_height*2,resolution);
+    translate([0,-z_stepper_shaft_from_center,0]) {
+      hole(z_stepper_shaft_base_diam,z_stepper_shaft_base_height*2,resolution);
     }
   }
 
   // shaft
   color("gold") {
-    translate([0,-stepper_shaft_from_center,0]) {
+    translate([0,-z_stepper_shaft_from_center,0]) {
       rotate([0,0,z_cam_angle]) {
         difference() {
-          hole(stepper_shaft_diam,(stepper_shaft_length+stepper_shaft_base_height)*2,resolution);
+          hole(z_stepper_shaft_diam,(z_stepper_shaft_length+z_stepper_shaft_base_height)*2,resolution);
 
-          translate([0,0,stepper_shaft_base_height+stepper_shaft_length]) {
+          translate([0,0,z_stepper_shaft_base_height+z_stepper_shaft_length]) {
             for(x=[left,right]) {
-              translate([x*stepper_shaft_diam/2,0,0]) {
-                cube([stepper_shaft_flat_cut_depth*2,stepper_shaft_diam,stepper_shaft_flat_length*2],center=true);
+              translate([x*z_stepper_shaft_diam/2,0,0]) {
+                cube([z_stepper_shaft_flat_cut_depth*2,z_stepper_shaft_diam,z_stepper_shaft_flat_length*2],center=true);
               }
             }
           }
@@ -1073,12 +1064,12 @@ module stepper28BYJ() {
   }
 
   // hump
-  translate([0,stepper_diam/2,-stepper_hump_height/2-0.05]) {
+  translate([0,z_stepper_diam/2,-z_stepper_hump_height/2-0.05]) {
     color("dodgerblue") {
       difference() {
-        cube([stepper_hump_width,stepper_hump_depth*2,stepper_hump_height],center=true);
+        cube([z_stepper_hump_width,z_stepper_hump_depth*2,z_stepper_hump_height],center=true);
 
-        translate([0,stepper_hump_depth,stepper_hump_height/2-cable_distance_from_face-cable_diam/2]) {
+        translate([0,z_stepper_hump_depth,z_stepper_hump_height/2-cable_distance_from_face-cable_diam/2]) {
           rotate([90,0,0]) {
             hull() {
               for(x=[left,right]) {
@@ -1094,7 +1085,7 @@ module stepper28BYJ() {
   }
 
   // hump cables
-  translate([0,stepper_diam/2+stepper_hump_depth,-cable_distance_from_face-cable_diam/2]) {
+  translate([0,z_stepper_diam/2+z_stepper_hump_depth,-cable_distance_from_face-cable_diam/2]) {
     rotate([90,0,0]) {
       for(c=[0:num_cables-1]) {
         translate([cable_pos_x[c],0,0]) {
@@ -1108,61 +1099,77 @@ module stepper28BYJ() {
 }
 
 module z_axis_cam() {
-  shaft_flat_thickness = 3.1;
+  shaft_flat_thickness = 3; // FIXME: hoist the stepper definitions and use those
+
+  tolerance = 0.1;
+
   shaft_flat_len       = 6;
   shaft_total_len      = 7.8; // actually 8mm, but there's some slop with the shaft so it comes in and out
-  shaft_rounded_len    = shaft_total_len - shaft_flat_len;
+  z_line_hole = 1.25;
   tip_diam = z_cam_diam/2;
-
+  tip_diam = z_line_hole + 2*(extrude_width*4);
   tip_pos_x = z_cam_len-tip_diam/2;
 
-  module shaft(len) {
-    linear_extrude(height=len,center=true,convexity=2) {
-      hull() {
-        accurate_circle(z_cam_diam,16);
+  clamp_screw_pos_x = left*(z_stepper_shaft_diam/2+1.2+m3_diam/2);
+  clamp_body_width = extrude_width*6*2+m3_nut_diam;
+  clamp_gap_width = 1;
 
-        translate([0,-z_cam_diam/2,0]) {
-          // square([z_cam_diam,2],center=true);
-        }
-      }
-    }
-  }
+  rounded_shaft_height = max((z_cam_thickness - z_stepper_shaft_flat_length + 0.5), 0);
 
   module body() {
-    translate([0,0,z_cam_shaft_height]) {
-      shaft(z_cam_thickness);
-    }
+    linear_extrude(height=z_cam_thickness,center=true,convexity=3) {
+      difference() {
+        hull() {
+          accurate_circle(z_cam_diam,16);
 
-    hull() {
-      shaft(z_cam_thickness);
-      translate([tip_pos_x,0,0]) {
-        hole(tip_diam,z_cam_thickness,resolution);
+          translate([tip_pos_x,0,0]) {
+            accurate_circle(tip_diam,resolution);
+          }
+
+          translate([clamp_screw_pos_x,0,0]) {
+            square([clamp_body_width,z_cam_diam],center=true);
+          }
+        }
+        // shaft with flat
+        intersection() {
+          accurate_circle(z_stepper_shaft_diam+tolerance,resolution);
+          square([10,shaft_flat_thickness+tolerance],center=true);
+        }
+        // clamp gap
+        translate([clamp_screw_pos_x,0,0]) {
+          square([clamp_body_width+1,clamp_gap_width],center=true);
+        }
+
+        // hole for line to z carriage
+        translate([tip_pos_x,0,0]) {
+          accurate_circle(z_line_hole,8);
+        }
       }
     }
   }
 
   module holes() {
-    intersection() {
-      hole(z_stepper_shaft_diam,z_cam_thickness+1,resolution);
-
-      cube([10,shaft_flat_thickness,z_cam_thickness+1],center=true);
-    }
-    // set screw
-    translate([0,-z_cam_diam/2,z_cam_shaft_height]) {
-      rotate([90,0,0]) {
-        rotate([0,0,90]) {
-          // hole(3,z_cam_diam,6);
+    translate([clamp_screw_pos_x,0,0]) {
+      // clamp screw
+      translate([0,z_cam_diam/2,0]) {
+        rotate([90,0,0]) {
+          rotate([0,0,90]) {
+            hole(3.2,z_cam_diam*2+1,6);
+          }
         }
       }
     }
+
+    // clearance for non-flat shaft portion
+    translate([0,0,z_cam_thickness/2]) {
+      hole(z_stepper_shaft_diam+tolerance,rounded_shaft_height*2,resolution);
+    }
   }
 
-  translate([0,0,z_cam_thickness/2]) {
-    rotate([0,0,z_stepper_rotate_around_y]) {
-      difference() {
-        body();
-        holes();
-      }
+  translate([0,0,0]) {
+    difference() {
+      body();
+      holes();
     }
   }
 }
@@ -1206,7 +1213,7 @@ module z_axis_mount() {
   }
 
   module position_motor() {
-    translate([1,x_carriage_mounting_plate_height/2+z_stepper_diam/2+0.2,plate_thickness]) {
+    translate([1.5,x_carriage_mounting_plate_height/2+z_stepper_diam/2+0.2,plate_thickness]) {
       rotate([0,0,z_motor_angle]) {
         children();
       }
@@ -1239,9 +1246,11 @@ module z_axis_mount() {
       // translate([0,-8,cam_thickness/2+2]) {
       //   hole(cam_diam,cam_thickness,16);
       // }
-      translate([0,-8,2]) {
+      translate([0,-8,3+z_cam_thickness/2]) {
         rotate([0,0,90+z_cam_angle]) {
-          % color("dodgerblue") z_axis_cam();
+          rotate([180,0,0]) {
+            % color("dodgerblue") z_axis_cam();
+          }
         }
       }
     }
@@ -1298,7 +1307,7 @@ module z_axis_mount() {
             }
             position_motor() {
               for(x=[left,right]) {
-                translate([x*(z_stepper_hole_spacing/2),0,0]) {
+                translate([x*(z_stepper_flange_hole_spacing/2),0,0]) {
                   accurate_circle(z_stepper_flange_diam,16);
                 }
               }
@@ -1309,7 +1318,7 @@ module z_axis_mount() {
           position_motor() {
             accurate_circle(z_stepper_diam+0.25,30,resolution);
             for(x=[left,right]) {
-              translate([x*(z_stepper_hole_spacing/2),0,0]) {
+              translate([x*(z_stepper_flange_hole_spacing/2),0,0]) {
                 accurate_circle(m3_diam,8);
 
                 difference() {
