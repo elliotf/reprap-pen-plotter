@@ -982,6 +982,128 @@ module pen(diam=pen_diam) {
 }
 
 module stepper28BYJ() {
+  stepper_diam = 28;
+  stepper_height = 19.5; // body is 19, but flanges stick up
+
+  stepper_flange_width = 42;
+  stepper_flange_diam = 7;
+  stepper_flange_thickness = 0.8;
+  stepper_flange_hole_diam = 4.2;
+  stepper_flange_hole_spacing = 35;
+
+  stepper_shaft_from_center = 8;
+  stepper_shaft_length = 7.9; // varies between 7.9 and 8.5, due to slop in the shaft
+  stepper_shaft_diam = 5;
+  stepper_shaft_flat_length = 6;
+  stepper_shaft_flat_thickness = 3;
+  stepper_shaft_flat_cut_depth = (stepper_shaft_diam-stepper_shaft_flat_thickness)/2;
+  stepper_shaft_base_diam = 9.25;
+  stepper_shaft_base_height = 1.7; // what drawings say.  Actual measurement is 1.6
+
+  stepper_hump_height = 16.8;
+  stepper_hump_width = 15;
+  stepper_hump_depth = 17-stepper_diam/2;
+
+  cable_distance_from_face = 1.75;
+  cable_diam    = 1;
+  num_cables    = 5;
+  cable_pos_x   = [-2.4,-1.2,0,1.2,2.4];
+  cable_colors  = ["yellow","orange","red","pink","dodgerblue"];
+  cable_spacing = 1.2;
+  cable_sample_len = 5;
+  cable_opening_width = 7.3;
+
+  resolution = 32;
+
+  module position_at_flange_centers() {
+    for(side=[left,right]) {
+      translate([side*(stepper_flange_hole_spacing/2),0,0]) {
+        children();
+      }
+    }
+  }
+
+  color("lightgrey") {
+    // main body
+    translate([0,0,-stepper_height/2]) {
+      hole(stepper_diam,stepper_height,resolution*1.25);
+    }
+
+    // flanges
+    translate([0,0,-stepper_flange_thickness/2]) {
+      linear_extrude(height=stepper_flange_thickness,center=true,convexity=3) {
+        difference() {
+          hull() {
+            position_at_flange_centers() {
+              accurate_circle(stepper_flange_diam,resolution/2);
+            }
+          }
+          position_at_flange_centers() {
+            accurate_circle(stepper_flange_hole_diam,resolution/2);
+          }
+        }
+      }
+    }
+
+    // shaft base
+    translate([0,-stepper_shaft_from_center,0]) {
+      hole(stepper_shaft_base_diam,stepper_shaft_base_height*2,resolution);
+    }
+  }
+
+  // shaft
+  color("gold") {
+    translate([0,-stepper_shaft_from_center,0]) {
+      difference() {
+        hole(stepper_shaft_diam,(stepper_shaft_length+stepper_shaft_base_height)*2,resolution);
+
+        translate([0,0,stepper_shaft_base_height+stepper_shaft_length]) {
+          for(x=[left,right]) {
+            translate([x*stepper_shaft_diam/2,0,0]) {
+              cube([stepper_shaft_flat_cut_depth*2,stepper_shaft_diam,stepper_shaft_flat_length*2],center=true);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // hump
+  translate([0,stepper_diam/2,-stepper_hump_height/2-0.05]) {
+    color("dodgerblue") {
+      difference() {
+        cube([stepper_hump_width,stepper_hump_depth*2,stepper_hump_height],center=true);
+
+        translate([0,stepper_hump_depth,stepper_hump_height/2-cable_distance_from_face-cable_diam/2]) {
+          rotate([90,0,0]) {
+            hull() {
+              for(x=[left,right]) {
+                translate([x*(cable_opening_width/2-cable_diam/2),0,0]) {
+                  hole(cable_diam+0.1,8,10);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // hump cables
+  translate([0,stepper_diam/2+stepper_hump_depth,-cable_distance_from_face-cable_diam/2]) {
+    rotate([90,0,0]) {
+      for(c=[0:num_cables-1]) {
+        translate([cable_pos_x[c],0,0]) {
+          color(cable_colors[c]) {
+            hole(cable_diam,cable_sample_len*2,8);
+          }
+        }
+      }
+    }
+  }
+}
+
+module old_stepper28BYJ() {
   // 28BYJ-48 Stepper Motor Model
   // Mark Benson
   // 23/07/2013
