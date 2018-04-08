@@ -91,19 +91,6 @@ motor_wire_hole_height = 6;
 zip_tie_thickness = 1.75;
 zip_tie_width     = 3.25;
 
-print_width = 1*1000;
-print_depth = 1.5*1000;
-print_width = 18*inch;
-print_depth = 24*inch;
-
-// potential size
-print_width = 36*inch;
-print_depth = 48*inch;
-
-// debug/develop
-print_width = 11*inch;
-print_depth = 8.5*inch;
-
 extrude_width = 0.4;
 wall_thickness = extrude_width*4;
 
@@ -122,13 +109,21 @@ wheel_extrusion_spacing = 11.90/2; // edge of extrusion to wheel axle
 
 y_carriage_plate_width = extrusion_height+2*(wheel_extrusion_spacing + wheel_diam/2);
 
-// unused for now
-rear_line_bearing_od = 16;
-rear_line_bearing_id = 8;
-rear_line_bearing_thickness = 10;
-
 rear_idler_line_gap = 4;
-function rear_idler_pos_y(side) = print_depth/2+8+rear_idler_line_gap*side;
+
+// prototype size
+x_rail_len = 500;
+y_rail_len = 500;
+
+// hopefully final size
+x_rail_len = 1000;
+y_rail_len = 1500;
+
+// development size
+x_rail_len = 250;
+y_rail_len = 250;
+
+function rear_idler_pos_y(side) = y_rail_len/2+8+rear_idler_line_gap*side;
 // lift one side to provide line/belt clearance
 function rear_idler_pos_z(side,is_motor) = belt_pos_z + (is_motor*abs(side-1)*line_bearing_thickness);
 
@@ -151,16 +146,16 @@ line_pulley_diam = (20*2)/approx_pi;
 line_pulley_height = 10;
 
 y_rail_pos_x = print_width/2-extrusion_width/2;
+y_rail_pos_x = x_rail_len/2+5+extrusion_width/2;
 y_rail_pos_z = extrusion_height/2;
 
-x_rail_len = print_width - extrusion_width*2 - 5;
 motor_mount_thickness = 10;
 motor_mount_offset    = - extrusion_screw_hole/2 - extrude_width*2 - line_bearing_inner/2 + line_bearing_diam/2 + line_thickness + line_pulley_diam/2;
 motor_pos_x = y_rail_pos_x-extrusion_width/2+nema17_side/2;
 motor_pos_x = y_rail_pos_x + 6;
 motor_pos_x = y_rail_pos_x + motor_mount_offset;
 
-motor_pos_y = -print_depth/2-nema17_side/2-motor_mount_thickness;
+motor_pos_y = -y_rail_len/2-nema17_side/2-motor_mount_thickness;
 y_carriage_pos_x = y_rail_pos_x;
 y_carriage_pos_z = y_rail_pos_z + extrusion_height/2 + extrusion_wheel_gap + plate_thickness/2;
 x_rail_pos_z     = y_carriage_pos_z - plate_thickness/2 - extrusion_width/2;
@@ -675,8 +670,8 @@ module rear_idler_mount(side) {
   _outer_line_idler_pos_x = outer_line_idler_pos_x - y_rail_pos_x;
   _inner_line_idler_pos_x = inner_line_idler_pos_x - y_rail_pos_x;
 
-  outer_line_idler_pos_y = rear_idler_pos_y(side)-print_depth/2;
-  inner_line_idler_pos_y = rear_idler_pos_y(abs(1-side))-print_depth/2;
+  outer_line_idler_pos_y = rear_idler_pos_y(side)-y_rail_len/2;
+  inner_line_idler_pos_y = rear_idler_pos_y(abs(1-side))-y_rail_len/2;
 
   coords = [
     [_outer_line_idler_pos_x,outer_line_idler_pos_y],
@@ -756,7 +751,7 @@ module motor_mount() {
   motor_cavity_side = motor_side + motor_tolerance*2;
 
   rail_pos_x = y_rail_pos_x - abs(motor_pos_x);
-  rail_pos_y = abs(motor_pos_y) - print_depth/2;
+  rail_pos_y = abs(motor_pos_y) - y_rail_len/2;
   rail_pos_z = y_rail_pos_z - motor_pos_z;
 
   space_between_motor_and_extrusion = rail_pos_y - motor_side/2;
@@ -952,7 +947,7 @@ module assembly() {
     mirror([side,0,0]) {
       translate([y_rail_pos_x,0,y_rail_pos_z]) {
         rotate([90,0,0]) {
-          color("silver") extrusion(print_depth);
+          color("silver") extrusion(y_rail_len);
         }
       }
 
@@ -962,7 +957,7 @@ module assembly() {
         y_carriage_assembly();
       }
 
-      translate([y_rail_pos_x,print_depth/2+0.1,0]) {
+      translate([y_rail_pos_x,y_rail_len/2+0.1,0]) {
         rear_idler_mount(side);
       }
 
@@ -1505,5 +1500,5 @@ module z_carriage() {
 }
 
 translate([0,0,-1]) {
-  // % cube([print_width,print_depth,2],center=true);
+  // % cube([print_width,y_rail_len,2],center=true);
 }
