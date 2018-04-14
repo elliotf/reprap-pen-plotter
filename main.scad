@@ -60,6 +60,10 @@ m3_bolt_diam        = 3.25;
 m3_bolt_head_height = 5;
 m3_bolt_head_diam   = 7;
 
+v_slot_depth     = 1.80;
+v_slot_gap       = 5.68;
+v_slot_width     = v_slot_gap+v_slot_depth*2;
+
 spacer  = 1;
 
 approx_pi = 3.14159;
@@ -127,8 +131,8 @@ x_rail_len = 500;
 y_rail_len = 500;
 
 // development size
-x_rail_len = 250;
-y_rail_len = 250;
+x_rail_len = 100;
+y_rail_len = 100;
 
 function rear_idler_pos_y(side) = y_rail_len/2+8+rear_idler_line_gap*side;
 // lift one side to provide line/belt clearance
@@ -151,8 +155,47 @@ line_pulley_diam = (16*2)/approx_pi;
 line_pulley_diam = (20*2)/approx_pi;
 line_pulley_height = 10;
 
+x_carriage_belt_spacing = 5;
+
+y_carriage_depth = extrusion_width*2+20+wheel_diam;
+
+x_carriage_width = extrusion_height + wheel_diam;
+ptfe_diam      = 4;
+ptfe_bushing_preload_amount = 0.0; // undersize by this much to ensure no slop
+
+printed_carriage_extrusion_carriage_gap = ptfe_diam*0.3 - ptfe_bushing_preload_amount;
+printed_carriage_outer_skin_from_extrusion = ptfe_diam -ptfe_bushing_preload_amount + extrude_width *6;
+printed_carriage_wall_thickness = printed_carriage_outer_skin_from_extrusion - printed_carriage_extrusion_carriage_gap;
+
+x_carriage_opening_depth  = extrusion_height + printed_carriage_extrusion_carriage_gap*2;
+x_carriage_opening_height = extrusion_width  + printed_carriage_extrusion_carriage_gap*2;
+
+x_carriage_bushing_len   = 10;
+x_carriage_bushing_pos_y = extrusion_height/2 + ptfe_diam/2 - ptfe_bushing_preload_amount;
+x_carriage_bushing_pos_z = extrusion_width/2  + ptfe_diam/2 - ptfe_bushing_preload_amount;
+
+x_carriage_overall_depth  = x_carriage_bushing_pos_y*2 + ptfe_diam + 2*(extrude_width*6);
+x_carriage_overall_depth  = extrusion_height+printed_carriage_outer_skin_from_extrusion*2;
+x_carriage_overall_height  = x_carriage_bushing_pos_z*2 + ptfe_diam + 2*(extrude_width*6);
+x_carriage_overall_height  = extrusion_width+printed_carriage_outer_skin_from_extrusion*2;
+
+y_carriage_bushing_pos_x = extrusion_width/2 + ptfe_diam/2 - ptfe_bushing_preload_amount;
+y_carriage_overall_width = extrusion_width+printed_carriage_outer_skin_from_extrusion*2;
+y_carriage_opening_width = extrusion_width+printed_carriage_extrusion_carriage_gap*2;
+
+x_carriage_wall_thickness = (x_carriage_overall_height - x_carriage_opening_height)/2;
+z_axis_mount_thickness    = x_carriage_wall_thickness;
+
+x_carriage_mounting_plate_hole_spacing_z = x_carriage_overall_height+m3_nut_diam+extrude_width*12;
+x_carriage_mounting_plate_height = x_carriage_mounting_plate_hole_spacing_z+m3_nut_diam+extrude_width*12;
+
+printed_carriage_inner_diam = printed_carriage_extrusion_carriage_gap*2;
+printed_carriage_outer_diam = x_carriage_overall_height - x_carriage_opening_height - printed_carriage_inner_diam;
+printed_carriage_outer_diam = (printed_carriage_outer_skin_from_extrusion-printed_carriage_extrusion_carriage_gap)*2;
+
 y_rail_pos_x = print_width/2-extrusion_width/2;
 y_rail_pos_x = x_rail_len/2+5+extrusion_width/2;
+y_rail_pos_x = x_rail_len/2+1+printed_carriage_outer_skin_from_extrusion+extrusion_width/2;
 y_rail_pos_z = extrusion_height/2;
 
 motor_mount_thickness = 10;
@@ -162,43 +205,18 @@ motor_pos_x = y_rail_pos_x + 6;
 motor_pos_x = y_rail_pos_x + motor_mount_offset;
 
 motor_pos_y = -y_rail_len/2-nema17_side/2-motor_mount_thickness;
-y_carriage_pos_x = y_rail_pos_x;
-y_carriage_pos_z = y_rail_pos_z + extrusion_height/2 + extrusion_wheel_gap + plate_thickness/2;
-x_rail_pos_z     = y_carriage_pos_z - plate_thickness/2 - extrusion_width/2;
-belt_pos_z  = y_carriage_pos_z + plate_thickness/2 + spacer + line_bearing_thickness/2;
 
 motor_pos_z = motor_len + 2;
 
 inner_line_idler_pos_x = motor_pos_x - line_pulley_diam/2 - line_thickness/2 - line_bearing_diam/2;
 outer_line_idler_pos_x = inner_line_idler_pos_x + line_thickness/2 + line_bearing_diam + 2.5; // not sure how much room to leave for flanges/grooves/belt teeth
 
+y_carriage_pos_x = y_rail_pos_x;
+y_carriage_pos_z = y_rail_pos_z;
+x_rail_pos_z     = y_rail_pos_z + extrusion_width/2;
 x_carriage_pos_z = x_rail_pos_z;
-
-x_carriage_belt_spacing = 5;
-
-y_carriage_depth = extrusion_width*2+20+wheel_diam;
-
-x_carriage_width = extrusion_height + wheel_diam;
-ptfe_diam      = 4;
-ptfe_bushing_preload_amount = 0.0; // undersize by this much to ensure no slop
-
-x_carriage_extrusion_carriage_gap = ptfe_diam*0.3 - ptfe_bushing_preload_amount;
-
-x_carriage_opening_depth  = extrusion_height + x_carriage_extrusion_carriage_gap*2;
-x_carriage_opening_height = extrusion_width  + x_carriage_extrusion_carriage_gap*2;
-
-x_carriage_bushing_len   = 10;
-x_carriage_bushing_pos_y = extrusion_height/2 + ptfe_diam/2 - ptfe_bushing_preload_amount;
-x_carriage_bushing_pos_z = extrusion_width/2  + ptfe_diam/2 - ptfe_bushing_preload_amount;
-
-x_carriage_overall_depth  = x_carriage_bushing_pos_y*2 + ptfe_diam + 2*(extrude_width*6);
-x_carriage_overall_height  = x_carriage_bushing_pos_z*2 + ptfe_diam + 2*(extrude_width*6);
-
-x_carriage_wall_thickness = (x_carriage_overall_height - x_carriage_opening_height)/2;
-z_axis_mount_thickness    = x_carriage_wall_thickness;
-
-x_carriage_mounting_plate_hole_spacing_z = x_carriage_overall_height+m3_nut_diam+extrude_width*12;
-x_carriage_mounting_plate_height = x_carriage_mounting_plate_hole_spacing_z+m3_nut_diam+extrude_width*12;
+belt_pos_z  = y_carriage_pos_z + plate_thickness/2 + spacer + line_bearing_thickness/2;
+belt_pos_z  = x_carriage_pos_z + x_carriage_overall_height/2 + spacer + line_bearing_thickness/2;
 
 z_stepper_diam = 28;
 z_stepper_height = 19.5; // body is 19, but flanges stick up
@@ -313,15 +331,11 @@ module motor_nema14() {
 }
 
 module extrusion(length) {
-  v_slot_depth     = 1.80;
-  v_slot_gap       = 5.68;
-  v_slot_width     = v_slot_gap+v_slot_depth*2;
-
   module groove_profile() {
     hull() {
       square([v_slot_depth*2,v_slot_gap],center=true);
       translate([0,0,0]) {
-        square([0.001,v_slot_width],center=true);
+        square([0.00001,v_slot_width],center=true);
       }
     }
 
@@ -457,22 +471,19 @@ module rounded_cube(width,depth,height,diam,resolution) {
 module x_carriage() {
   stepper_mount_depth = z_stepper_height/2;
 
-  inner_diam = x_carriage_extrusion_carriage_gap*2;
-  outer_diam = x_carriage_overall_height - x_carriage_opening_height - inner_diam;
-
   module carriage_profile() {
-    module body() {
-      rounded_square(x_carriage_overall_height,x_carriage_overall_depth,outer_diam);
+    module profile_body() {
+      rounded_square(x_carriage_overall_height,x_carriage_overall_depth,printed_carriage_outer_diam);
 
       // z axis mounting plate
       translate([0,front*(x_carriage_opening_depth/2+x_carriage_wall_thickness/2),0]) {
-        rounded_square(x_carriage_mounting_plate_height,x_carriage_wall_thickness,inner_diam);
+        rounded_square(x_carriage_mounting_plate_height,x_carriage_wall_thickness,printed_carriage_inner_diam);
 
         // round out internal corners
         for(z=[top,bottom]) {
           translate([z*(x_carriage_overall_height/2),rear*x_carriage_wall_thickness/2,0]) {
             rotate([0,0,45+(z*-45)]) {
-              round_corner_filler_profile(inner_diam);
+              round_corner_filler_profile(printed_carriage_inner_diam);
             }
           }
         }
@@ -483,25 +494,25 @@ module x_carriage() {
       belt_body_height = line_height + 2;
       belt_body_depth  = x_carriage_belt_spacing + line_thickness + extrude_width*12;
       translate([(belt_body_pos_z+belt_body_height/2)/2,0]) {
-        rounded_square(belt_body_pos_z+belt_body_height/2,belt_body_depth,inner_diam);
+        rounded_square(belt_body_pos_z+belt_body_height/2,belt_body_depth,printed_carriage_inner_diam);
       }
 
       for(y=[front,rear]) {
         translate([x_carriage_overall_height/2,y*belt_body_depth/2,0]) {
           rotate([0,0,-45+45*y]) {
-            round_corner_filler_profile(inner_diam);
+            round_corner_filler_profile(printed_carriage_inner_diam);
           }
         }
       }
     }
 
-    module holes() {
-      rounded_square(x_carriage_opening_height,x_carriage_opening_depth,inner_diam);
+    module profile_holes() {
+      rounded_square(x_carriage_opening_height,x_carriage_opening_depth,printed_carriage_inner_diam);
     }
 
     difference() {
-      body();
-      holes();
+      profile_body();
+      profile_holes();
     }
   }
 
@@ -575,6 +586,131 @@ module x_carriage() {
     holes();
   }
 }
+
+module y_carriage_printed() {
+  bushing_from_end = 2.5;
+  //y_carriage_len = extrusion_height + x_carriage_bushing_len*2 + bushing_from_end*2;
+  y_carriage_len = extrusion_height + bushing_from_end*2;
+  carriage_dist_from_bottom = 10;
+  carriage_overall_height = extrusion_height - carriage_dist_from_bottom + printed_carriage_outer_skin_from_extrusion;
+
+  translate([0,0,carriage_overall_height*2]) {
+    // carriage_profile();
+  }
+
+  module carriage_profile() {
+    module profile_body() {
+      translate([0,extrusion_height/2+printed_carriage_extrusion_carriage_gap+printed_carriage_wall_thickness/2,0]) {
+        rounded_square(y_carriage_overall_width,printed_carriage_wall_thickness,printed_carriage_wall_thickness);
+      }
+
+      for(side=[0,1]) {
+        mirror([side,0,0]) {
+          translate([extrusion_width/2+printed_carriage_extrusion_carriage_gap,extrusion_width+printed_carriage_extrusion_carriage_gap,0]) {
+            rotate([0,0,-180]) {
+              round_corner_filler_profile(printed_carriage_inner_diam);
+            }
+          }
+
+          translate([extrusion_width/2+printed_carriage_extrusion_carriage_gap,extrusion_width/2,0]) {
+            hull() {
+              square([v_slot_depth*2,v_slot_width-(v_slot_depth+printed_carriage_extrusion_carriage_gap)*2],center=true);
+
+              translate([-v_slot_width/2,0,0]) {
+                square([0.001,0.001],center=true);
+              }
+              translate([1,0,0]) {
+                square([2,v_slot_width],center=true);
+              }
+            }
+          }
+
+          hull() {
+            translate([extrusion_width/2+printed_carriage_extrusion_carriage_gap+printed_carriage_wall_thickness/2,0,0]) {
+              translate([0,extrusion_height/2+printed_carriage_extrusion_carriage_gap+printed_carriage_wall_thickness/2,0]) {
+                accurate_circle(printed_carriage_wall_thickness,resolution);
+              }
+              //translate([0,-extrusion_height/2+carriage_dist_from_bottom+printed_carriage_wall_thickness/2,0]) {
+              translate([0,extrusion_width/4,0]) {
+                # accurate_circle(printed_carriage_wall_thickness,resolution);
+              }
+            }
+          }
+        }
+      }
+    }
+
+
+    module profile_holes() {
+      // rounded_square(y_carriage_opening_width,extrusion_height+printed_carriage_extrusion_carriage_gap*2,printed_carriage_inner_diam);
+    }
+
+    difference() {
+      profile_body();
+      profile_holes();
+    }
+  }
+
+  module body() {
+    rotate([90,0,0]) {
+      linear_extrude(height=y_carriage_len,center=true,convexity=3) {
+        carriage_profile();
+      }
+    }
+  }
+
+  module holes() {
+    bushing_from_edge_of_extrusion = ptfe_diam/2+1;
+    for(y=[front,0,rear]) {
+      translate([0,y*(y_carriage_len/2-x_carriage_bushing_len/2-bushing_from_end),0]) {
+        // side bushing holes
+        for(x=[left,right]) {
+          for(z=[0,extrusion_height/2-ptfe_diam/2]) {
+            translate([x*(extrusion_width/2-ptfe_bushing_preload_amount+ptfe_diam/2),0,z]) {
+              rotate([90,0,0]) {
+                # hole(ptfe_diam,x_carriage_bushing_len,resolution);
+              }
+            }
+          }
+        }
+
+        // top bushing holes
+        for(x=[left,right]) {
+          translate([x*(extrusion_width/2-bushing_from_edge_of_extrusion),0,extrusion_height/2+ptfe_diam/2-ptfe_bushing_preload_amount]) {
+            rotate([90,0,0]) {
+              # hole(ptfe_diam,x_carriage_bushing_len,resolution);
+            }
+          }
+        }
+
+        // bushings to keep carriage from popping off
+        for(side=[0,1]) {
+          //for(z=[extrusion_height/4+v_slot_width/2-ptfe_diam/2-v_slot_depth/2+xy_dist_to_corner(ptfe_diam/2)]) {
+          //  translate([x*(extrusion_width/2+ptfe_diam/2-v_slot_depth/2-xy_dist_to_corner(ptfe_diam/2)),0,z]) {
+          mirror([side,0,0]) {
+            for(z=[extrusion_height/4+v_slot_width/2-v_slot_depth/2]) {
+              translate([extrusion_width/2-v_slot_depth/2,0,z]) {
+                rotate([90,0,0]) {
+                  rotate([0,0,45]) {
+                    translate([0,-ptfe_diam/2,0]) {
+                      # hole(ptfe_diam,x_carriage_bushing_len,resolution);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
 
 module x_carriage_assembly() {
   translate([0,0,-x_carriage_pos_z+x_rail_pos_z]) {
@@ -668,6 +804,9 @@ module y_carriage_plate(endstop=true) {
 }
 
 module y_carriage_assembly() {
+  y_carriage_printed();
+
+  /*
   linear_extrude(height=plate_thickness,center=true,convexity=2) {
     y_carriage_plate();
   }
@@ -680,6 +819,7 @@ module y_carriage_assembly() {
   translate([extrusion_width/2+wheel_extrusion_spacing,0,-plate_thickness/2-extrusion_wheel_gap-extrusion_width/2]) {
     color("lightblue", 0.75) wheel();
   }
+  */
 }
 
 module rear_idler_mount(side) {
