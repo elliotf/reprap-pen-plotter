@@ -1,4 +1,6 @@
+include <config.scad>;
 include <util.scad>;
+include <filament_drive.scad>;
 
 /*
 
@@ -38,75 +40,6 @@ PLANS
 
  */
 
-inch = 25.4;
-resolution = 32;
-left    = -1;
-right   = 1;
-front   = -1;
-rear    = 1;
-top     = 1;
-bottom  = -1;
-m3_diam = 3.3;
-m3_nut_diam = 5.7; // actually 5.5, but add fudge
-
-base_plate_thickness = 3/4*inch;
-base_plate_thickness = 1/2*inch;
-
-m5_bolt_diam        = 5.25;
-m5_bolt_head_height = 5;
-m5_bolt_head_diam   = 10;
-m5_nut_thickness    = 5;
-m3_bolt_diam        = 3.25;
-m3_bolt_head_height = 5;
-m3_bolt_head_diam   = 7;
-
-v_slot_depth     = 1.80;
-v_slot_gap       = 5.68;
-v_slot_width     = v_slot_gap+v_slot_depth*2;
-
-spacer  = 1;
-
-approx_pi = 3.14159;
-
-nema17_side = 43;
-nema17_len = 43;
-nema17_hole_spacing = 31;
-nema17_shoulder_diam = 22;
-nema17_shoulder_height = 2;
-nema17_screw_diam = m3_diam;
-nema17_shaft_diam = 5;
-nema17_shaft_len = 24;
-
-nema14_side = 35.3;
-nema14_len = nema14_side;
-nema14_hole_spacing = 26;
-nema14_shoulder_diam = 22;
-nema14_shoulder_height = 2;
-nema14_screw_diam = m3_diam;
-nema14_shaft_diam = 5;
-nema14_shaft_len = 20;
-
-motor_side = nema17_side;
-motor_len = nema17_len;
-motor_hole_spacing = nema17_hole_spacing;
-motor_shoulder_diam = nema17_shoulder_diam;
-motor_screw_diam = nema17_screw_diam;
-motor_shaft_diam = nema17_shaft_diam;
-motor_shaft_len = nema17_shaft_len;
-motor_wire_hole_width = 9;
-motor_wire_hole_height = 6;
-
-zip_tie_thickness = 1.75;
-zip_tie_width     = 3.25;
-
-extrude_width = 0.4;
-wall_thickness = extrude_width*4;
-
-y_rail_extrusion_width = 80;
-y_rail_extrusion_height = 40;
-x_rail_extrusion_width = 40;
-x_rail_extrusion_height = 20;
-extrusion_screw_hole = 5;
 
 plate_thickness = 1/4*inch;
 extrusion_wheel_gap = 2;
@@ -124,17 +57,17 @@ y_carriage_plate_width = x_rail_extrusion_height+2*(wheel_extrusion_spacing + wh
 
 rear_idler_line_gap = 4;
 
-// development size
-x_rail_len = 200;
-y_rail_len = 200;
+// hopefully final size
+x_rail_len = 1000;
+y_rail_len = 1500;
 
 // prototype size
 x_rail_len = 500;
 y_rail_len = 500;
 
-// hopefully final size
-x_rail_len = 1000;
-y_rail_len = 1500;
+// development size
+x_rail_len = 200;
+y_rail_len = 200;
 
 function rear_idler_pos_y(side) = y_rail_len/2+8+rear_idler_line_gap*side;
 // lift one side to provide line/belt clearance
@@ -149,7 +82,7 @@ line_bearing_thickness = 10; // 2x mr105zz for belt
 // filament-driven
 line_height            = 1;
 line_thickness         = 1;
-line_bearing_diam      = 14-0.5*2; // 625zz v-groove for filament
+line_bearing_diam      = 16-0.5*2; // 625zz v-groove for filament
 line_bearing_thickness = 5;  // 625zz v-groove for filament
 
 line_bearing_inner     = 5;
@@ -223,7 +156,7 @@ outer_line_idler_pos_x = inner_line_idler_pos_x + line_thickness/2 + line_bearin
 y_carriage_pos_x = y_rail_pos_x;
 y_carriage_pos_z = y_rail_pos_z;
 belt_pos_z  = y_carriage_pos_z + plate_thickness/2 + spacer + line_bearing_thickness/2;
-belt_pos_z  = y_rail_pos_z + x_rail_extrusion_height/2 + printed_carriage_outer_skin_from_extrusion + spacer + line_bearing_thickness/2;
+belt_pos_z  = y_rail_pos_z + printed_carriage_outer_skin_from_extrusion + spacer + line_bearing_thickness/2;
 x_rail_pos_z     = y_rail_pos_z + x_rail_extrusion_width/2 + printed_carriage_wall_thickness;
 x_rail_pos_z     = belt_pos_z - line_height/2 - x_carriage_overall_height/2;
 x_rail_pos_z     = belt_pos_z - line_height/2 - x_carriage_overall_height/2;
@@ -705,7 +638,7 @@ module x_carriage() {
   }
 
   module holes() {
-    bushing_from_wall = x_rail_extrusion_width/4;
+    bushing_from_wall = x_rail_extrusion_height/4;
 
     // z axis mounting holes
     for (x=[left,right]) {

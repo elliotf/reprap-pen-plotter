@@ -1,7 +1,22 @@
-include <main.scad>;
+include <config.scad>;
+include <util.scad>;
 
-module filament_pulley(circumference=16*2, base_height=6, wraps=5,hole_od=0,od_height=0) {
-  diam           = circumference/pi;
+module filament_drive_motor_mount() {
+  module body() {
+  }
+
+  module holes() {
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
+module filament_pulley(diam=(16*2/pi), base_height=6, wraps=5,hole_od=0,od_height=0) {
+  //diam           = circumference/pi;
+  circumference  = diam*pi;
   height         = wraps*groove_height+2*(wraps+1)*groove_depth;
   base_diam      = diam+groove_depth*2;
   steps_per_mm   = steps_per_turn/circumference;
@@ -43,10 +58,12 @@ module filament_pulley(circumference=16*2, base_height=6, wraps=5,hole_od=0,od_h
   }
 
   translate([0,0,height+1]) {
+    /*
     % difference() {
       profile();
       hole_profile();
     }
+    */
   }
 
   module body() {
@@ -55,7 +72,7 @@ module filament_pulley(circumference=16*2, base_height=6, wraps=5,hole_od=0,od_h
     }
 
     translate([diam/2+1,0,groove_depth*2+groove_height/2]) {
-      % cube([1,1,groove_height],center=true);
+      // % cube([1,1,groove_height],center=true);
     }
   }
 
@@ -99,7 +116,7 @@ module filament_pulley(circumference=16*2, base_height=6, wraps=5,hole_od=0,od_h
 
       for(z=[top_pos_z+0.1,bottom_pos_z-0.1]) {
         translate([0,0,z]) {
-          % hole(hole_od,0.05,resolution);
+          hole(hole_od,0.05,resolution);
         }
       }
     }
@@ -138,23 +155,9 @@ module filament_pulley(circumference=16*2, base_height=6, wraps=5,hole_od=0,od_h
 module driver_pulley() {
   base_height   = 6;
 
-  filament_pulley(idler_circumference,base_height,driver_wraps);
+  filament_pulley(driver_diam,base_height,driver_wraps);
 }
 
 module idler_pulley() {
-  // 625
-  bearing_od     = 16;
-  bearing_height = 5;
-
-  // MR105 or 623
-  bearing_od     = 10.2;
-  bearing_height = 4;
-
-  filament_pulley(idler_circumference,0,idler_wraps,bearing_od,bearing_height);
-}
-
-rotate([90,0,0]) {
-  rotate([0,0,90]) {
-    extrusion_2040(10);
-  }
+  filament_pulley(pulley_idler_diam,0,idler_wraps,pulley_idler_bearing_od,pulley_idler_bearing_height);
 }
