@@ -8,7 +8,7 @@ module hole(diam,len,sides=8) {
 
 module accurate_circle(diam,sides=8) {
   rotate([0,0,180/sides]) {
-    circle(r=accurate_diam(diam,sides),center=true,$fn=sides);
+    circle(r=accurate_diam(diam,sides),$fn=sides);
   }
 }
 
@@ -17,5 +17,15 @@ module debug_axes() {
     translate([50,0,0]) cube([100,.2,.2],center=true);
     translate([0,50,0]) cube([.2,100,.2],center=true);
     translate([0,0,50]) cube([.2,.2,100],center=true);
+  }
+}
+
+module ring(id,thickness,height,fn=16) {
+  od = id + thickness;
+  linear_extrude(height=height,center=true) {
+    difference() {
+      accurate_circle(od,fn);
+      accurate_circle(id,fn);
+    }
   }
 }

@@ -10,34 +10,41 @@ extrude_width = 0.4;
 groove_height  = 0.7;
 groove_depth   = 0.5;
 
-driver_wraps         = 5;
+driver_wraps         = 6;
 idler_wraps          = driver_wraps + 1;
 
 steps_per_turn = 200*32; // 1.8deg stepper at 1/32 microstepping
 desired_steps_per_mm = 140;
-driver_circumference = 25*2; // akin to a 20T gt2 pulley
+// driver_circumference = 25*2; // akin to a 20T gt2 pulley
 driver_circumference = steps_per_turn/desired_steps_per_mm;
 
 driver_diam = driver_circumference/pi;
 
+ptfe_bushing_diam = 4;
+ptfe_bushing_preload_amount = 0.0; // undersize by this much to ensure no slop
+
 idler_top_bottom_groove_dist = (idler_wraps-1)*groove_height+(idler_wraps-1)*(groove_depth*2);
 pulley_idler_height = idler_top_bottom_groove_dist + groove_height + groove_depth*4;
 
+625_bearing_id        = 5;
+625_bearing_od        = 16; // 625zz v-groove for filament
+625_bearing_thickness = 5;  // 625zz v-groove for filament
+
 // 625
-pulley_idler_bearing_id     = 5;
-pulley_idler_bearing_od     = 16;
-pulley_idler_bearing_height = 5;
+// pulley_idler_bearing_id     = 5;
+//pulley_idler_bearing_od     = 16;
+//pulley_idler_bearing_height = 5;
 
 // MR105 or 623
-pulley_idler_bearing_od     = 10.2;
-pulley_idler_bearing_height = 4;
+//pulley_idler_bearing_od     = 10.2;
+//pulley_idler_bearing_height = 4;
 
 // 688 bearing
 pulley_idler_bearing_id     = 8;
 pulley_idler_bearing_od     = 16.2;
 pulley_idler_bearing_height = 4;
 
-pulley_idler_diam = pulley_idler_bearing_od + (extrude_width*6);
+pulley_idler_diam = pulley_idler_bearing_od + (extrude_width*10);
 
 //
 // plotter
@@ -53,7 +60,7 @@ bottom  = -1;
 m3_diam = 3.3;
 m3_nut_diam = 5.7; // actually 5.5, but add fudge
 
-base_plate_thickness = 3/4*inch;
+//base_plate_thickness = 3/4*inch;
 base_plate_thickness = 1/2*inch;
 
 m5_bolt_diam        = 5.25;
@@ -65,8 +72,10 @@ m3_bolt_head_height = 5;
 m3_bolt_head_diam   = 7;
 
 v_slot_depth     = 1.80;
-v_slot_gap       = 5.68;
-v_slot_width     = v_slot_gap+v_slot_depth*2;
+//v_slot_gap       = 5.68;
+v_slot_width     = 9.5;
+v_slot_gap       = v_slot_width-v_slot_depth*2;
+v_slot_opening   = 6.2;
 
 spacer  = 1;
 
@@ -98,8 +107,8 @@ motor_shaft_len = nema17_shaft_len;
 motor_wire_hole_width = 9;
 motor_wire_hole_height = 6;
 
-zip_tie_thickness = 1.75;
-zip_tie_width     = 3.25;
+zip_tie_thickness = 2;
+zip_tie_width     = 4;
 
 wall_thickness = extrude_width*4;
 
@@ -108,3 +117,21 @@ y_rail_extrusion_height = 40;
 x_rail_extrusion_width = 40;
 x_rail_extrusion_height = 20;
 extrusion_screw_hole = 5;
+
+y_rail_dist_above_plate = 8;
+
+z_rod_diam  = 3;
+
+printed_carriage_extrusion_carriage_gap = ptfe_bushing_diam*0.3 - ptfe_bushing_preload_amount;
+printed_carriage_outer_skin_from_extrusion = ptfe_bushing_diam -ptfe_bushing_preload_amount + extrude_width *6;
+printed_carriage_wall_thickness = printed_carriage_outer_skin_from_extrusion - printed_carriage_extrusion_carriage_gap;
+printed_carriage_bushing_from_end = 2.5;
+printed_carriage_inner_diam = printed_carriage_extrusion_carriage_gap*2;
+printed_carriage_outer_diam = (printed_carriage_outer_skin_from_extrusion-printed_carriage_extrusion_carriage_gap)*2;
+
+x_carriage_overall_depth = x_rail_extrusion_width+printed_carriage_outer_skin_from_extrusion*2;
+x_carriage_overall_height = x_rail_extrusion_height+printed_carriage_outer_skin_from_extrusion*2;
+
+x_carriage_opening_depth  = x_rail_extrusion_width + printed_carriage_extrusion_carriage_gap*2;
+x_carriage_opening_height = x_rail_extrusion_height + printed_carriage_extrusion_carriage_gap*2;
+x_carriage_wall_thickness = (x_carriage_overall_height - x_carriage_opening_height)/2;

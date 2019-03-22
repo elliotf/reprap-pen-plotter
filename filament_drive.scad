@@ -1,5 +1,15 @@
+use <main.scad>;
 include <config.scad>;
 include <util.scad>;
+
+motor_opening_side = motor_side + 0.4;
+new_filament_drive_shaft_dist = motor_opening_side/2+pulley_idler_diam/2;
+new_filament_drive_wall_thickness = 1+extrude_width*6;
+new_filament_drive_overall_width = motor_opening_side + new_filament_drive_wall_thickness*2;
+new_filament_idler_mount_depth = 2*(new_filament_drive_shaft_dist - motor_opening_side/2);
+new_filament_drive_dist_motor_rail = new_filament_idler_mount_depth + motor_opening_side/2;
+
+waffles_fyes = 10;
 
 module filament_drive_motor_mount() {
   module body() {
@@ -105,7 +115,7 @@ module filament_pulley(diam=(16*2/pi), base_height=6, wraps=5,hole_od=0,od_heigh
     screw_diam    = 3.15;
     shaft_diam    = 5.1;
     d_cut_depth   = shaft_diam-4.6;
-    d_cut_height  = base_height+3;
+    // d_cut_height  = base_height+3;
     d_cut_height  = 100;
 
     // idler branch
@@ -161,3 +171,147 @@ module driver_pulley() {
 module idler_pulley() {
   filament_pulley(pulley_idler_diam,0,idler_wraps,pulley_idler_bearing_od,pulley_idler_bearing_height);
 }
+
+module new_filament_drive() {
+  idler_shaft_pos_y = new_filament_drive_shaft_dist;
+
+  module body() {
+    idler_brace_depth = new_filament_idler_mount_depth;
+    width = new_filament_drive_overall_width;
+    
+    hull() {
+      translate([0,0,-motor_len/2]) {
+        translate([0,idler_shaft_pos_y,0]) {
+          cube([width,idler_brace_depth,motor_len],center=true);
+        }
+
+        for(side=[left,right]) {
+          translate([(width/2-new_filament_drive_wall_thickness)*side,-motor_opening_side/2,0]) {
+            hole(new_filament_drive_wall_thickness*2, motor_len,16);
+          }
+        }
+      }
+    }
+  }
+
+  module holes() {
+    cube([motor_opening_side,motor_opening_side,motor_len*3],center=true);
+
+    translate([0,idler_shaft_pos_y,0]) {
+      hole(pulley_idler_bearing_id+0.2, motor_len*3);
+    }
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+  
+  translate([0,0,3]) {
+    // % driver_pulley();
+  }
+
+  translate([0,idler_shaft_pos_y,2.125]) {
+    // % hole(pulley_idler_bearing_id, motor_len*2, 32);
+    // % idler_pulley();
+  }
+
+  // % motor_nema17();
+}
+
+module new_filament_drive_shaft_brace() {
+  body_height = 10;
+  brace_pos_z = motor_shaft_len -625_bearing_thickness/2 + 1.5 + body_height/2;
+  overall_height = brace_pos_z + body_height/2;
+
+  module body() {
+    translate([0,0,brace_pos_z]) {
+      hull() {
+        hole(625_bearing_od+new_filament_drive_wall_thickness*2, body_height, 16);
+
+        translate([0,new_filament_drive_shaft_dist,0]) {
+          hole(pulley_idler_bearing_id+new_filament_drive_wall_thickness*3, body_height, 16);
+        }
+
+        for(side=[front,rear]) {
+          translate([-motor_hole_spacing/2,motor_hole_spacing/2*side,0]) {
+            hole(6+new_filament_drive_wall_thickness*2, body_height, 16);
+          }
+        }
+      }
+    }
+
+    hull() {
+      for(side=[front,rear]) {
+        translate([-motor_hole_spacing/2,motor_hole_spacing/2*side,motor_shaft_len/2]) {
+          hole(6+new_filament_drive_wall_thickness*2, motor_shaft_len, 16);
+        }
+      }
+    }
+  }
+
+  module holes() {
+    translate([0,new_filament_drive_shaft_dist,0]) {
+      hole(pulley_idler_bearing_id+0.2, motor_len*3);
+    }
+
+    translate([0,0,motor_shaft_len]) {
+      hole(625_bearing_od, 625_bearing_thickness, 16);
+      hole(625_bearing_od-2, motor_shaft_len*2, 16);
+    }
+
+    hole(motor_shoulder_diam+8, (brace_pos_z-body_height/2)*2, 32);
+
+    for(side=[front,rear]) {
+      translate([-motor_hole_spacing/2,motor_hole_spacing/2*side,-0.5]) {
+        hole(3.5, 20, 16);
+      }
+      translate([-motor_hole_spacing/2,motor_hole_spacing/2*side,motor_shaft_len+10]) {
+        hole(6, motor_shaft_len*2, 16);
+      }
+    }
+  }
+
+  translate([0,0,motor_shaft_len]) {
+    // % hole(625_bearing_od, 625_bearing_thickness, 16);
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
+
+module filament_drive_assembly() {
+  color("lightgreen") new_filament_drive();
+  
+  translate([0,0,3]) {
+    % driver_pulley();
+  }
+
+  translate([0,new_filament_drive_shaft_dist,2.125]) {
+    % hole(pulley_idler_bearing_id, motor_len*2, 32);
+    % idler_pulley();
+  }
+
+  % motor_nema17();
+
+  translate([0,0,1]) {
+    color("lightblue") new_filament_drive_shaft_brace();
+  }
+  translate([0,0,motor_shaft_len]) {
+    % hole(625_bearing_od, 625_bearing_thickness, 16);
+  }
+
+
+  translate([0,new_filament_drive_shaft_dist+10+20,-motor_len+20]) {
+    rotate([0,90,0]) {
+      rotate([90,0,0]) {
+        // % extrusion_2040(40);
+      }
+    }
+  }
+}
+
+// filament_drive_assembly();

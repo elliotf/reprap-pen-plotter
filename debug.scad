@@ -37,7 +37,7 @@ module y_carriage() {
   resolution = 16;
 
   bushing_from_edge_of_extrusion = ptfe_diam/2+1;
-  bushing_pos_z = length/2;
+  // bushing_pos_z = length/2;
   bushing_pos_z = length/2-x_carriage_bushing_len/2-bushing_from_edge_of_extrusion;
 
   rel_to_origin_z = bottom*(x_rail_pos_z + y_carriage_x_rail_offset_z);
@@ -118,7 +118,7 @@ module y_carriage() {
           translate([0,y*(x_rail_extrusion_width/2),z*(bushing_pos_z)]) {
             for(x=[left]) {
               translate([x*(x_rail_extrusion_height/4+ptfe_diam/2),y*(-ptfe_diam/2+ptfe_bushing_preload_amount),0]) {
-                # hole(ptfe_diam,x_carriage_bushing_len,resolution);
+                hole(ptfe_diam,x_carriage_bushing_len,resolution);
               }
             }
 
@@ -138,7 +138,7 @@ module y_carriage() {
 
       for(y=[ptfe_diam/2]) {
         translate([width/2-printed_carriage_extrusion_carriage_gap/2+ptfe_bushing_preload_amount,y,z*bushing_pos_z]) {
-          # hole(ptfe_diam,x_carriage_bushing_len,resolution);
+          hole(ptfe_diam,x_carriage_bushing_len,resolution);
         }
       }
 
