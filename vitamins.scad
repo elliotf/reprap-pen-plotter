@@ -24,6 +24,33 @@ z_stepper_hump_height = 16.8;
 z_stepper_hump_width = 15;
 z_stepper_hump_depth = 17-z_stepper_diam/2;
 
+module line_bearing(resolution=16) {
+  module profile() {
+    difference() {
+      translate([line_bearing_diam/4,0]) {
+        square([line_bearing_diam/2,line_bearing_thickness], center=true);
+      }
+      translate([line_bearing_inner/4,0]) {
+        square([line_bearing_inner/2,line_bearing_thickness+1], center=true);
+      }
+
+      // groove
+      translate([line_bearing_diam/2,0,0]) {
+        rotate([0,0,0]) {
+          accurate_circle(1,6);
+        }
+      }
+    }
+  }
+
+  rotate_extrude(convexity=3,$fn=resolution) {
+    profile();
+  }
+
+  // hole(line_bearing_diam,line_bearing_thickness,resolution);
+  // hole(line_bearing_inner,line_bearing_thickness+1,resolution);
+}
+
 module stepper28BYJ(shaft_angle) {
   cable_distance_from_face = 1.75;
   cable_diam    = 1;
@@ -233,5 +260,107 @@ module tuner() {
   difference() {
     body();
     holes();
+  }
+}
+
+module extrusion_2040_profile() {
+  v_slot_depth     = 1.80;
+  //v_slot_gap       = 5.68;
+  v_slot_width     = 9.5;
+  v_slot_gap       = v_slot_width-v_slot_depth*2;
+  v_slot_opening   = 6.2;
+
+  width = 40;
+  height = 20;
+
+  module groove_profile() {
+    square([v_slot_depth*3,v_slot_opening],center=true);
+    hull() {
+      square([v_slot_depth*2,v_slot_gap],center=true);
+      translate([0,0,0]) {
+        square([0.00001,v_slot_width],center=true);
+      }
+    }
+
+    groove_depth = 12.2/2;
+    opening_behind_slot = 1.64;
+    opening_behind_slot_width = v_slot_gap+(groove_depth-opening_behind_slot-v_slot_depth)*2;
+
+    for(side=[left,right]) {
+      translate([side*v_slot_depth,0,0]) {
+        hull() {
+          translate([side*(groove_depth-v_slot_depth)/2,0,0]) {
+            square([groove_depth-v_slot_depth,v_slot_gap],center=true);
+          }
+          translate([side*opening_behind_slot/2,0,0]) {
+            square([opening_behind_slot,opening_behind_slot_width],center=true);
+          }
+        }
+      }
+    }
+  }
+
+  base_unit = 20;
+  open_space_between_sides = base_unit-v_slot_depth*2;
+  difference() {
+    square([width,height],center=true);
+
+    square([5.4,open_space_between_sides],center=true);
+
+    hull() {
+      square([5.4,open_space_between_sides-1.96*2],center=true);
+      square([12.2,5.68],center=true);
+    }
+
+    for(x=[left,right]) {
+      translate([x*width/4,0]) {
+        accurate_circle(4.2,16);
+
+        for(y=[top,bottom]) {
+          translate([0,y*height/2,0]) {
+            rotate([0,0,90]) {
+              groove_profile();
+            }
+          }
+        }
+      }
+
+      translate([x*width/2,0]) {
+        rotate([0,0,0]) {
+          groove_profile();
+        }
+      }
+    }
+  }
+}
+
+module extrusion_2040(length) {
+  linear_extrude(height=length,center=true,convexity=2) {
+    extrusion_2040_profile();
+  }
+}
+
+module ptfe_bushing_profile_for_2040_extrusion() {
+  width = 40;
+  height = 20;
+  bushing_from_extrusion_corner = ptfe_bushing_diam/2+0.5;
+  
+  // PTFE bushings
+  // short side bushings
+  for(x=[left,right]) {
+    for (z=[top,bottom]) {
+      translate([x*(width/2+ptfe_bushing_diam/2-ptfe_bushing_preload_amount),z*(height/2-bushing_from_extrusion_corner)]) {
+        accurate_circle(ptfe_bushing_diam,8);
+      }
+    }
+  }
+
+  // long side bushings
+  for(x=[left,right]) {
+    for (z=[top,bottom]) {
+      translate([x*(width/2-bushing_from_extrusion_corner),z*(height/2+ptfe_bushing_diam/2-ptfe_bushing_preload_amount)]) {
+        accurate_circle(ptfe_bushing_diam,8);
+      }
+    }
   }
 }

@@ -29,3 +29,24 @@ module ring(id,thickness,height,fn=16) {
     }
   }
 }
+
+module rounded_square(width,depth,diam,fn=resolution) {
+  pos_x = width/2-diam/2;
+  pos_y = depth/2-diam/2;
+
+  hull() {
+    for(x=[left,right]) {
+      for(y=[front,rear]) {
+        translate([x*pos_x,y*pos_y,0]) {
+          accurate_circle(diam,fn);
+        }
+      }
+    }
+  }
+}
+
+module rounded_cube(width,depth,height,diam,fn=resolution) {
+  linear_extrude(height=height,center=true,convexity=3) {
+    rounded_square(width,depth,diam,fn);
+  }
+}

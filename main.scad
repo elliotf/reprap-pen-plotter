@@ -399,76 +399,6 @@ module extrusion_cbeam(length) {
   }
 }
 
-module extrusion_2040(length) {
-  width = 40;
-  height = 20;
-
-  module groove_profile() {
-    square([v_slot_depth*3,v_slot_opening],center=true);
-    hull() {
-      square([v_slot_depth*2,v_slot_gap],center=true);
-      translate([0,0,0]) {
-        square([0.00001,v_slot_width],center=true);
-      }
-    }
-
-    groove_depth = 12.2/2;
-    x_carriage_opening_behind_slot = 1.64;
-    x_carriage_opening_behind_slot_width = v_slot_gap+(groove_depth-x_carriage_opening_behind_slot-v_slot_depth)*2;
-
-    for(side=[left,right]) {
-      translate([side*v_slot_depth,0,0]) {
-        hull() {
-          translate([side*(groove_depth-v_slot_depth)/2,0,0]) {
-            square([groove_depth-v_slot_depth,v_slot_gap],center=true);
-          }
-          translate([side*x_carriage_opening_behind_slot/2,0,0]) {
-            square([x_carriage_opening_behind_slot,x_carriage_opening_behind_slot_width],center=true);
-          }
-        }
-      }
-    }
-  }
-
-  module profile() {
-    base_unit = 20;
-    open_space_between_sides = base_unit-v_slot_depth*2;
-    difference() {
-      square([width,height],center=true);
-
-      square([5.4,open_space_between_sides],center=true);
-
-      hull() {
-        square([5.4,open_space_between_sides-1.96*2],center=true);
-        square([12.2,5.68],center=true);
-      }
-
-      for(x=[left,right]) {
-        translate([x*width/4,0]) {
-          accurate_circle(4.2,16);
-
-          for(y=[top,bottom]) {
-            translate([0,y*height/2,0]) {
-              rotate([0,0,90]) {
-                groove_profile();
-              }
-            }
-          }
-        }
-
-        translate([x*width/2,0]) {
-          rotate([0,0,0]) {
-            groove_profile();
-          }
-        }
-      }
-    }
-  }
-
-  linear_extrude(height=length,center=true,convexity=2) {
-    profile();
-  }
-}
 
 
 
@@ -520,27 +450,6 @@ module belt_teeth(belt_width,length) {
 
   linear_extrude(height=belt_width,center=true,convexity=3) {
     belt_tooth_profile();
-  }
-}
-
-module rounded_square(width,depth,diam,fn=resolution) {
-  pos_x = width/2-diam/2;
-  pos_y = depth/2-diam/2;
-
-  hull() {
-    for(x=[left,right]) {
-      for(y=[front,rear]) {
-        translate([x*pos_x,y*pos_y,0]) {
-          accurate_circle(diam,fn);
-        }
-      }
-    }
-  }
-}
-
-module rounded_cube(width,depth,height,diam,resolution) {
-  linear_extrude(height=height,center=true,convexity=3) {
-    rounded_square(width,depth,diam,resolution);
   }
 }
 

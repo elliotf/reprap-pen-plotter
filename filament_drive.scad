@@ -298,7 +298,7 @@ module filament_drive_assembly() {
   % motor_nema17();
 
   translate([0,0,1]) {
-    color("lightblue") new_filament_drive_shaft_brace();
+    // color("lightblue") new_filament_drive_shaft_brace();
   }
   translate([0,0,motor_shaft_len]) {
     % hole(625_bearing_od, 625_bearing_thickness, 16);
