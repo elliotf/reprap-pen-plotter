@@ -74,6 +74,10 @@ for(x=[left,right]) {
 translate([0,0,x_rail_pos_z]) {
   x_carriage();
 
+  translate([0,-x_carriage_overall_depth/2,0]) {
+    z_axis_assembly();
+  }
+
   rotate([0,90,0]) {
     rotate([0,0,90]) {
       color("silver") extrusion_2040(x_rail_len);

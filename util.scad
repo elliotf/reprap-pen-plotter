@@ -13,11 +13,9 @@ module accurate_circle(diam,sides=8) {
 }
 
 module debug_axes() {
-  color("red") {
-    translate([50,0,0]) cube([100,.2,.2],center=true);
-    translate([0,50,0]) cube([.2,100,.2],center=true);
-    translate([0,0,50]) cube([.2,.2,100],center=true);
-  }
+  color("red") translate([50,0,0]) cube([100,.2,.2],center=true);
+  color("green") translate([0,50,0]) cube([.2,100,.2],center=true);
+  color("blue") translate([0,0,50]) cube([.2,.2,100],center=true);
 }
 
 module ring(id,thickness,height,fn=16) {
@@ -48,5 +46,22 @@ module rounded_square(width,depth,diam,fn=resolution) {
 module rounded_cube(width,depth,height,diam,fn=resolution) {
   linear_extrude(height=height,center=true,convexity=3) {
     rounded_square(width,depth,diam,fn);
+  }
+}
+
+module round_corner_filler(diam,length) {
+  linear_extrude(height=length,center=true,convexity=3) {
+    round_corner_filler_profile(diam);
+  }
+}
+
+module round_corner_filler_profile(diam,res=resolution) {
+  difference() {
+    translate([diam/4,diam/4,0]) {
+      square([diam/2,diam/2],center=true);
+    }
+    translate([diam/2,diam/2,0]) {
+      accurate_circle(diam,res);
+    }
   }
 }

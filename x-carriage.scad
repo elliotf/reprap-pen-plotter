@@ -69,7 +69,7 @@ module x_carriage() {
     mirror([1-side,0,0]) {
       translate([tensioner_pos_x,tensioner_pos_y,tensioner_pos_z]) {
         rotate([0,0,0]) {
-          rotate([5,0,0]) {
+          rotate([9,0,0]) {
             mirror([0,0,0]) {
               rotate([0,10,0]) {
                 rotate([0,0,-90]) {
@@ -172,13 +172,9 @@ module x_carriage() {
           hole(tuner_thick_diam+0.5,tuner_thick_len*2,8);
           hole(tuner_thin_diam+0.5,tuner_hole_to_shoulder*2,8);
         }
-        translate([0,0,-tuner_thick_len]) {
-          rotate([0,0,0]) {
-            rotate([0,0,-10]) {
-              rotate([90,0,0]) {
-              }
-            }
-          }
+
+        translate([-tuner_body_diam/2,-tuner_body_diam/2,0]) {
+          hole(tuner_anchor_screw_hole_diam-0.5,10,8);
         }
       }
     }
@@ -216,6 +212,13 @@ module x_carriage() {
             // hole(m3_nut_diam,3,6);
           }
         }
+      }
+    }
+
+    // clearance for z stepper
+    translate([z_stepper_pos_x,front*(x_carriage_overall_depth/2-printed_carriage_wall_thickness/2),z_stepper_dist_from_x_rail_z]) {
+      rotate([90,0,0]) {
+        hole(z_stepper_diam+1,printed_carriage_wall_thickness+1,6);
       }
     }
   }

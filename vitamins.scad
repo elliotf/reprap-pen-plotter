@@ -2,9 +2,6 @@ use <util.scad>;
 
 include <config.scad>;
 
-z_stepper_diam = 28;
-z_stepper_height = 19.5; // body is 19, but flanges stick up
-
 z_stepper_shaft_diam = 5;
 z_stepper_flange_width = 42;
 z_stepper_flange_diam = 7;

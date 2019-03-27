@@ -110,7 +110,7 @@ motor_shaft_len = nema17_shaft_len;
 motor_wire_hole_width = 9;
 motor_wire_hole_height = 6;
 
-zip_tie_thickness = 2;
+zip_tie_thickness = 2.5;
 zip_tie_width     = 4;
 
 wall_thickness = extrude_width*4;
@@ -159,3 +159,10 @@ z_carriage_carrier_room_for_nut = m3_nut_max_diam + printed_carriage_inner_diam 
 z_carriage_carrier_hole_spacing_x = x_carriage_width - z_carriage_carrier_room_for_nut;
 z_carriage_carrier_hole_spacing_z = x_carriage_overall_height + z_carriage_carrier_room_for_nut;
 z_carriage_carrier_height = z_carriage_carrier_hole_spacing_z + z_carriage_carrier_room_for_nut;
+
+z_stepper_diam = 28;
+z_stepper_height = 19.5; // body is 19, but flanges stick up
+
+z_stepper_pos_x = 4;
+z_stepper_angle = 10;
+z_stepper_dist_from_x_rail_z = x_carriage_overall_height/2 + z_stepper_diam/2 + 5;

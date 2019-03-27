@@ -51,10 +51,7 @@ wheel_thickness = 8.8;
 wheel_screw_length = wheel_thickness + wheel_spacer + plate_thickness + m5_nut_thickness;
 plate_min_material = 5;
 
-wheel_diam              = 15.23;
 wheel_extrusion_spacing = 11.90/2; // edge of extrusion to wheel axle
-
-y_carriage_plate_width = x_rail_extrusion_height+2*(wheel_extrusion_spacing + wheel_diam/2);
 
 rear_idler_line_gap = 4;
 
@@ -402,34 +399,6 @@ module extrusion_cbeam(length) {
 
 
 
-
-module x_carriage_position_at_wheels() {
-  translate([0,x_rail_extrusion_height/2+wheel_extrusion_spacing,0]) {
-    children();
-  }
-  for(x=[left,right]) {
-    translate([x*x_carriage_width/2,front*(x_rail_extrusion_height/2+wheel_extrusion_spacing),0]) {
-      children();
-    }
-  }
-}
-
-module round_corner_filler(diam,length) {
-  linear_extrude(height=length,center=true,convexity=3) {
-    round_corner_filler_profile(diam);
-  }
-}
-
-module round_corner_filler_profile(diam,res=resolution) {
-  difference() {
-    translate([diam/4,diam/4,0]) {
-      square([diam/2,diam/2],center=true);
-    }
-    translate([diam/2,diam/2,0]) {
-      accurate_circle(diam,res);
-    }
-  }
-}
 
 module belt_teeth(belt_width,length) {
   tooth_diam  = 1.4;
@@ -846,77 +815,6 @@ module y_carriage_position_at_wheels() {
       children();
     }
   }
-}
-
-module y_carriage_plate(endstop=true) {
-  module body() {
-    hull() {
-      y_carriage_position_at_wheels() {
-        accurate_circle(wheel_diam,resolution);
-      }
-
-      translate([-x_rail_extrusion_width/2-30,0,0]) {
-        square([wheel_diam,x_rail_extrusion_height],center=true);
-      }
-
-      if (endstop) {
-        translate([x_rail_extrusion_width/2+wheel_extrusion_spacing,-y_carriage_depth/2,0]) {
-          accurate_circle(wheel_diam,resolution);
-        }
-      }
-    }
-  }
-
-  module holes() {
-    y_carriage_position_at_wheels() {
-      accurate_circle(5,resolution);
-    }
-
-    // attach to X rail
-    for(x=[-10,-30]) {
-      for(y=[front,rear]) {
-        translate([-x_rail_extrusion_width/2+x,y*x_rail_extrusion_width/2,0]) {
-          accurate_circle(5,resolution);
-        }
-      }
-    }
-
-    // belt idlers
-    // motor side
-    translate([inner_line_idler_pos_x-y_carriage_pos_x,front*(line_bearing_diam/2+x_carriage_belt_spacing/2+line_thickness/2),0]) {
-      accurate_circle(4.2,resolution);
-    }
-    // rear
-    translate([inner_line_idler_pos_x-y_carriage_pos_x,rear*(line_bearing_diam/2+x_carriage_belt_spacing/2+line_thickness/2),0]) {
-      accurate_circle(4.2,resolution);
-    }
-  }
-
-  difference() {
-    body();
-    holes();
-  }
-}
-
-module y_carriage_assembly() {
-  translate([0,front*(y_carriage_len/2-x_rail_extrusion_height/2-x_rail_dist_from_y_carriage_end),0]) {
-    y_carriage_printed();
-  }
-
-  /*
-  linear_extrude(height=plate_thickness,center=true,convexity=2) {
-    y_carriage_plate();
-  }
-
-  for(y=[front,rear]) {
-    translate([-x_rail_extrusion_width/2-wheel_extrusion_spacing,y*(y_carriage_depth/2),-plate_thickness/2-extrusion_wheel_gap-x_rail_extrusion_width/2]) {
-      color("lightblue", 0.75) wheel();
-    }
-  }
-  translate([x_rail_extrusion_width/2+wheel_extrusion_spacing,0,-plate_thickness/2-extrusion_wheel_gap-x_rail_extrusion_width/2]) {
-    color("lightblue", 0.75) wheel();
-  }
-  */
 }
 
 module rear_idler_mount(side) {
