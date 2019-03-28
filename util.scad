@@ -65,3 +65,20 @@ module round_corner_filler_profile(diam,res=resolution) {
     }
   }
 }
+
+module space_along_length(length,min_hole_spacing=4*inch,from_end=1*inch) {
+  avail_length = length - (from_end*2);
+  num_spaces   = floor(avail_length / min_hole_spacing);
+  extra_space  = (avail_length - (num_spaces*min_hole_spacing)) / num_spaces;
+  spacing      = min_hole_spacing + extra_space;
+
+  // echo(length, num_spaces, spacing);
+
+  translate([0,-length/2+from_end,0]) {
+    for(y=[0:num_spaces]) {
+      translate([0,y*spacing,0]) {
+        children();
+      }
+    }
+  }
+}

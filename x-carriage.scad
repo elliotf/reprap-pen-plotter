@@ -1,4 +1,3 @@
-use <main.scad>;
 include <config.scad>;
 include <util.scad>;
 include <vitamins.scad>;

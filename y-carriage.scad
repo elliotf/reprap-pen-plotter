@@ -1,4 +1,3 @@
-use <main.scad>;
 include <config.scad>;
 include <util.scad>;
 include <vitamins.scad>;
@@ -104,6 +103,7 @@ module y_carriage() {
 
     xz_position_for_line_bearing() {
       // make it easier to feed the line through?
+      /*
       difference() {
         translate([line_bearing_diam/4+1,0,0]) {
           cube([line_bearing_diam/2,20,line_bearing_thickness+bearing_bevel_height*2+1],center=true);
@@ -114,6 +114,7 @@ module y_carriage() {
           }
         }
       }
+      */
 
       // line bearing bevels
       for(y=[front,rear]) {

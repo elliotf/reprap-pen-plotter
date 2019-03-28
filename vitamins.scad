@@ -361,3 +361,37 @@ module ptfe_bushing_profile_for_2040_extrusion() {
     }
   }
 }
+
+module motor_nema17() {
+  difference() {
+    translate([0,0,-nema17_len/2]) cube([nema17_side,nema17_side,nema17_len],center=true);
+    for(end=[left,right]) {
+      for(side=[front,rear]) {
+        translate([nema17_hole_spacing/2*side,nema17_hole_spacing/2*end,0]) cylinder(r=motor_screw_diam/2,h=100,center=true);
+      }
+    }
+  }
+  hole(nema17_shoulder_diam,nema17_shoulder_height*2,16);
+
+  translate([0,0,nema17_shaft_len/2]) {
+    hole(nema17_shaft_diam,nema17_shaft_len,16);
+    // hole(line_pulley_diam,line_pulley_height,16);
+  }
+}
+
+module motor_nema14() {
+  difference() {
+    translate([0,0,-nema14_len/2]) cube([nema14_side,nema14_side,nema14_len],center=true);
+    for(end=[left,right]) {
+      for(side=[front,rear]) {
+        translate([nema14_hole_spacing/2*side,nema14_hole_spacing/2*end,0]) cylinder(r=motor_screw_diam/2,h=100,center=true);
+      }
+    }
+  }
+  hole(nema14_shoulder_diam,nema14_shoulder_height*2,16);
+
+  translate([0,0,nema14_shaft_len/2]) {
+    hole(nema14_shaft_diam,nema14_shaft_len,16);
+    hole(line_pulley_diam,line_pulley_height,16);
+  }
+}

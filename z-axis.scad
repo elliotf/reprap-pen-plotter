@@ -282,11 +282,13 @@ module z_axis_mount() {
 
   position_z_stepper() {
     translate([0,-z_stepper_shaft_from_center,z_stepper_shaft_base_height+z_stepper_shaft_length-z_lifter_arm_thickness/2-0.08]) {
-      rotate([0,0,-z_stepper_angle]) {
+      // rotate([0,0,-z_stepper_angle-5]) { // bottom of travel (min Z)
+      // rotate([0,0,-z_stepper_angle-40]) { // top of travel (max Z)
+      rotate([0,0,-z_stepper_angle-40]) {
         z_lifter_arm();
       }
     }
-    % stepper28BYJ(-z_stepper_angle);
+    % stepper28BYJ(-z_stepper_angle-5);
   }
 
   difference() {
@@ -441,7 +443,9 @@ module z_axis_assembly() {
   translate([0,-z_axis_mount_plate_thickness/2-0.5,0]) {
     z_axis_mount();
 
-    translate([0,-z_rod_dist_from_z_mount,4]) {
+    //translate([0,-z_rod_dist_from_z_mount,1+0]) { // bottom of travel (min Z)
+    //translate([0,-z_rod_dist_from_z_mount,1+5]) { // top of travel (max Z)
+    translate([0,-z_rod_dist_from_z_mount,1+5]) {
       // color("grey", 0.2) %
       z_carriage();
     }

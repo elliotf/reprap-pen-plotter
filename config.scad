@@ -3,6 +3,8 @@ approx_pi = 3.14159;
 inch = 25.4;
 extrude_width = 0.4;
 
+y_rail_len = 120;
+x_rail_len = 120;
 
 //
 // filament drive system
@@ -121,7 +123,7 @@ x_rail_extrusion_width = 40;
 x_rail_extrusion_height = 20;
 extrusion_screw_hole = 5;
 
-y_rail_dist_above_plate = 10;
+y_rail_dist_above_plate = 15;
 
 z_rod_diam  = 3;
 
@@ -144,7 +146,6 @@ y_carriage_opening_depth  = y_rail_extrusion_width + printed_carriage_extrusion_
 y_carriage_opening_height = y_rail_extrusion_height + printed_carriage_extrusion_carriage_gap*2;
 y_carriage_wall_thickness = (x_carriage_overall_height - x_carriage_opening_height)/2;
 
-// FIXME: base this on actual things rather than random numbers
 line_bearing_above_extrusion = printed_carriage_wall_thickness+bearing_bevel_height+line_bearing_thickness/2;
 
 // new sketch
@@ -166,3 +167,8 @@ z_stepper_height = 19.5; // body is 19, but flanges stick up
 z_stepper_pos_x = 4;
 z_stepper_angle = 10;
 z_stepper_dist_from_x_rail_z = x_carriage_overall_height/2 + z_stepper_diam/2 + 5;
+
+y_rail_pos_x = x_rail_len/2 + -1*(x_rail_end_relative_to_y_rail_x);
+y_rail_pos_z = y_rail_dist_above_plate + 20;
+x_rail_pos_z = y_rail_pos_z + x_rail_end_relative_to_y_rail_z;
+x_line_pos_z = y_rail_dist_above_plate+y_rail_extrusion_height/2+line_bearing_above_extrusion;

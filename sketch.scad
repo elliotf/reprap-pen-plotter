@@ -5,16 +5,7 @@ use <vitamins.scad>;
 use <x-carriage.scad>;
 use <y-carriage.scad>;
 use <z-axis.scad>;
-
-y_rail_len = 100;
-x_rail_len = 100;
-
-y_rail_pos_x = x_rail_len/2 + -1*(x_rail_end_relative_to_y_rail_x);
-y_rail_pos_z = y_rail_dist_above_plate + 20;
-
-//x_rail_pos_z = new_filament_drive_wall_thickness + motor_opening_side/2 - pulley_idler_diam/2;
-//x_rail_pos_z = new_filament_drive_wall_thickness + motor_opening_side/2 + pulley_idler_diam/2;
-x_rail_pos_z = y_rail_pos_z + x_rail_end_relative_to_y_rail_z;
+use <line-return-end-cap.scad>;
 
 // line_bearing_pos_y = 10;
 // line_bearing_pos_x = x_rail_len/2 - line_bearing_diam/2;
@@ -63,10 +54,14 @@ for(x=[left,right]) {
     }
 
     mirror([1-x,0,0]) {
-      translate([left*(y_rail_pos_x-x_rail_len/2-pulley_idler_diam/2),-y_rail_len/2-new_filament_drive_dist_motor_rail-1,nema17_len]) {
+      translate([left*(y_rail_pos_x-x_rail_len/2-pulley_idler_diam/2),-y_rail_len/2-new_filament_drive_dist_motor_rail-1,y_rail_dist_above_plate+y_rail_extrusion_height-6.8]) {
         filament_drive_assembly();
       }
     }
+  }
+
+  translate([x*y_rail_pos_x,y_rail_len/2,20+y_rail_dist_above_plate]) {
+    line_return_end_cap(x);
   }
 }
 
