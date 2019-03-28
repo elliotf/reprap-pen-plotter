@@ -1,6 +1,6 @@
 include <config.scad>;
-include <util.scad>;
-include <vitamins.scad>;
+include <lib/util.scad>;
+include <lib/vitamins.scad>;
 
 x_carriage_bushing_len   = 10;
 x_carriage_bushing_pos_y = x_rail_extrusion_width/2 + ptfe_bushing_diam/2 - ptfe_bushing_preload_amount;

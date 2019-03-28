@@ -1,6 +1,6 @@
 include <config.scad>;
-include <util.scad>;
-include <vitamins.scad>;
+include <lib/util.scad>;
+include <lib/vitamins.scad>;
 
 motor_opening_side = motor_side + 0.4;
 new_filament_drive_shaft_dist = motor_opening_side/2+pulley_idler_diam/2;

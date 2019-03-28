@@ -1,6 +1,6 @@
 include <config.scad>;
-include <util.scad>;
-include <vitamins.scad>;
+include <lib/util.scad>;
+include <lib/vitamins.scad>;
 
 y_carriage_depth = 40;
 

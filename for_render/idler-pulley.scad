@@ -1,4 +1,4 @@
-include <main.scad>;
+include <../filament-drive.scad>;
 
 resolution = 128;
 

@@ -1,7 +1,7 @@
 include <config.scad>;
 use <x-carriage.scad>;
-include <util.scad>;
-include <vitamins.scad>;
+include <lib/util.scad>;
+include <lib/vitamins.scad>;
 
 z_bushing_id = 3.8;
 z_bushing_od = 6;

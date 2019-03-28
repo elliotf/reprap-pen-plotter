@@ -1,9 +1,9 @@
 include <config.scad>;
 use <y-carriage.scad>;
-include <util.scad>;
-include <vitamins.scad>;
+include <lib/util.scad>;
+include <lib/vitamins.scad>;
 
-module line_return_end_cap(side) {
+module rear_idler_mount(side) {
   colors = ["red", "green", "blue"];
   line_color = colors[side+1];
   opposite_line_color = colors[-side+1];
