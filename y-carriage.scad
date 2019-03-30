@@ -1,6 +1,6 @@
 include <config.scad>;
 include <lib/util.scad>;
-include <lib/vitamins.scad>;
+use <lib/vitamins.scad>;
 
 y_carriage_depth = 40;
 
@@ -167,4 +167,10 @@ module y_carriage() {
   }
 }
 
-y_carriage();
+module to_print() {
+  rotate([-90,0,0]) {
+    y_carriage();
+  }
+}
+
+to_print();

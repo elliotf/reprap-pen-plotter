@@ -82,3 +82,78 @@ module space_along_length(length,min_hole_spacing=4*inch,from_end=1*inch) {
     }
   }
 }
+
+module letter_spike(thin_width,thick_width,thickness) {
+  hull() {
+    cylinder(r=thin_width,h=thickness*2,center=true,$fn=16);
+    cylinder(r=thick_width,h=0.01,center=true,$fn=16);
+  }
+}
+
+module letter_L(width=10,height=20,thickness=0.5,thick_width=2,thin_width=0.3) {
+  lines = [
+    [
+      [-width/2,height/2,0],
+      [-width/2,-height/2,0],
+    ],
+    [
+      [-width/2,-height/2,0],
+      [width/2,-height/2,0],
+    ],
+  ];
+
+  for(pair=lines) {
+    hull() {
+      for(vect=pair) {
+        translate(vect) {
+          letter_spike(thin_width,thick_width,thickness);
+        }
+      }
+    }
+  }
+}
+
+module letter_R(width=10,height=20,thickness=0.5,thick_width=2,thin_width=0.3) {
+  lines = [
+    [
+      [-width/2,height/2,0],
+      [-width/2,-height/2,0],
+    ],
+    [
+      [-width/2,height/2,0],
+      [width/2,height/3,0],
+    ],
+    [
+      [width/2,height/3,0],
+      [-width/4,0,0],
+    ],
+    [
+      [-width/2,0,0],
+      [-width/4,0,0],
+    ],
+    [
+      [-width/4,0,0],
+      [width/2,-height/2,0],
+    ],
+  ];
+
+  for(pair=lines) {
+    hull() {
+      for(vect=pair) {
+        translate(vect) {
+          letter_spike(thin_width,thick_width,thickness);
+        }
+      }
+    }
+  }
+}
+
+/*
+translate([-10,0,0]) {
+  letter_L();
+}
+
+translate([10,0,0]) {
+  letter_R();
+}
+*/

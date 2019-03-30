@@ -228,4 +228,10 @@ module x_carriage() {
   }
 }
 
-x_carriage();
+module to_print() {
+  rotate([0,-90,0]) {
+    x_carriage();
+  }
+}
+
+to_print();

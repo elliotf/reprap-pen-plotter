@@ -9,8 +9,6 @@ new_filament_drive_overall_width = motor_opening_side + new_filament_drive_wall_
 new_filament_idler_mount_depth = 2*(new_filament_drive_shaft_dist - motor_opening_side/2);
 new_filament_drive_dist_motor_rail = new_filament_idler_mount_depth + motor_opening_side/2;
 
-waffles_fyes = 10;
-
 module filament_drive_motor_mount() {
   module body() {
   }
