@@ -165,6 +165,13 @@ z_carriage_carrier_height = z_carriage_carrier_hole_spacing_z + z_carriage_carri
 z_stepper_diam = 28;
 z_stepper_height = 19.5; // body is 19, but flanges stick up
 
+z_spring_wire_diam = 0.5;
+z_spring_diam = 6;
+z_spring_screw_diam = 3;
+z_spring_len = 25;
+z_spring_preload = 3; // to keep sprint under tension
+z_spring_center_to_center = z_spring_len - z_spring_diam + z_spring_screw_diam - z_spring_preload;
+
 z_stepper_pos_x = 4;
 z_stepper_angle = 10;
 z_stepper_dist_from_x_rail_z = x_carriage_overall_height/2 + z_stepper_diam/2 + 5;
