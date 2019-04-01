@@ -70,6 +70,7 @@ bottom  = -1;
 m3_diam = 3.3;
 m3_nut_diam = 5.7; // actually 5.5, but add fudge
 m3_nut_max_diam = 6.2;
+m3_nut_height = 5; // theoretically actually only 4mm
 
 //base_plate_thickness = 3/4*inch;
 base_plate_thickness = 1/2*inch;
@@ -167,6 +168,9 @@ z_stepper_height = 19.5; // body is 19, but flanges stick up
 z_stepper_pos_x = 4;
 z_stepper_angle = 10;
 z_stepper_dist_from_x_rail_z = x_carriage_overall_height/2 + z_stepper_diam/2 + 5;
+z_bushing_id = 3.8;
+z_bushing_od = 6;
+clearance_for_z_bushings_and_zip_ties = z_bushing_od;
 
 y_rail_pos_x = x_rail_len/2 + -1*(x_rail_end_relative_to_y_rail_x);
 y_rail_pos_z = y_rail_dist_above_plate + 20;

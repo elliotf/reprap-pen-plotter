@@ -3,14 +3,13 @@ use <x-carriage.scad>;
 include <lib/util.scad>;
 include <lib/vitamins.scad>;
 
-z_bushing_id = 3.8;
-z_bushing_od = 6;
 z_wall_thickness = extrude_width*8;
 
 z_rod_spacing = z_carriage_carrier_hole_spacing_x-12;
 
 z_carriage_rod_dist = z_bushing_od/2+zip_tie_thickness+2;
-z_carriage_width = z_rod_spacing+z_rod_diam+z_wall_thickness*3;
+z_rod_hole_diam = z_rod_diam + 0.2;
+z_carriage_overall_width = 2*(z_rod_spacing/2 + z_rod_hole_diam + zip_tie_thickness + wall_thickness*2);
 
 z_axis_mount_plate_thickness = 5;
 
@@ -22,7 +21,37 @@ z_spring_diam = 6;
 z_spring_screw_diam = 3;
 z_spring_len = 25;
 z_spring_preload = 3; // to keep sprint under tension
-z_spring_center_to_center = z_spring_len - z_spring_screw_diam - z_spring_preload;
+z_spring_center_to_center = z_spring_len - z_spring_diam + z_spring_screw_diam - z_spring_preload;
+
+module z_spring() {
+  spring_portion = z_spring_len - z_spring_screw_diam*2;
+  wire_diam = 0.5;
+
+  translate([-wire_diam/2,0,0]) {
+    color("silver") {
+      for(z=[top,bottom]) {
+        translate([0,0,z*(spring_portion/2+z_spring_diam/2)]) {
+          rotate([0,90,0]) {
+            difference() {
+              hole(z_spring_diam,wire_diam,resolution);
+              hole(z_spring_diam-wire_diam*2,wire_diam*2,resolution);
+            }
+          }
+        }
+      }
+      translate([-z_spring_diam/2,0,0]) {
+        difference() {
+          hole(z_spring_diam,spring_portion,resolution);
+          hole(z_spring_diam-wire_diam*2,spring_portion+1,resolution);
+        }
+      }
+    }
+  }
+}
+
+translate([-z_carriage_overall_width/2,0,60]) {
+  % z_spring();
+}
 
 module z_lifter_arm() {
   z_lifter_arm_len = 9;
@@ -300,56 +329,60 @@ module z_axis_mount() {
 
 module z_carriage() {
   z_carriage_height = 81;
-  z_rod_hole_diam = z_rod_diam + 0.2;
-  z_rod_holder_diam = z_rod_hole_diam + printed_carriage_wall_thickness*2;
   top_bottom_height = zip_tie_width+extrude_width*8;
-  overall_width = 2*(z_rod_spacing/2 + z_rod_hole_diam + zip_tie_thickness + wall_thickness*2);
-  clearance_for_z_bushings_and_zip_ties = z_bushing_od;
   larger_opening_height = z_carriage_height-top_bottom_height*2;
   // smaller_opening_height = larger_opening_height - clearance_for_z_bushings_and_zip_ties;
 
   pen_len = 5*inch;
-  pen_diam = 18;
-  pen_holder_body_wall_thickness = wall_thickness*2;
-  pen_holder_body_diam = pen_diam+pen_holder_body_wall_thickness*2;
-  pen_crevice_depth = sqrt(pow(pen_diam/2,2)*2);
-  pen_pos_x = -overall_width/2+pen_holder_body_diam/2;
-  pen_pos_y = front*(clearance_for_z_bushings_and_zip_ties+pen_holder_body_wall_thickness+pen_crevice_depth);
+  pen_diam = 16;
+  pen_holder_body_wall_thickness = extrude_width*3;
+  pen_holder_body_diam = pen_diam+pen_holder_body_wall_thickness*4;
+  smallest_pen_diam = 6;
+  smallest_pen_pos_y = front*(clearance_for_z_bushings_and_zip_ties+pen_holder_body_wall_thickness*2+smallest_pen_diam/2);
+  smallest_pen_dist_to_largest = sqrt(pow(pen_diam/2,2)*2) - sqrt(pow(smallest_pen_diam/2,2)*2);
+  pen_pos_x = -z_carriage_overall_width/2+pen_holder_body_diam/2;
+  pen_pos_y = smallest_pen_pos_y+front*(smallest_pen_dist_to_largest);
+  front_pos_y = pen_pos_y+front*(pen_diam/2+m3_nut_height+pen_holder_body_wall_thickness);
 
   z_rod_len = 150;
   bevel_offset = -20;
   bevel_height = 15;
 
   module body() {
-    hull() {
-      translate([pen_pos_x,pen_pos_y,bevel_offset]) {
-        hole(pen_diam+pen_holder_body_wall_thickness*2,bevel_height,8);
+    module tube(height) {
+      hull() {
+        translate([pen_pos_x,0,0]) {
+          translate([0,pen_pos_y,0]) {
+            hole(pen_diam+pen_holder_body_wall_thickness*4,height,8);
 
-        for(y=[front,rear]) {
-          translate([0,front*(pen_crevice_depth*0.75),0]) {
-            hole(pen_diam/4+pen_holder_body_wall_thickness*2,bevel_height,8);
+            translate([0,rear*(smallest_pen_dist_to_largest),0]) {
+              hole(smallest_pen_diam+pen_holder_body_wall_thickness*4,height,8);
+            }
+          }
+
+          translate([0,front_pos_y+rear*(m3_nut_diam/2),0]) {
+            rotate([0,0,90]) {
+              hole(m3_nut_diam,height,6);
+            }
           }
         }
       }
     }
+    translate([0,0,bevel_offset]) {
+      tube(bevel_height);
+    }
     for(z=[top,bottom]) {
       translate([0,0,z*(z_carriage_height/2-top_bottom_height/2)]) {
-        cube([overall_width,clearance_for_z_bushings_and_zip_ties*2,top_bottom_height],center=true);
+        cube([z_carriage_overall_width,clearance_for_z_bushings_and_zip_ties*2,top_bottom_height],center=true);
       }
       hull() {
         translate([0,front*(clearance_for_z_bushings_and_zip_ties+0.05),z*(z_carriage_height/2-top_bottom_height/2)]) {
-          cube([overall_width,0.1,top_bottom_height],center=true);
+          cube([z_carriage_overall_width,0.1,top_bottom_height],center=true);
         }
 
         pen_holder_height = z_carriage_height/2-(bevel_offset*z)-bevel_height/2;
-        translate([pen_pos_x,pen_pos_y,z*(z_carriage_height/2-pen_holder_height/2)]) {
-          hole(pen_diam+pen_holder_body_wall_thickness*2,pen_holder_height,8);
-
-          for(y=[front,rear]) {
-            translate([0,front*(pen_crevice_depth*0.75),0]) {
-              hole(pen_diam/4+pen_holder_body_wall_thickness*2,pen_holder_height,8);
-            }
-          }
+        translate([0,0,z*(z_carriage_height/2-pen_holder_height/2)]) {
+          tube(pen_holder_height);
         }
       }
     }
@@ -361,16 +394,15 @@ module z_carriage() {
       hull() {
         hole(pen_diam,z_carriage_height+1,8);
 
-        translate([0,rear*(pen_crevice_depth*0.75),0]) {
+        translate([0,rear*(smallest_pen_dist_to_largest),0]) {
           rotate([0,0,45]) {
-            //# cube([pen_diam/2,pen_diam/2,z_carriage_height+1],center=true);
-            hole(pen_diam/4,z_carriage_height+1,8);
+            hole(smallest_pen_diam,z_carriage_height+1,8);
           }
         }
       }
     }
 
-    if (1) {
+    if (0) {
       translate([pen_pos_x,pen_pos_y,-z_carriage_height/2+pen_len/2]) {
         % color("lightblue", 0.3) hull() {
           hole(pen_diam-0.5, pen_len, 8);
@@ -383,12 +415,7 @@ module z_carriage() {
 
     // clearance for top against z carrier
     translate([0,clearance_for_z_bushings_and_zip_ties,z_carriage_height/2]) {
-      cube([overall_width+1,clearance_for_z_bushings_and_zip_ties*2,z_carriage_height-(top_bottom_height*2)],center=true);
-    }
-
-    // clearance for z bumper and z bushings/zip ties
-    translate([0,clearance_for_z_bushings_and_zip_ties,0]) {
-      // cube([overall_width+1,clearance_for_z_bushings_and_zip_ties*4,z_carriage_height-(top_bottom_height*2)],center=true);
+      cube([z_carriage_overall_width+1,clearance_for_z_bushings_and_zip_ties*2,z_carriage_height-(top_bottom_height*2)],center=true);
     }
 
     for(x=[left,right]) {
@@ -397,18 +424,24 @@ module z_carriage() {
         translate([0,front*(wall_thickness*2),0]) {
           zip_tie_cavity(z_rod_hole_diam);
         }
+        printable_sideways_cavity(z_rod_hole_diam,top_bottom_height+1);
       }
 
       // bottom zip ties
       translate([x*z_rod_spacing/2,0,bottom*(z_carriage_height/2-top_bottom_height/2)]) {
         zip_tie_cavity(z_rod_hole_diam);
+
+        translate([0,0,(-zip_tie_width/2+top_bottom_height/2)]) {
+          hole(z_rod_hole_diam,top_bottom_height,8);
+        }
       }
 
       // rods
-      translate([x*z_rod_spacing/2,0,-z_carriage_height/2+top_bottom_height/2-zip_tie_width/2+100]) {
-        hole(z_rod_hole_diam,200,8);
-        translate([0,0,-100+z_rod_len/2]) {
-          color("silver", 0.7) % hole(z_rod_diam,z_rod_len,8);
+      translate([x*z_rod_spacing/2,0,0]) {
+        translate([0,0,-z_carriage_height/2+top_bottom_height/2-zip_tie_width/2+100]) {
+          translate([0,0,-100+z_rod_len/2]) {
+            color("silver", 0.7) % hole(z_rod_diam,z_rod_len,8);
+          }
         }
       }
     }
@@ -417,10 +450,10 @@ module z_carriage() {
     for(z=[top,bottom]) {
       hull() {
         translate([0,front*(clearance_for_z_bushings_and_zip_ties+4+50),z*(z_carriage_height/2+1)]) {
-          cube([overall_width+1,100,2],center=true);
+          cube([z_carriage_overall_width+1,100,2],center=true);
         }
-        translate([0,pen_pos_y+front*(pen_crevice_depth+pen_holder_body_wall_thickness),z*(z_carriage_height/2)+bevel_offset]) {
-          cube([overall_width+1,1,z_carriage_height-bevel_height],center=true);
+        translate([0,front_pos_y-1,z*(z_carriage_height/2)+bevel_offset]) {
+          cube([z_carriage_overall_width+1,2,z_carriage_height-bevel_height],center=true);
         }
       }
     }
