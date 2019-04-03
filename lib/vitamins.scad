@@ -1,6 +1,5 @@
-use <lib/util.scad>;
-
-include <config.scad>;
+include <../config.scad>;
+use <../lib/util.scad>;
 
 z_stepper_shaft_diam = 5;
 z_stepper_flange_width = 42;

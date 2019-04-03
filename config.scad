@@ -3,8 +3,12 @@ approx_pi = 3.14159;
 inch = 25.4;
 extrude_width = 0.4;
 
-y_rail_len = 120;
-x_rail_len = 120;
+rail_len = 120;
+
+y_rail_len = rail_len;
+x_rail_len = rail_len;
+
+tolerance = 0.2;
 
 //
 // filament drive system
@@ -182,4 +186,18 @@ clearance_for_z_bushings_and_zip_ties = z_bushing_od;
 y_rail_pos_x = x_rail_len/2 + -1*(x_rail_end_relative_to_y_rail_x);
 y_rail_pos_z = y_rail_dist_above_plate + 20;
 x_rail_pos_z = y_rail_pos_z + x_rail_end_relative_to_y_rail_z;
-x_line_pos_z = y_rail_dist_above_plate+y_rail_extrusion_height/2+line_bearing_above_extrusion;
+x_line_pos_z = x_rail_pos_z + x_rail_extrusion_height/2+line_bearing_above_extrusion;
+
+motor_line_pos_z = x_line_pos_z - (idler_wraps) * (groove_height + groove_depth*1.5); // FIXME: this is slightly off.  :(
+
+x_line_pos_x = x_rail_len/2;
+motor_line_pos_x = x_line_pos_x + (pulley_idler_diam + line_thickness/2);
+
+motor_pos_x = x_line_pos_x + (abs(motor_line_pos_x) - abs(x_line_pos_x))/2;
+
+motor_mount_wall_thickness = extrude_width*6;
+motor_mount_motor_opening = tolerance*2 + motor_side;
+
+plate_anchor_thickness = wall_thickness*2;
+plate_anchor_screw_hole_diam = line_bearing_inner;
+plate_anchor_diam = line_bearing_inner + wall_thickness*4;

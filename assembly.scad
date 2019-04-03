@@ -1,5 +1,6 @@
 include <config.scad>;
-include <filament-drive.scad>;
+use <filament-drive.scad>;
+use <motor-mount.scad>;
 use <lib/util.scad>;
 use <lib/vitamins.scad>;
 use <x-carriage.scad>;
@@ -12,7 +13,6 @@ use <rear-idler-mounts.scad>;
 
 module base_plate() {
   room_for_electronics = 3*inch;
-  room_for_motors      = new_filament_drive_dist_motor_rail+motor_opening_side/2 + new_filament_drive_wall_thickness;
   room_for_idlers      = 30;
   overall_width = y_rail_pos_x*2 + 40 + room_for_electronics;
   // overall_depth = y_rail_len + motor_mount_thickness + motor_side;
@@ -52,11 +52,11 @@ for(x=[left,right]) {
         }
       }
     }
+  }
 
-    mirror([1-x,0,0]) {
-      translate([left*(y_rail_pos_x-x_rail_len/2-pulley_idler_diam/2),-y_rail_len/2-new_filament_drive_dist_motor_rail-1,y_rail_dist_above_plate+y_rail_extrusion_height-6.8]) {
-        filament_drive_assembly();
-      }
+  mirror([-1+x,0,0]) {
+    translate([motor_pos_x,-y_rail_len/2-0.05,0]) {
+      motor_mount();
     }
   }
 
