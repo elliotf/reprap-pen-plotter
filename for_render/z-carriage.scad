@@ -1,5 +1,5 @@
-include <config.scad>;
-use <z-axis-mount.scad>;
+include <../config.scad>;
+use <../z-axis-mount.scad>;
 
 
 module to_print() {
