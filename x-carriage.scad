@@ -203,21 +203,29 @@ module x_carriage() {
     }
 
     // z carriage carrier mounting holes
-    for(x=[left,right]) {
-      for (z=[top, bottom]) {
-        translate([x*z_carriage_carrier_hole_spacing_x/2,front*(x_carriage_overall_depth/2-printed_carriage_wall_thickness),z*z_carriage_carrier_hole_spacing_z/2]) {
-          rotate([90,0,0]) {
-            hole(3.2,printed_carriage_wall_thickness*3,8);
-            // hole(m3_nut_diam,3,6);
+    for(x=[left,0,right]) {
+      for (z=[top,0,bottom]) {
+        if (z != top || x != 0) {
+          translate([x*z_carriage_carrier_hole_spacing_x/2,front*(x_carriage_overall_depth/2-printed_carriage_wall_thickness/2),z*z_carriage_carrier_hole_spacing_z/2]) {
+            rotate([90,0,0]) {
+              hole(threaded_insert_diam,printed_carriage_wall_thickness+1,8);
+            }
           }
         }
       }
     }
 
     // clearance for z stepper
-    translate([z_stepper_pos_x,front*(x_carriage_overall_depth/2-printed_carriage_wall_thickness/2),z_stepper_dist_from_x_rail_z]) {
-      rotate([90,0,0]) {
-        hole(z_stepper_diam+1,printed_carriage_wall_thickness+1,6);
+    hull() {
+      wide_width = z_carriage_carrier_hole_spacing_x-threaded_insert_diam;
+      narrow_width = wide_width-(z_carriage_carrier_height-x_carriage_overall_height)-2;
+      translate([0,front*(x_carriage_overall_depth/2-printed_carriage_wall_thickness/2),1]) {
+        translate([0,0,z_carriage_carrier_height/2]) {
+          cube([wide_width,printed_carriage_wall_thickness+5,2],center=true);
+        }
+        translate([0,0,x_carriage_overall_height/2]) {
+          cube([narrow_width,printed_carriage_wall_thickness+5,2],center=true);
+        }
       }
     }
   }

@@ -120,7 +120,7 @@ motor_wire_hole_height = 6;
 zip_tie_thickness = 2.5;
 zip_tie_width     = 4;
 
-wall_thickness = extrude_width*4;
+wall_thickness = extrude_width*3;
 
 y_rail_extrusion_width = 20;
 y_rail_extrusion_height = 40;
@@ -176,12 +176,12 @@ z_spring_len = 25;
 z_spring_preload = 3; // to keep sprint under tension
 z_spring_center_to_center = z_spring_len - z_spring_diam + z_spring_screw_diam - z_spring_preload;
 
-z_stepper_pos_x = 4;
+z_stepper_pos_x = 3;
 z_stepper_angle = 10;
 z_stepper_dist_from_x_rail_z = x_carriage_overall_height/2 + z_stepper_diam/2 + 5;
 z_bushing_id = 3.8;
 z_bushing_od = 6;
-clearance_for_z_bushings_and_zip_ties = z_bushing_od;
+clearance_for_z_bushings_and_zip_ties = z_bushing_od + 0.5;
 
 y_rail_pos_x = x_rail_len/2 + -1*(x_rail_end_relative_to_y_rail_x);
 y_rail_pos_z = y_rail_dist_above_plate + 20;
@@ -201,3 +201,5 @@ motor_mount_motor_opening = tolerance*2 + motor_side;
 plate_anchor_thickness = wall_thickness*2;
 plate_anchor_screw_hole_diam = line_bearing_inner;
 plate_anchor_diam = line_bearing_inner + wall_thickness*4;
+
+threaded_insert_diam = 3.5;
