@@ -3,35 +3,45 @@ use <lib/util.scad>;
 use <lib/vitamins.scad>;
 use <pulleys.scad>;
 
-motor_opening_side = motor_side + 0.4;
-new_filament_drive_shaft_dist = motor_opening_side/2+1+pulley_idler_diam/2;
+small_diam = 3;
+large_diam = motor_mount_wall_thickness;
+
+idler_pulley_pos_y = front*(3+pulley_idler_diam/2);
+motor_shaft_pos_y = idler_pulley_pos_y+front*(pulley_idler_diam/2+1+motor_mount_motor_opening/2);
+
+new_filament_drive_shaft_dist = abs(abs(idler_pulley_pos_y) - abs(motor_shaft_pos_y));
 new_filament_drive_wall_thickness = motor_mount_wall_thickness;
 
-new_filament_drive_overall_width = motor_opening_side + new_filament_drive_wall_thickness*2;
-new_filament_idler_mount_depth = 2*(new_filament_drive_shaft_dist - motor_opening_side/2);
-new_filament_drive_dist_motor_rail = new_filament_idler_mount_depth + motor_opening_side/2;
+rel_y_rail_pos_x = y_rail_pos_x - motor_pos_x;
+
+idler_pulley_pos_z = motor_line_pos_z - groove_height - groove_depth;
+driver_pulley_pos_z = idler_pulley_pos_z + (groove_height/2 + groove_depth);
+motor_pos_z = driver_pulley_pos_z - 2 - nema17_shoulder_height;
+
+overall_width = motor_mount_motor_opening + motor_mount_wall_thickness*2;
+overall_height = motor_pos_z;
+
+extrusion_mount_width = 5+wall_thickness*4+small_diam*2;
+extrusion_mount_height = y_rail_pos_z+y_rail_extrusion_height/2;
+extrusion_mount_thickness = overall_width/2-(rel_y_rail_pos_x+y_rail_extrusion_width/2);
+
+clamp_gap_width = 3;
+clamp_mount_thickness = 10;
+
+allot_space_y_for_motor_mount = abs(motor_shaft_pos_y) + motor_mount_motor_opening/2 + large_diam + plate_anchor_diam + 10;
+
+module position_motor_mount_anchor_holes() {
+  // anchor to plate
+  translate([-overall_width/2+plate_anchor_diam/2,extrusion_mount_width-plate_anchor_diam/2,0]) {
+    children();
+  }
+
+  translate([overall_width/2-plate_anchor_diam/2,motor_shaft_pos_y-motor_mount_motor_opening/2-motor_mount_wall_thickness-plate_anchor_diam/2-2,0]) {
+    children();
+  }
+}
 
 module motor_mount() {
-  idler_pulley_pos_y = front*(3+pulley_idler_diam/2);
-  motor_shaft_pos_y = idler_pulley_pos_y+front*(pulley_idler_diam/2+1+motor_mount_motor_opening/2);
-  y_rail_pos_x = y_rail_pos_x - motor_pos_x;
-  idler_pulley_pos_z = motor_line_pos_z - groove_height - groove_depth;
-  driver_pulley_pos_z = idler_pulley_pos_z + (groove_height/2 + groove_depth);
-  motor_pos_z = driver_pulley_pos_z - 2 - nema17_shoulder_height;
-
-  overall_width = motor_mount_motor_opening + motor_mount_wall_thickness*2;
-  overall_height = motor_pos_z;
-
-  small_diam = 3;
-  large_diam = motor_mount_wall_thickness;
-
-  extrusion_mount_width = 5+wall_thickness*4+small_diam*2;
-  extrusion_mount_height = y_rail_pos_z+y_rail_extrusion_height/2;
-  extrusion_mount_thickness = overall_width/2-(y_rail_pos_x+y_rail_extrusion_width/2);
-
-  clamp_gap_width = 3;
-  clamp_mount_thickness = 10;
-
   module profile() {
     module body() {
       hull() {
@@ -47,7 +57,7 @@ module motor_mount() {
       }
 
       // mount to y rail
-      translate([y_rail_pos_x+y_rail_extrusion_width/2+extrusion_mount_thickness/2,0,0]) {
+      translate([rel_y_rail_pos_x+y_rail_extrusion_width/2+extrusion_mount_thickness/2,0,0]) {
         square([extrusion_mount_thickness,extrusion_mount_width],center=true);
       }
 
@@ -100,7 +110,7 @@ module motor_mount() {
     }
 
     // y rail extrusion mount
-    translate([y_rail_pos_x,extrusion_mount_width/2,0]) {
+    translate([rel_y_rail_pos_x,extrusion_mount_width/2,0]) {
       translate([y_rail_extrusion_width/2+extrusion_mount_thickness/2,0,extrusion_mount_height/2]) {
         rounded_cube(extrusion_mount_thickness,extrusion_mount_width,extrusion_mount_height,small_diam);
       }
@@ -151,7 +161,7 @@ module motor_mount() {
   module holes() {
     // avoid rounded corner
     corner_cavity_diam = 2;
-    translate([y_rail_pos_x+y_rail_extrusion_width/2,0,overall_height/2+y_rail_dist_above_plate]) {
+    translate([rel_y_rail_pos_x+y_rail_extrusion_width/2,0,overall_height/2+y_rail_dist_above_plate]) {
       hull() {
         hole(corner_cavity_diam,overall_height,16);
         rotate([0,0,135]) {
@@ -174,12 +184,7 @@ module motor_mount() {
       }
     }
 
-    // anchor to plate
-    translate([-overall_width/2+plate_anchor_diam/2,extrusion_mount_width-plate_anchor_diam/2,0]) {
-      hole(plate_anchor_screw_hole_diam,plate_anchor_thickness*2+1,resolution);
-    }
-
-    translate([overall_width/2-plate_anchor_diam/2,motor_shaft_pos_y-motor_mount_motor_opening/2-motor_mount_wall_thickness-plate_anchor_diam/2-2,0]) {
+    position_motor_mount_anchor_holes() {
       hole(plate_anchor_screw_hole_diam,plate_anchor_thickness*2+1,resolution);
     }
   }

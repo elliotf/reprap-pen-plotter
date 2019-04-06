@@ -13,7 +13,9 @@ relative_x_line_pos_x = x_line_pos_x - y_rail_pos_x;
 
 body_width = 5.2+printed_carriage_wall_thickness*2;
 
-module position_mounting_holes(pos_z=0) {
+allot_space_y_for_rear_idler = overall_depth_for_side(right) + plate_anchor_diam*2;
+
+module position_rear_idler_anchor_holes(pos_z=0) {
   diam = plate_anchor_diam;
   translate([body_width/2+diam/2,diam/2,pos_z]) {
     children();
@@ -110,7 +112,7 @@ module rear_idler_mount(side) {
       translate([0,overall_depth/2,plate_pos_z+wall_thickness]) {
         rounded_cube(body_width,overall_depth,wall_thickness*2,printed_carriage_inner_diam,resolution);
       }
-      position_mounting_holes(plate_pos_z+plate_anchor_thickness/2) {
+      position_rear_idler_anchor_holes(plate_pos_z+plate_anchor_thickness/2) {
         hole(plate_anchor_diam,plate_anchor_thickness,resolution);
       }
     }
@@ -198,7 +200,7 @@ module rear_idler_mount(side) {
       }
     }
 
-    position_mounting_holes(plate_pos_z+plate_anchor_thickness/2) {
+    position_rear_idler_anchor_holes(plate_pos_z+plate_anchor_thickness/2) {
       hole(line_bearing_screw_hole_diam,wall_thickness*2+1,resolution);
     }
 
@@ -275,5 +277,3 @@ module to_print() {
     }
   }
 }
-
-to_print();

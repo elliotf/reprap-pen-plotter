@@ -5,7 +5,7 @@ approx_pi = 3.14159;
 inch = 25.4;
 extrude_width = 0.4;
 
-rail_len = 120;
+rail_len = 500;
 
 y_rail_len = rail_len;
 x_rail_len = rail_len;

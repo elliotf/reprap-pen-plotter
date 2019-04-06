@@ -6,37 +6,16 @@ use <x-carriage.scad>;
 use <y-carriage.scad>;
 use <z-axis-mount.scad>;
 use <rear-idler-mounts.scad>;
+use <base-plate.scad>;
 
-// line_bearing_pos_y = 10;
-// line_bearing_pos_x = x_rail_len/2 - line_bearing_diam/2;
-
-module base_plate() {
-  room_for_electronics = 3*inch;
-  room_for_idlers      = 30;
-  overall_width = y_rail_pos_x*2 + 40 + room_for_electronics;
-  // overall_depth = y_rail_len + motor_mount_thickness + motor_side;
-  overall_depth = y_rail_len + room_for_motors + room_for_idlers;
-
-  echo("BOM Base plate width: ", overall_width/25.4);
-  echo("BOM Base plate depth: ", overall_depth/25.4);
-
-  module body() {
-    translate([-room_for_electronics/2,room_for_idlers/2-room_for_motors/2,0]) {
-      square([overall_width,overall_depth],center=true);
-      //rounded_square(overall_width,overall_depth,10);
+base_plate_thickness = 0.75*inch;
+translate([0,0,-base_plate_thickness/2-1]) {
+  color("ivory") {
+    linear_extrude(height=base_plate_thickness,center=true,convexity=3) {
+      base_plate();
     }
   }
-
-  module holes() {
-  }
-
-  difference() {
-    body();
-    holes();
-  }
 }
-
-// % base_plate();
 
 for(x=[left,right]) {
   translate([x*y_rail_pos_x,0,0]) {
