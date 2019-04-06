@@ -170,7 +170,7 @@ module motor_mount() {
             hole(m3_nut_diam,8,6);
           }
         }
-        hole(3.2,overall_width,8);
+        hole(m3_loose_hole,overall_width,8);
       }
     }
 
@@ -208,7 +208,7 @@ module motor_mount() {
     holes();
   }
 
-  translate([0,motor_shaft_pos_y,motor_pos_z]) {
+  translate([0,motor_shaft_pos_y,motor_pos_z+0.1]) {
     % color("lightblue") motor_mount_brace();
   }
 }
@@ -258,7 +258,7 @@ module motor_mount_brace() {
 
     for(side=[front,rear]) {
       translate([-motor_hole_spacing/2,motor_hole_spacing/2*side,-0.5]) {
-        hole(3.5, 20, 16);
+        hole(m3_loose_hole, 20, 16);
       }
       translate([-motor_hole_spacing/2,motor_hole_spacing/2*side,motor_shaft_len+10]) {
         hole(6, motor_shaft_len*2, 16);

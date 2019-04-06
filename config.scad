@@ -203,3 +203,4 @@ plate_anchor_screw_hole_diam = line_bearing_inner;
 plate_anchor_diam = line_bearing_inner + wall_thickness*4;
 
 threaded_insert_diam = 3.5;
+m3_loose_hole = 3.2;
