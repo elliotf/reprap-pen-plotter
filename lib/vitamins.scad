@@ -394,3 +394,91 @@ module motor_nema14() {
     hole(line_pulley_diam,line_pulley_height,16);
   }
 }
+
+round_nema14_body_diam = 36.5;
+round_nema14_body_len = 19.5;
+round_nema14_hole_spacing = 43.9;
+round_nema14_shoulder_diam = 16;
+round_nema14_shoulder_height = 2;
+round_nema14_shaft_diam = 5;
+round_nema14_shaft_len = 15;
+round_nema14_shaft_flat_depth = 0.5;
+round_nema14_shaft_flat_len = 10;
+round_nema14_flange_thickness = 1.5;
+round_nema14_flange_diam = 9;
+
+module round_nema14(shaft_angle) {
+  cable_colors  = ["black","red","blue","green"];
+  metal_top_bottom_thickness = 3;
+  cable_diam    = 1;
+  cable_spacing = cable_diam+0.3;
+  cable_pos_x = [ -1.5, -0.5, 0.5, 1.5 ];
+  num_cables    = 4;
+
+  module body() {
+    translate([0,0,-round_nema14_body_len/2]) {
+      color("dimgray") hole(round_nema14_body_diam-1,round_nema14_body_len-1,resolution);
+      for(z=[top,bottom]) {
+        translate([0,0,z*(round_nema14_body_len/2-metal_top_bottom_thickness/2)]) {
+          color("lightgrey") hole(round_nema14_body_diam,metal_top_bottom_thickness,resolution);
+        }
+      }
+    }
+    color("lightgrey") {
+      hole(round_nema14_shoulder_diam,round_nema14_shoulder_height*2,resolution);
+      translate([0,0,round_nema14_shaft_len/2+round_nema14_shoulder_height]) {
+        hole(round_nema14_shaft_diam,round_nema14_shaft_len,resolution);
+      }
+
+      translate([0,0,-round_nema14_flange_thickness/2]) {
+        linear_extrude(height=round_nema14_flange_thickness,center=true,convexity=3) {
+          difference() {
+            hull() {
+              accurate_circle(round_nema14_shoulder_diam+7,resolution);
+              for(side=[left,right]) {
+                translate([side*round_nema14_hole_spacing/2,0,0]) {
+                  accurate_circle(round_nema14_flange_diam,resolution);
+                }
+              }
+            }
+            for(side=[left,right]) {
+              translate([side*round_nema14_hole_spacing/2,0,0]) {
+                accurate_circle(3,12);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    translate([0,round_nema14_body_diam/2,-round_nema14_body_len+metal_top_bottom_thickness]) {
+      color("ivory") cube([cable_spacing*5,3,cable_spacing*2],center=true);
+      translate([0,0,0]) {
+        rotate([90,0,0]) {
+          for(c=[0:num_cables-1]) {
+            translate([cable_pos_x[c]*cable_spacing,0,0]) {
+              color(cable_colors[c]) {
+                hole(cable_diam,15,8);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  module holes() {
+    translate([0,0,round_nema14_shoulder_height+round_nema14_shaft_len]) {
+      rotate([0,0,0]) {
+        translate([0,round_nema14_shaft_diam/2,0]) {
+          cube([round_nema14_shaft_diam+1,round_nema14_shaft_flat_depth*2,round_nema14_shaft_flat_len*2],center=true);
+        }
+      }
+    }
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
