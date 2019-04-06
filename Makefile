@@ -1,22 +1,16 @@
-all: carriage rear_idler_mounts z_axis_mount z_carriage z_cam motor_mounts base_plate
+all: render
 
-carriage:
-	openscad -m make -o x_carriage.stl x_carriage.scad
-rear_idler_mounts:
-	openscad -m make -o rear_idler_mounts.stl rear_idler_mounts.scad
-z_axis_mount:
-	openscad -m make -o z_axis_mount.stl z_axis_mount.scad
-z_carriage:
-	openscad -m make -o z_carriage.stl z_carriage.scad
-z_cam:
-	openscad -m make -o z_cam.stl z_cam.scad
-base_plate:
-	openscad -m make -o base_plate.dxf base_plate.scad
+define test_template
 
-motor_mounts: motor_mount_left motor_mount_right
-motor_mount_left:
-	openscad -m make -o motor_mount_left.stl motor_mount_left.scad
-motor_mount_right:
-	openscad -m make -o motor_mount_right.stl motor_mount_right.scad
+render: renders/$(1)
 
-.PHONY: all carriage rear_idler_mounts z_axis_mount z_carriage z_cam motor_mounts motor_mount_left motor_mount_right base_plate
+renders/$(1) : for_render/$(1).scad
+	openscad -m make -o $$@.stl $$^
+
+.PHONY : renders/$(1)
+
+endef
+
+scads := $(foreach scad, $(wildcard for_render/*.scad),$(patsubst %.scad,%,$(notdir $(scad))))
+
+$(foreach scad, $(scads), $(eval $(call test_template,$(scad))))
