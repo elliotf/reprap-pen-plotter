@@ -1,3 +1,5 @@
+include <lib/vitamins.scad>;
+
 pi = 3.14159;
 approx_pi = 3.14159;
 inch = 25.4;
@@ -132,6 +134,9 @@ y_rail_dist_above_plate = 15;
 
 z_rod_diam  = 3;
 
+threaded_insert_diam = 3.5;
+m3_loose_hole = 3.2;
+
 printed_carriage_extrusion_carriage_gap = ptfe_bushing_diam*0.3 - ptfe_bushing_preload_amount;
 printed_carriage_outer_skin_from_extrusion = ptfe_bushing_diam -ptfe_bushing_preload_amount + extrude_width *6;
 printed_carriage_wall_thickness = printed_carriage_outer_skin_from_extrusion - printed_carriage_extrusion_carriage_gap;
@@ -161,13 +166,10 @@ x_rail_end_relative_to_y_rail_z = 6.4;
 x_carriage_width = 50;
 x_carriage_line_spacing = 20 - line_bearing_diam;
 
-z_carriage_carrier_room_for_nut = m3_nut_max_diam + printed_carriage_inner_diam + 2;
+z_carriage_carrier_room_for_nut = threaded_insert_diam + wall_thickness*2 + printed_carriage_inner_diam + 2;
 z_carriage_carrier_hole_spacing_x = x_carriage_width - z_carriage_carrier_room_for_nut;
 z_carriage_carrier_hole_spacing_z = x_carriage_overall_height + z_carriage_carrier_room_for_nut;
 z_carriage_carrier_height = z_carriage_carrier_hole_spacing_z + z_carriage_carrier_room_for_nut;
-
-z_stepper_diam = 28;
-z_stepper_height = 19.5; // body is 19, but flanges stick up
 
 z_spring_wire_diam = 0.5;
 z_spring_diam = 6;
@@ -177,8 +179,7 @@ z_spring_preload = 3; // to keep sprint under tension
 z_spring_center_to_center = z_spring_len - z_spring_diam + z_spring_screw_diam - z_spring_preload;
 
 z_stepper_pos_x = 3;
-z_stepper_angle = 10;
-z_stepper_dist_from_x_rail_z = x_carriage_overall_height/2 + z_stepper_diam/2 + 5;
+z_stepper_angle = 0;
 z_bushing_id = 3.8;
 z_bushing_od = 6;
 clearance_for_z_bushings_and_zip_ties = z_bushing_od + 0.5;
@@ -201,6 +202,29 @@ motor_mount_motor_opening = tolerance*2 + motor_side;
 plate_anchor_thickness = wall_thickness*2;
 plate_anchor_screw_hole_diam = line_bearing_inner;
 plate_anchor_diam = line_bearing_inner + wall_thickness*4;
+//
+// z_stepper_body_diam = round_nema14_body_diam;
+// z_stepper_hole_spacing = round_nema14_hole_spacing;
+// z_stepper_shaft_diam = round_nema14_shaft_diam;
+// z_stepper_shaft_length = round_nema14_shaft_len;
+// z_stepper_shaft_flat_length = round_nema14_shaft_flat_len;
+// z_stepper_shaft_flat_thickness = round_nema14_shaft_flat_thickness;
+// z_stepper_shaft_flat_offset = round_nema14_shaft_flat_offset;
+// z_stepper_shoulder_diam = round_nema14_shoulder_diam;
+// z_stepper_shoulder_height = round_nema14_shoulder_height;
+// z_stepper_shaft_from_center = round_nema14_shaft_from_center;
+// z_stepper_dist_from_x_rail_z = x_carriage_overall_height/2 + z_stepper_body_diam/2 + 0.5;
+// z_stepper_extra_meat_for_set_screw = -2; // for long-shaft nema14 stepper
 
-threaded_insert_diam = 3.5;
-m3_loose_hole = 3.2;
+z_stepper_body_diam = byj_body_diam;
+z_stepper_hole_spacing = byj_hole_spacing;
+z_stepper_shaft_diam = byj_shaft_diam;
+z_stepper_shaft_length = byj_shaft_len;
+z_stepper_shaft_flat_length = byj_shaft_flat_len;
+z_stepper_shaft_flat_thickness = byj_shaft_flat_thickness;
+z_stepper_shaft_flat_offset = byj_shaft_flat_offset;
+z_stepper_shoulder_diam = byj_shoulder_diam;
+z_stepper_shoulder_height = byj_shoulder_height;
+z_stepper_shaft_from_center = byj_shaft_from_center;
+z_stepper_dist_from_x_rail_z = x_carriage_overall_height/2 + z_stepper_body_diam/2 + 2;
+z_stepper_extra_meat_for_set_screw = 4; // for byj stepper

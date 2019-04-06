@@ -1,24 +1,27 @@
-include <../config.scad>;
-use <../lib/util.scad>;
+include <../lib/util.scad>;
 
-z_stepper_shaft_diam = 5;
-z_stepper_flange_width = 42;
-z_stepper_flange_diam = 7;
-z_stepper_flange_thickness = 0.8;
-z_stepper_flange_hole_diam = 4.2;
-z_stepper_flange_hole_spacing = 35;
+byj_body_diam = 28;
+byj_height = 19.5; // body is 19, but flanges stick up
 
-z_stepper_shaft_from_center = 8;
-z_stepper_shaft_length = 7.9; // varies between 7.9 and 8.5, due to slop in the shaft
-z_stepper_shaft_flat_length = 6.1;
-z_stepper_shaft_flat_thickness = 3;
-z_stepper_shaft_flat_cut_depth = (z_stepper_shaft_diam-z_stepper_shaft_flat_thickness)/2;
-z_stepper_shaft_base_diam = 9.25;
-z_stepper_shaft_base_height = 1.7; // what drawings say.  Actual measurement is 1.6
+byj_shaft_diam = 5.2;
+byj_flange_width = 42;
+byj_flange_diam = 7;
+byj_flange_thickness = 0.8;
+byj_flange_hole_diam = 4.2;
+byj_hole_spacing = 35;
 
-z_stepper_hump_height = 16.8;
-z_stepper_hump_width = 15;
-z_stepper_hump_depth = 17-z_stepper_diam/2;
+byj_shaft_from_center = 8;
+byj_shaft_len = 7.9; // varies between 7.9 and 8.5, due to slop in the shaft
+byj_shaft_flat_len = 6.1;
+byj_shaft_flat_thickness = 3;
+byj_shaft_flat_offset = 0;
+byj_shaft_flat_cut_depth = (byj_shaft_diam-byj_shaft_flat_thickness)/2;
+byj_shoulder_diam = 9.25;
+byj_shoulder_height = 1.7; // what drawings say.  Actual measurement is 1.6
+
+byj_hump_height = 16.8;
+byj_hump_width = 15;
+byj_hump_depth = 17-byj_body_diam/2;
 
 module line_bearing(resolution=16) {
   module profile() {
@@ -61,7 +64,7 @@ module stepper28BYJ(shaft_angle) {
 
   module position_at_flange_centers() {
     for(side=[left,right]) {
-      translate([side*(z_stepper_flange_hole_spacing/2),0,0]) {
+      translate([side*(byj_hole_spacing/2),0,0]) {
         children();
       }
     }
@@ -69,43 +72,43 @@ module stepper28BYJ(shaft_angle) {
 
   color("lightgrey") {
     // main body
-    translate([0,0,-z_stepper_height/2]) {
-      hole(z_stepper_diam,z_stepper_height,resolution*1.25);
+    translate([0,0,-byj_height/2]) {
+      hole(byj_body_diam,byj_height,resolution*1.25);
     }
 
     // flanges
-    translate([0,0,-z_stepper_flange_thickness/2]) {
-      linear_extrude(height=z_stepper_flange_thickness,center=true,convexity=3) {
+    translate([0,0,-byj_flange_thickness/2]) {
+      linear_extrude(height=byj_flange_thickness,center=true,convexity=3) {
         difference() {
           hull() {
             position_at_flange_centers() {
-              accurate_circle(z_stepper_flange_diam,resolution/2);
+              accurate_circle(byj_flange_diam,resolution/2);
             }
           }
           position_at_flange_centers() {
-            accurate_circle(z_stepper_flange_hole_diam,resolution/2);
+            accurate_circle(byj_flange_hole_diam,resolution/2);
           }
         }
       }
     }
 
     // shaft base
-    translate([0,-z_stepper_shaft_from_center,0]) {
-      hole(z_stepper_shaft_base_diam,z_stepper_shaft_base_height*2,resolution);
+    translate([0,-byj_shaft_from_center,0]) {
+      hole(byj_shoulder_diam,byj_shoulder_height*2,resolution);
     }
   }
 
   // shaft
   color("gold") {
-    translate([0,-z_stepper_shaft_from_center,0]) {
+    translate([0,-byj_shaft_from_center,0]) {
       rotate([0,0,shaft_angle]) {
         difference() {
-          hole(z_stepper_shaft_diam,(z_stepper_shaft_length+z_stepper_shaft_base_height)*2,resolution);
+          hole(byj_shaft_diam,(byj_shaft_len+byj_shoulder_height)*2,resolution);
 
-          translate([0,0,z_stepper_shaft_base_height+z_stepper_shaft_length]) {
+          translate([0,0,byj_shoulder_height+byj_shaft_len]) {
             for(y=[left,right]) {
-              translate([0,y*z_stepper_shaft_diam/2,0]) {
-                cube([z_stepper_shaft_diam,z_stepper_shaft_flat_cut_depth*2,z_stepper_shaft_flat_length*2],center=true);
+              translate([0,y*byj_shaft_diam/2,0]) {
+                cube([byj_shaft_diam,byj_shaft_flat_cut_depth*2,byj_shaft_flat_len*2],center=true);
               }
             }
           }
@@ -115,12 +118,12 @@ module stepper28BYJ(shaft_angle) {
   }
 
   // hump
-  translate([0,z_stepper_diam/2,-z_stepper_hump_height/2-0.05]) {
+  translate([0,byj_body_diam/2,-byj_hump_height/2-0.05]) {
     color("dodgerblue") {
       difference() {
-        cube([z_stepper_hump_width,z_stepper_hump_depth*2,z_stepper_hump_height],center=true);
+        cube([byj_hump_width,byj_hump_depth*2,byj_hump_height],center=true);
 
-        translate([0,z_stepper_hump_depth,z_stepper_hump_height/2-cable_distance_from_face-cable_diam/2]) {
+        translate([0,byj_hump_depth,byj_hump_height/2-cable_distance_from_face-cable_diam/2]) {
           rotate([90,0,0]) {
             hull() {
               for(x=[left,right]) {
@@ -136,7 +139,7 @@ module stepper28BYJ(shaft_angle) {
   }
 
   // hump cables
-  translate([0,z_stepper_diam/2+z_stepper_hump_depth,-cable_distance_from_face-cable_diam/2]) {
+  translate([0,byj_body_diam/2+byj_hump_depth,-cable_distance_from_face-cable_diam/2]) {
     rotate([90,0,0]) {
       for(c=[0:num_cables-1]) {
         translate([cable_pos_x[c],0,0]) {
@@ -330,8 +333,8 @@ module extrusion_2040_profile() {
   }
 }
 
-module extrusion_2040(length) {
-  linear_extrude(height=length,center=true,convexity=2) {
+module extrusion_2040(len) {
+  linear_extrude(height=len,center=true,convexity=2) {
     extrusion_2040_profile();
   }
 }
@@ -402,7 +405,10 @@ round_nema14_shoulder_diam = 16;
 round_nema14_shoulder_height = 2;
 round_nema14_shaft_diam = 5;
 round_nema14_shaft_len = 15;
+round_nema14_shaft_from_center = 0;
 round_nema14_shaft_flat_depth = 0.5;
+round_nema14_shaft_flat_thickness = round_nema14_shaft_diam-round_nema14_shaft_flat_depth;
+round_nema14_shaft_flat_offset = -round_nema14_shaft_flat_depth/2;
 round_nema14_shaft_flat_len = 10;
 round_nema14_flange_thickness = 1.5;
 round_nema14_flange_diam = 9;

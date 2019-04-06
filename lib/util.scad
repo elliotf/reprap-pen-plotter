@@ -1,5 +1,3 @@
-include <../config.scad>;
-
 resolution = 32;
 
 function accurate_diam(diam,sides) = 1 / cos(180/sides) / 2 * diam;

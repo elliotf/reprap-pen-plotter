@@ -4,6 +4,7 @@ include <lib/util.scad>;
 include <lib/vitamins.scad>;
 
 z_wall_thickness = extrude_width*8;
+m3_diam_to_thread_into = 2.7;
 
 z_bushing_holder_body_width = z_bushing_od+wall_thickness*2;
 z_rod_spacing = z_carriage_carrier_hole_spacing_x-z_bushing_holder_body_width;
@@ -20,13 +21,24 @@ z_axis_mount_plate_thickness = 5;
 
 z_rod_dist_from_z_mount = z_axis_mount_plate_thickness/2 + 1.5 + z_bushing_od/2;
 
-z_lifter_arm_thickness = z_stepper_shaft_flat_length-0.1;
+z_lifter_arm_thickness = z_stepper_shaft_flat_length;
+z_lifter_arm_len = 9;
+z_lifter_small_diam = m3_diam_to_thread_into+extrude_width*3*4;
+z_lifter_large_diam = z_stepper_shaft_diam+tolerance+extrude_width*3*4;
 
 z_carriage_plate_thickness = wall_thickness*2;
-z_carriage_height = 81;
+z_carriage_top_bottom_height = zip_tie_width+extrude_width*3;
+// calculated bottom to top
+z_carriage_desired_travel = 8;
+z_lifter_arm_top = z_stepper_dist_from_x_rail_z - z_stepper_shaft_from_center + z_lifter_large_diam/2;
+z_carriage_height_calculated = z_carriage_top_bottom_height*2 +
+                               z_carriage_carrier_height/2 +
+                               z_carriage_desired_travel +
+                               z_lifter_arm_top;
+z_carriage_height = z_carriage_height_calculated;
 z_carriage_hole_spacing = 15;
-z_carriage_top_bottom_height = zip_tie_width+extrude_width*8;
 z_carriage_hole_from_bottom = z_carriage_top_bottom_height;
+z_carriage_pos_z = z_carriage_top_bottom_height-z_carriage_height/2+z_lifter_arm_top;
 
 z_carriage_rounding_diam = wall_thickness*2;
 
@@ -56,69 +68,41 @@ module z_spring(top_rotation=0,bottom_rotation=0) {
 }
 
 module z_lifter_arm() {
-  z_lifter_arm_len = 9;
-  z_lifter_bearing_thickness = 4;
   tolerance = 0.2;
   shaft_hole_diam = z_stepper_shaft_diam+tolerance;
-  z_lifter_bearing_od = 10;
-  z_lifter_bearing_id = 3;
-  extra_meat_for_set_screw = 4;
-  m3_diam_to_thread_into = 2.7;
-
-  module z_lifter_bearing() {
-    linear_extrude(height=z_lifter_bearing_thickness,convexity=3,center=true) {
-      difference() {
-        accurate_circle(z_lifter_bearing_od,resolution);
-        accurate_circle(z_lifter_bearing_id,resolution);
-      }
-    }
-  }
-
-  module profile() {
-  }
+  overall_thickness = z_lifter_arm_thickness+z_stepper_extra_meat_for_set_screw;
 
   module body() {
     difference() {
-      translate([0,0,extra_meat_for_set_screw/2]) {
+      translate([0,0,z_stepper_extra_meat_for_set_screw/2]) {
         hull() {
-          hole(shaft_hole_diam+wall_thickness*4,z_lifter_arm_thickness+extra_meat_for_set_screw,resolution);
+          hole(z_lifter_large_diam,overall_thickness,resolution);
 
           translate([-z_lifter_arm_len,0,0]) {
-            hole(m3_diam_to_thread_into+wall_thickness*3,z_lifter_arm_thickness+extra_meat_for_set_screw,resolution);
+            hole(z_lifter_small_diam,overall_thickness,resolution);
           }
         }
       }
-      translate([-z_lifter_arm_len,0,z_lifter_arm_thickness/2+extra_meat_for_set_screw]) {
-        hole(z_lifter_bearing_od+2,extra_meat_for_set_screw*2,resolution);
-      }
     }
 
-    translate([-z_lifter_arm_len,0,z_lifter_arm_thickness/2-1]) {
-      hull() {
-        hole(m3_diam_to_thread_into+wall_thickness,bearing_bevel_height*2+2,resolution);
-        hole(m3_diam_to_thread_into+wall_thickness*3,2,resolution);
-      }
-    }
   }
 
   module holes() {
-    translate([-z_lifter_arm_len,0,z_lifter_arm_thickness/2+bearing_bevel_height+z_lifter_bearing_thickness/2+0.1]) {
-      hole(m3_diam_to_thread_into,z_lifter_arm_thickness*4,12);
-      % color("silver") z_lifter_bearing();
-    }
 
     // set screw
-    translate([0,10,z_lifter_arm_thickness/2-m3_diam_to_thread_into/2]) {
+    translate([0,10,-z_lifter_arm_thickness/2+overall_thickness/2]) {
       rotate([90,0,0]) {
         hole(m3_diam_to_thread_into,20,8);
       }
     }
 
     // stepper shaft cavity
-    translate([0,0,-z_lifter_arm_thickness/2]) {
+    translate([0,0,0]) {
       intersection() {
         hole(shaft_hole_diam,2*(z_stepper_shaft_flat_length+1),16);
-        cube([shaft_hole_diam+2,z_stepper_shaft_flat_thickness+tolerance,z_lifter_arm_thickness*2+1],center=true);
+        translate([0,z_stepper_shaft_flat_offset,0]) {
+          cube([shaft_hole_diam+2,z_stepper_shaft_flat_thickness+tolerance,z_lifter_arm_thickness*2+1],center=true);
+        }
       }
     }
   }
@@ -197,14 +181,14 @@ module z_axis_mount() {
         // z stepper flange corners
         position_z_stepper_2d() {
           for(side=[left,right]) {
-            translate([side*z_stepper_flange_hole_spacing/2,0,0]) {
-              accurate_circle(z_stepper_flange_diam+2,resolution);
+            translate([side*z_stepper_hole_spacing/2,0,0]) {
+              accurate_circle(threaded_insert_diam+wall_thickness*4,resolution);
             }
           }
         }
 
         // z spring body
-        translate([left*(z_rod_spacing/2+z_spring_dist_from_z_rod_x),z_spring_offset_z-z_hook_preload,]) {
+        translate([left*(z_rod_spacing/2+z_spring_dist_from_z_rod_x),z_spring_offset_z-z_hook_preload,0]) {
           rounded_square(z_spring_hook_thickness,z_spring_hook_height,extrude_width*2);
         }
       }
@@ -225,7 +209,7 @@ module z_axis_mount() {
       position_z_stepper_2d() {
         // z stepper mount screw holes
         for(side=[left,right]) {
-          translate([side*z_stepper_flange_hole_spacing/2,0,0]) {
+          translate([side*z_stepper_hole_spacing/2,0,0]) {
             accurate_circle(threaded_insert_diam,12);
           }
         }
@@ -233,15 +217,17 @@ module z_axis_mount() {
         hull() {
           // opening for z bumper
           translate([0,-z_stepper_shaft_from_center,0]) {
-            larger_diam = z_stepper_shaft_base_diam+4;
-            smaller_diam = 9;
-            dist = 9;
-            overall = larger_diam/2 + dist + smaller_diam/2;
+            room_for_arm = 1;
+            larger_diam = max(z_lifter_large_diam,z_stepper_shoulder_diam)+room_for_arm;
+            smaller_diam = z_lifter_small_diam+room_for_arm;
+            overall = larger_diam/2 + z_lifter_arm_len + smaller_diam/2;
+
+            accurate_circle(z_stepper_shoulder_diam+1,resolution);
 
             rotate([0,0,-z_stepper_angle]) {
               translate([0,0,0]) {
                 accurate_circle(larger_diam,resolution);
-                translate([-dist,-larger_diam/2+smaller_diam/2,0]) {
+                translate([-z_lifter_arm_len,0,0]) {
                   accurate_circle(smaller_diam,resolution);
                 }
               }
@@ -321,12 +307,16 @@ module z_axis_mount() {
   }
 
   position_z_stepper() {
-    translate([0,-z_stepper_shaft_from_center,z_stepper_shaft_base_height+z_stepper_shaft_length-z_lifter_arm_thickness/2-0.08]) {
-      rotate([0,0,-z_stepper_angle-7]) { // bottom of travel (min Z)
+    translate([0,-z_stepper_shaft_from_center,z_stepper_shoulder_height+z_lifter_arm_thickness/2+1]) {
+      rotate([0,0,-z_stepper_angle]) { // bottom of travel (min Z)
         % z_lifter_arm();
       }
     }
-    % stepper28BYJ(-z_stepper_angle-5);
+    if (z_stepper_body_diam == round_nema14_body_diam) {
+      % round_nema14(0);
+    } else if (z_stepper_body_diam == byj_body_diam) {
+      % stepper28BYJ(0);
+    }
   }
 
   module bridges() {
@@ -378,18 +368,23 @@ module z_carriage() {
 
   spring_top_rotation = 0;
 
-  translate([left*(z_rod_spacing/2+z_spring_dist_from_z_rod_x),front*(z_spring_diam/2),z_spring_len/2-z_spring_diam/2+z_spring_offset_z]) {
-    % z_spring(spring_top_rotation-180);
-  }
-
   module position_spring_screw() {
-    translate([left*(z_rod_spacing/2+z_spring_dist_from_z_rod_x),front*(z_spring_diam/2),top*(z_spring_len-z_spring_diam/2-z_spring_screw_diam/2-z_spring_wire_diam)+z_spring_offset_z]) {
+    pos_z = top*(z_spring_len-z_spring_diam/2-z_spring_screw_diam/2-z_spring_wire_diam)+z_spring_offset_z-z_carriage_pos_z;
+    translate([left*(z_rod_spacing/2+z_spring_dist_from_z_rod_x),front*(z_spring_diam/2),pos_z]) {
       rotate([0,0,spring_top_rotation]) {
         translate([0,front*(z_spring_diam/2),0]) {
           rotate([-90,0,0]) {
             children();
           }
         }
+      }
+    }
+  }
+
+  position_spring_screw() {
+    rotate([90,0,0]) {
+      translate([0,z_spring_diam/2,-z_spring_len/2+z_spring_screw_diam/2]) {
+        % z_spring(spring_top_rotation-180);
       }
     }
   }
@@ -541,7 +536,7 @@ module z_carriage() {
         }
       }
 
-      translate([left*(z_carriage_overall_width/2-z_spring_diam/2),front*(clearance_for_z_bushings_and_zip_ties+z_carriage_plate_thickness/2),z_spring_len-z_spring_screw_diam-threaded_insert_diam/2+z_spring_offset_z]) {
+      translate([left*(z_carriage_overall_width/2-z_spring_diam/2),front*(clearance_for_z_bushings_and_zip_ties+z_carriage_plate_thickness/2),z_spring_len-z_spring_screw_diam-threaded_insert_diam/2+z_spring_offset_z-z_carriage_pos_z]) {
         rounded_cube(z_spring_diam,z_carriage_plate_thickness,z_spring_diam*3,z_carriage_rounding_diam);
       }
     }
@@ -580,6 +575,24 @@ module z_carriage() {
     position_spring_screw() {
       translate([0,0,-2]) {
         hole(threaded_insert_diam,20,8);
+      }
+    }
+
+    // room for z stepper shaft
+    if ((z_stepper_shaft_length+z_stepper_shoulder_height) > (z_axis_mount_plate_thickness/2+z_rod_dist_from_z_mount+clearance_for_z_bushings_and_zip_ties)) {
+      translate([z_stepper_pos_x,0,z_stepper_dist_from_x_rail_z-z_carriage_pos_z]) {
+        hull() {
+          translate([0,0,1]) {
+            rotate([90,0,0]) {
+              hole(z_stepper_shaft_diam+1,z_carriage_height,16);
+            }
+          }
+          translate([0,0,-z_carriage_desired_travel-1]) {
+            rotate([90,0,0]) {
+              hole(z_stepper_shaft_diam+1,z_carriage_height,16);
+            }
+          }
+        }
       }
     }
 
@@ -671,9 +684,8 @@ module z_axis_assembly() {
   translate([0,-z_axis_mount_plate_thickness/2-0.5,0]) {
     z_axis_mount();
 
-    translate([0,-z_rod_dist_from_z_mount,0]) { // bottom of travel (min Z)
-    // translate([0,-z_rod_dist_from_z_mount,7]) { // top of travel (max Z)
-      //color("grey", 0.4) %
+    translate([0,-z_rod_dist_from_z_mount,z_carriage_pos_z]) {
+      // color("grey", 0.4) %
       z_carriage();
     }
   }

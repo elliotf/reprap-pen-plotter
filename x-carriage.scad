@@ -25,13 +25,13 @@ module x_carriage() {
     rounded_square(x_carriage_overall_depth,x_carriage_overall_height,printed_carriage_outer_diam);
 
     // z axis mounting plate
-    translate([front*(x_carriage_opening_depth/2+printed_carriage_wall_thickness/2),0]) {
-      rounded_square(printed_carriage_wall_thickness,z_carriage_carrier_height,printed_carriage_inner_diam);
+    translate([front*(x_carriage_opening_depth/2+printed_carriage_wall_thickness/2),-z_carriage_carrier_height/4]) {
+      rounded_square(printed_carriage_wall_thickness,z_carriage_carrier_height/2,printed_carriage_inner_diam);
     }
 
     translate([front*(x_carriage_opening_depth/2),0]) {
       // round out internal corners
-      for(z=[top,bottom]) {
+      for(z=[bottom]) {
         mirror([0,1-z]) {
           translate([0,x_carriage_overall_height/2]) {
             round_corner_filler_profile(printed_carriage_inner_diam);
@@ -182,7 +182,7 @@ module x_carriage() {
     for(y=[front,rear]) {
       translate([0,y*x_carriage_line_spacing/2,10+line_bearing_above_extrusion]) {
         rotate([0,90,0]) {
-          # hole(line_hole_diam,x_carriage_width+4,12);
+          hole(line_hole_diam,x_carriage_width+4,12);
         }
       }
     }
