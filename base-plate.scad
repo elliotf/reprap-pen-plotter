@@ -10,7 +10,11 @@ function overallSheetWidth() = (x_rail_len >= 1000) ? 60*inch
                            : (x_rail_len >= 500) ? 24*inch
                            : (x_rail_len >= 250) ? 18*inch
                            : x_rail_len + allot_space_x + room_for_electronics;
-function overallWidth() = x_rail_len + allot_space_x + room_for_electronics;
+function overallWidth() = (x_rail_len >= 1000) ? 60*inch
+                           : (x_rail_len >= 500) ? 24*inch
+                           : (x_rail_len >= 250) ? 18*inch
+                           : x_rail_len + allot_space_x + room_for_electronics;
+// function overallWidth() = x_rail_len + allot_space_x + room_for_electronics;
 function overallLength() = (y_rail_len >= 1000) ? 60*inch
                          : (y_rail_len >= 500) ? 36*inch
                          : (y_rail_len >= 250) ? 24*inch
@@ -23,7 +27,7 @@ base_length = overallLength();
 sheet_width = overallSheetWidth();
 sheet_length = overallLength();
 
-pos_x = room_for_electronics/2;
+pos_x = 0; //room_for_electronics/2;
 pos_y = -base_length/2+y_rail_len/2+allot_space_y_for_rear_idler;
 
 module base_plate() {
@@ -65,16 +69,16 @@ module base_plate_for_display() {
   base_plate_thickness = 0.75*inch;
 
   translate([0,0,-base_plate_thickness/2-1]) {
-    color("ivory") {
+    color("lightgreen") {
       linear_extrude(height=base_plate_thickness,center=true,convexity=3) {
         base_plate();
       }
     }
 
     translate([pos_x-base_width/2+sheet_width/2,pos_y-base_length/2+sheet_length/2,-base_plate_thickness-1]) {
-      % cube([overallSheetWidth(),overallLength(),base_plate_thickness],center=true);
+      // % color("lightblue") cube([overallSheetWidth(),overallLength(),base_plate_thickness],center=true);
     }
   }
 }
 
-for_render();
+base_plate_for_display();

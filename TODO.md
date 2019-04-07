@@ -2,7 +2,7 @@
 
 * motor mounts (done)
   * and motor mount positioning (mostly)
-  * holes to screw motor mount to extrusion
+  * holes to screw motor mount to extrusion (done)
 * endstop mounting
   * x and z on the z axis mount
     * have X endstop hit something screwed into the extrusion?

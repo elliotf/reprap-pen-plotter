@@ -117,6 +117,11 @@ module motor_mount() {
       translate([extrusion_mount_thickness/2,-2,y_rail_dist_above_plate/2]) {
         rounded_cube(y_rail_extrusion_width+extrusion_mount_thickness,extrusion_mount_width+4,y_rail_dist_above_plate,small_diam);
       }
+      translate([-y_rail_extrusion_width/2,-extrusion_mount_width/2,y_rail_dist_above_plate/2]) {
+        rotate([0,0,90]) {
+          round_corner_filler(small_diam,y_rail_dist_above_plate);
+        }
+      }
     }
 
     // anchor to plate by extrusion
@@ -167,6 +172,17 @@ module motor_mount() {
         rotate([0,0,135]) {
           translate([10,0,0]) {
             cube([20,corner_cavity_diam,overall_height],center=true);
+          }
+        }
+      }
+    }
+
+    // screw holes to bolt to extrusion
+    translate([rel_y_rail_pos_x+extrusion_mount_thickness/2+y_rail_extrusion_width/2,extrusion_mount_width/2+1,y_rail_dist_above_plate+y_rail_extrusion_height/2]) {
+      for(z=[top,bottom]) {
+        translate([0,0,10*z]) {
+          rotate([0,90,0]) {
+            hole(5.2,20,8);
           }
         }
       }
@@ -280,3 +296,5 @@ module motor_mount_brace() {
     holes();
   }
 }
+
+motor_mount();
