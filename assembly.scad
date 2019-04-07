@@ -8,14 +8,7 @@ use <z-axis-mount.scad>;
 use <rear-idler-mounts.scad>;
 use <base-plate.scad>;
 
-base_plate_thickness = 0.75*inch;
-translate([0,0,-base_plate_thickness/2-1]) {
-  color("ivory") {
-    linear_extrude(height=base_plate_thickness,center=true,convexity=3) {
-      base_plate();
-    }
-  }
-}
+base_plate_for_display();
 
 for(x=[left,right]) {
   translate([x*y_rail_pos_x,0,0]) {
