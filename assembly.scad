@@ -7,6 +7,7 @@ use <y-carriage.scad>;
 use <z-axis-mount.scad>;
 use <rear-idler-mounts.scad>;
 use <base-plate.scad>;
+use <misc.scad>;
 
 base_plate_for_display();
 
@@ -15,6 +16,14 @@ for(x=[left,right]) {
     translate([0,0,20+y_rail_dist_above_plate]) {
       mirror([1-x,0,0]) {
         y_carriage();
+
+        translate([x_rail_end_relative_to_y_rail_x-line_bearing_diam+0.5,10,x_rail_end_relative_to_y_rail_z-x_rail_extrusion_height/2]) {
+          rotate([0,90,0]) {
+            rotate([0,0,90]) {
+              endstop_flag();
+            }
+          }
+        }
       }
 
       rotate([0,90,0]) {
