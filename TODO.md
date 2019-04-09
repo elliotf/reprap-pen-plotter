@@ -9,6 +9,7 @@
   * x and z on the z axis mount
     * have X endstop hit something screwed into the extrusion?
   * y on the motor/idler mounts
+  * for_render/* for endstop flags
 * base plate (done)
   * add it to the Makefile
   * and ways to anchor motors/idler mounts to base (done)

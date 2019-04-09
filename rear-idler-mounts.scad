@@ -28,7 +28,7 @@ module position_rear_idler_anchor_holes(pos_z=0) {
   }
 }
 
-module rear_idler_mount(side) {
+module rear_idler_mount(side=right) {
   overall_depth = overall_depth_for_side(side);
   line_color = colors[side+1];
   opposite_line_color = colors[-side+1];
@@ -193,6 +193,7 @@ module rear_idler_mount(side) {
         }
       }
     }
+
     position_xy_bearing() {
       rotate([0,0,other_z_line_angle]) {
         hole(line_bearing_diam+1,line_bearing_thickness+bearing_bevel_height*2,resolution);
@@ -207,6 +208,28 @@ module rear_idler_mount(side) {
     // trim excess off bottom
     translate([0,0,plate_pos_z-50]) {
       cube([100,100,100],center=true);
+    }
+
+    // cutaway
+    if (0) {
+      idler_bearing_screw_len = 40;
+
+      position_xy_bearing() {
+        translate([0,0,-idler_bearing_screw_len/2+line_bearing_thickness/2]) {
+          # hole(line_bearing_screw_hole_diam,idler_bearing_screw_len,12);
+        }
+        translate([0,-line_bearing_diam,0]) {
+          cube([line_bearing_diam,line_bearing_diam*2,200],center=true);
+        }
+      }
+      position_motor_bearing() {
+        translate([0,0,-idler_bearing_screw_len/2+line_bearing_thickness/2]) {
+          # hole(line_bearing_screw_hole_diam,idler_bearing_screw_len,12);
+        }
+        translate([0,-line_bearing_diam,0]) {
+          cube([line_bearing_diam,line_bearing_diam*2,200],center=true);
+        }
+      }
     }
   }
 

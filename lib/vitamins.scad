@@ -262,12 +262,13 @@ module tuner() {
   }
 }
 
+v_slot_depth     = 1.80;
+//v_slot_gap       = 5.68;
+v_slot_width     = 9.5;
+v_slot_gap       = v_slot_width-v_slot_depth*2;
+v_slot_opening   = 6.2;
+
 module extrusion_2040_profile() {
-  v_slot_depth     = 1.80;
-  //v_slot_gap       = 5.68;
-  v_slot_width     = 9.5;
-  v_slot_gap       = v_slot_width-v_slot_depth*2;
-  v_slot_opening   = 6.2;
 
   width = 40;
   height = 20;

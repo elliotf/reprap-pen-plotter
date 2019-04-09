@@ -296,5 +296,3 @@ module motor_mount_brace() {
     holes();
   }
 }
-
-motor_mount();
