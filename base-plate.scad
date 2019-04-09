@@ -6,10 +6,6 @@ include <rear-idler-mounts.scad>;
 allot_space_x = (y_rail_extrusion_width/2 + motor_side)*2;
 room_for_electronics = 4*inch;
 
-function overallSheetWidth() = (x_rail_len >= 1000) ? 60*inch
-                           : (x_rail_len >= 500) ? 24*inch
-                           : (x_rail_len >= 250) ? 18*inch
-                           : x_rail_len + allot_space_x + room_for_electronics;
 function overallWidth() = (x_rail_len >= 1000) ? 60*inch
                            : (x_rail_len >= 500) ? 24*inch
                            : (x_rail_len >= 250) ? 18*inch
@@ -24,13 +20,13 @@ function overallLength() = (y_rail_len >= 1000) ? 60*inch
 base_width = overallWidth();
 base_length = overallLength();
 
-sheet_width = overallSheetWidth();
-sheet_length = overallLength();
-
 pos_x = 0; //room_for_electronics/2;
 pos_y = -base_length/2+y_rail_len/2+allot_space_y_for_rear_idler;
 
 module base_plate() {
+  echo("SHEET WIDTH: ", base_width/25.4);
+  echo("SHEET LENGTH: ", base_length/25.4);
+
   module body() {
     translate([pos_x,pos_y,0]) {
       square([base_width,base_length],center=true);
@@ -73,10 +69,6 @@ module base_plate_for_display() {
       linear_extrude(height=base_plate_thickness,center=true,convexity=3) {
         base_plate();
       }
-    }
-
-    translate([pos_x-base_width/2+sheet_width/2,pos_y-base_length/2+sheet_length/2,-base_plate_thickness-1]) {
-      // % color("lightblue") cube([overallSheetWidth(),overallLength(),base_plate_thickness],center=true);
     }
   }
 }

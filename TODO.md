@@ -1,5 +1,7 @@
 # TODO
 
+* mounts for wire support zip ties
+  * anchor z mount to y carriage, then y carriage to electronics, or direct from z mount to electronics?
 * motor mounts (done)
   * and motor mount positioning (mostly)
   * holes to screw motor mount to extrusion (done)

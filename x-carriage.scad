@@ -11,6 +11,7 @@ module x_carriage() {
   tensioner_pos_y = x_carriage_line_spacing/2;
   tensioner_pos_z = 10+line_bearing_above_extrusion+tuner_thin_diam/2;
   tensioner_shoulder_pos_z = tuner_hole_to_shoulder;
+  tensioner_angle_around_x = 9;
 
   for(y=[front,rear]) {
     translate([0,y*x_carriage_line_spacing/2,10+line_bearing_above_extrusion]) {
@@ -68,7 +69,7 @@ module x_carriage() {
     mirror([1-side,0,0]) {
       translate([tensioner_pos_x,tensioner_pos_y,tensioner_pos_z]) {
         rotate([0,0,0]) {
-          rotate([9,0,0]) {
+          rotate([tensioner_angle_around_x,0,0]) {
             mirror([0,0,0]) {
               rotate([0,10,0]) {
                 rotate([0,0,-90]) {
@@ -175,6 +176,13 @@ module x_carriage() {
         translate([-tuner_body_diam/2,-tuner_body_diam/2,0]) {
           hole(tuner_anchor_screw_hole_diam-0.5,10,8);
         }
+
+        // anchor holes for misc
+        translate([0,-tensioner_pos_x,-tuner_thick_len+x*(tuner_thick_len/2)]) { // Z, X from PoV of right side, Y-ish
+          rotate([0,90,-10]) {
+            hole(threaded_insert_diam,20,8);
+          }
+        }
       }
     }
 
@@ -226,6 +234,49 @@ module x_carriage() {
         translate([0,0,x_carriage_overall_height/2]) {
           cube([narrow_width,printed_carriage_wall_thickness+5,2],center=true);
         }
+      }
+    }
+
+    // mounting holes for x limit switches
+    for(x=[left,right]) {
+      translate([x*(x_carriage_width/2+1),rear*(10-mech_endstop_tiny_length*0.25),-x_carriage_overall_height/2-mech_endstop_tiny_width/2]) {
+        rotate([0,x*-90,180]) {
+          % mech_endstop_tiny();
+          position_mech_endstop_tiny_mount_holes() {
+            hole(m2_threaded_insert_diam,mech_endstop_tiny_width+2*(printed_carriage_wall_thickness-wall_thickness*2),8);
+          }
+        }
+      }
+    }
+
+    // cat5/cat6 for x carriage?
+    /*
+     2+ pair for stepper
+
+     1 5v DC
+     Z limit signal
+     X limit signal
+     Ground
+
+     */
+
+    // mounting holes for z limit switch
+    translate([z_limit_switch_pos_x,-x_carriage_overall_depth/2+printed_carriage_wall_thickness+mech_endstop_tiny_width/2,-z_carriage_carrier_height/2]) {
+      rotate([0,180,90]) {
+        % mech_endstop_tiny();
+        position_mech_endstop_tiny_mount_holes() {
+          hole(m2_threaded_insert_diam,mech_endstop_tiny_width+2*(printed_carriage_wall_thickness-wall_thickness*2),8);
+        }
+      }
+    }
+
+    // zip tie hole for limit switch wire tidying
+    translate([0,x_carriage_overall_depth/2,0]) {
+      zip_tie_cavity(printed_carriage_wall_thickness/2,zip_tie_thickness,zip_tie_width);
+    }
+    translate([0,10,-x_carriage_overall_height/2]) {
+      rotate([-90,0,0]) {
+        zip_tie_cavity(printed_carriage_wall_thickness/2,zip_tie_thickness,zip_tie_width);
       }
     }
   }

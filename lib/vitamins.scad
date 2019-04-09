@@ -414,7 +414,7 @@ round_nema14_flange_thickness = 1.5;
 round_nema14_flange_diam = 9;
 
 module round_nema14(shaft_angle) {
-  cable_colors  = ["black","red","blue","green"];
+  cable_colors  = ["dimgrey","red","blue","green"];
   metal_top_bottom_thickness = 3;
   cable_diam    = 1;
   cable_spacing = cable_diam+0.3;
@@ -478,6 +478,92 @@ module round_nema14(shaft_angle) {
       rotate([0,0,0]) {
         translate([0,round_nema14_shaft_diam/2,0]) {
           cube([round_nema14_shaft_diam+1,round_nema14_shaft_flat_depth*2,round_nema14_shaft_flat_len*2],center=true);
+        }
+      }
+    }
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
+mech_endstop_tiny_width = 5.5;
+mech_endstop_tiny_length = 13;
+mech_endstop_tiny_height = 7;
+mech_endstop_tiny_mounting_hole_diam =2;
+mech_endstop_mounting_hole_spacing_y = 6.35;
+mech_endstop_tiny_mounting_hole_from_top = 5.1;
+
+module position_mech_endstop_tiny_mount_holes() {
+  for(y=[front,rear]) {
+    translate([0,y*(mech_endstop_mounting_hole_spacing_y/2),-mech_endstop_tiny_mounting_hole_from_top]) {
+      rotate([0,90,0]) {
+        children();
+      }
+    }
+  }
+}
+
+module mech_endstop_tiny() {
+  spring_angle = 20;
+  spring_length = mech_endstop_tiny_length+1;
+  button_from_spring_hinge_end = 4.5;
+  button_length = 1;
+
+  module body() {
+    color("dimgrey") {
+      translate([0,0,-mech_endstop_tiny_height/2]) {
+        cube([mech_endstop_tiny_width,mech_endstop_tiny_length,mech_endstop_tiny_height],center=true);
+      }
+    }
+
+    // contacts
+    pin_width = 0.85;
+    for(y=[front,0,rear]) {
+      translate([0,y*(mech_endstop_tiny_length/2-0.9-pin_width/2),-mech_endstop_tiny_height]) {
+        color("silver") {
+          cube([0.85,0.85,4],center=true);
+        }
+      }
+    }
+
+    translate([0,mech_endstop_tiny_length/2,0]) {
+      translate([0,-button_from_spring_hinge_end,0]) {
+        color("red") {
+          cube([mech_endstop_tiny_width-2.5,button_length,1],center=true);
+        }
+      }
+
+      translate([0,-1,0]) {
+        rotate([-spring_angle,0,0]) {
+          translate([0,-spring_length/2,0]) {
+            color("silver") {
+              difference() {
+                cube([mech_endstop_tiny_width-1,spring_length,0.2],center=true);
+                hole_diam = mech_endstop_tiny_width-1-2.5;
+                hull() {
+                  translate([0,spring_length/2-hole_diam/2,0]) {
+                    hole(hole_diam,1,12);
+                  }
+                  translate([0,-2,0]) {
+                    hole(hole_diam,1,12);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  module holes() {
+    for(y=[front,rear]) {
+      translate([0,y*(mech_endstop_mounting_hole_spacing_y/2),-mech_endstop_tiny_mounting_hole_from_top]) {
+        rotate([0,90,0]) {
+          hole(mech_endstop_tiny_mounting_hole_diam,mech_endstop_tiny_width+1,8);
         }
       }
     }

@@ -134,6 +134,7 @@ y_rail_dist_above_plate = 15;
 
 z_rod_diam  = 3;
 
+m2_threaded_insert_diam = 2.7;
 threaded_insert_diam = 3.5;
 m3_loose_hole = 3.2;
 
@@ -202,29 +203,31 @@ motor_mount_motor_opening = tolerance*2 + motor_side;
 plate_anchor_thickness = wall_thickness*2;
 plate_anchor_screw_hole_diam = line_bearing_inner;
 plate_anchor_diam = line_bearing_inner + wall_thickness*4;
-//
-// z_stepper_body_diam = round_nema14_body_diam;
-// z_stepper_hole_spacing = round_nema14_hole_spacing;
-// z_stepper_shaft_diam = round_nema14_shaft_diam;
-// z_stepper_shaft_length = round_nema14_shaft_len;
-// z_stepper_shaft_flat_length = round_nema14_shaft_flat_len;
-// z_stepper_shaft_flat_thickness = round_nema14_shaft_flat_thickness;
-// z_stepper_shaft_flat_offset = round_nema14_shaft_flat_offset;
-// z_stepper_shoulder_diam = round_nema14_shoulder_diam;
-// z_stepper_shoulder_height = round_nema14_shoulder_height;
-// z_stepper_shaft_from_center = round_nema14_shaft_from_center;
-// z_stepper_dist_from_x_rail_z = x_carriage_overall_height/2 + z_stepper_body_diam/2 + 0.5;
-// z_stepper_extra_meat_for_set_screw = -2; // for long-shaft nema14 stepper
 
-z_stepper_body_diam = byj_body_diam;
-z_stepper_hole_spacing = byj_hole_spacing;
-z_stepper_shaft_diam = byj_shaft_diam;
-z_stepper_shaft_length = byj_shaft_len;
-z_stepper_shaft_flat_length = byj_shaft_flat_len;
-z_stepper_shaft_flat_thickness = byj_shaft_flat_thickness;
-z_stepper_shaft_flat_offset = byj_shaft_flat_offset;
-z_stepper_shoulder_diam = byj_shoulder_diam;
-z_stepper_shoulder_height = byj_shoulder_height;
-z_stepper_shaft_from_center = byj_shaft_from_center;
-z_stepper_dist_from_x_rail_z = x_carriage_overall_height/2 + z_stepper_body_diam/2 + 2;
-z_stepper_extra_meat_for_set_screw = 4; // for byj stepper
+z_stepper_body_diam = round_nema14_body_diam;
+z_stepper_hole_spacing = round_nema14_hole_spacing;
+z_stepper_shaft_diam = round_nema14_shaft_diam;
+z_stepper_shaft_length = round_nema14_shaft_len;
+z_stepper_shaft_flat_length = round_nema14_shaft_flat_len;
+z_stepper_shaft_flat_thickness = round_nema14_shaft_flat_thickness;
+z_stepper_shaft_flat_offset = round_nema14_shaft_flat_offset;
+z_stepper_shoulder_diam = round_nema14_shoulder_diam;
+z_stepper_shoulder_height = round_nema14_shoulder_height;
+z_stepper_shaft_from_center = round_nema14_shaft_from_center;
+z_stepper_dist_from_x_rail_z = x_carriage_overall_height/2 + z_stepper_body_diam/2 + 0.5;
+z_stepper_extra_meat_for_set_screw = -2; // for long-shaft nema14 stepper
+
+// z_stepper_body_diam = byj_body_diam;
+// z_stepper_hole_spacing = byj_hole_spacing;
+// z_stepper_shaft_diam = byj_shaft_diam;
+// z_stepper_shaft_length = byj_shaft_len;
+// z_stepper_shaft_flat_length = byj_shaft_flat_len;
+// z_stepper_shaft_flat_thickness = byj_shaft_flat_thickness;
+// z_stepper_shaft_flat_offset = byj_shaft_flat_offset;
+// z_stepper_shoulder_diam = byj_shoulder_diam;
+// z_stepper_shoulder_height = byj_shoulder_height;
+// z_stepper_shaft_from_center = byj_shaft_from_center;
+// z_stepper_dist_from_x_rail_z = x_carriage_overall_height/2 + z_stepper_body_diam/2 + 2;
+// z_stepper_extra_meat_for_set_screw = 4; // for byj stepper
+
+z_limit_switch_pos_x = -z_carriage_carrier_hole_spacing_x/4;

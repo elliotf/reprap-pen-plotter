@@ -150,6 +150,33 @@ module letter_R(width=10,height=20,thickness=0.5,thick_width=2,thin_width=0.3) {
   }
 }
 
+module zip_tie_cavity(inner_diam_input,zip_tie_thickness,zip_tie_width,fn=resolution) {
+  inner_diam = inner_diam_input -0.05;
+  overall_width = inner_diam+zip_tie_thickness*2;
+
+  module profile() {
+    for(x=[left,right]) {
+      translate([x*(inner_diam/2+zip_tie_thickness/2),overall_width,0]) {
+        square([zip_tie_thickness,overall_width*2],center=true);
+      }
+    }
+
+    intersection() {
+      translate([0,-overall_width,0]) {
+        square([overall_width*2,overall_width*2],center=true);
+      }
+      difference() {
+        accurate_circle(inner_diam+zip_tie_thickness*2,fn);
+        accurate_circle(inner_diam,fn);
+      }
+    }
+  }
+
+  linear_extrude(height=zip_tie_width,convexity=3,center=true) {
+    profile();
+  }
+}
+
 /*
 translate([-10,0,0]) {
   letter_L();
