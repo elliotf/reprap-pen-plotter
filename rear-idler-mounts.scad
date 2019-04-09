@@ -11,19 +11,22 @@ colors = ["crimson", "green", "royalblue"];
 
 relative_x_line_pos_x = x_line_pos_x - y_rail_pos_x;
 
-body_width = 5.2+printed_carriage_wall_thickness*2;
+body_width = y_rail_extrusion_width;
 
 allot_space_y_for_rear_idler = overall_depth_for_side(right) + plate_anchor_diam*2;
 
 module position_rear_idler_anchor_holes(pos_z=0) {
   diam = plate_anchor_diam;
-  translate([body_width/2+diam/2,diam/2,pos_z]) {
+  translate([body_width/2+diam/2,overall_depth_for_side(right)/2,pos_z]) {
+    // outside
     children();
   }
   translate([relative_x_line_pos_x-line_bearing_diam/2-diam,diam/2,pos_z]) {
+    // inside
     children();
   }
   translate([0,overall_depth_for_side(right)+diam/2,pos_z]) {
+    // end
     children();
   }
 }
@@ -112,8 +115,8 @@ module rear_idler_mount(side=right) {
       translate([0,overall_depth/2,plate_pos_z+wall_thickness]) {
         rounded_cube(body_width,overall_depth,wall_thickness*2,printed_carriage_inner_diam,resolution);
       }
-      position_rear_idler_anchor_holes(plate_pos_z+plate_anchor_thickness/2) {
-        hole(plate_anchor_diam,plate_anchor_thickness,resolution);
+      position_rear_idler_anchor_holes(plate_pos_z) {
+        hole(plate_anchor_diam,plate_anchor_thickness*2,resolution);
       }
     }
 
@@ -132,21 +135,6 @@ module rear_idler_mount(side=right) {
         translate([0,0,-line_bearing_thickness/2-bearing_bevel_height-height/2]) {
           rotate([0,0,-z_line_angle]) {
             hole(line_bearing_screw_hole_diam+wall_thickness*4,height,resolution);
-          }
-        }
-      }
-    }
-
-    translate([body_width/2,overall_depth/2,plate_pos_z+overall_height/2+wall_thickness*2]) {
-      depth = overall_depth_for_side(side) - 10;
-      rotate([0,90,0]) {
-        rotate([0,0,90]) {
-          if (side == left) {
-            mirror([1,0,0]) {
-              letter_L(depth,depth*2);
-            }
-          } else {
-            letter_R(depth,depth*2);
           }
         }
       }
@@ -283,7 +271,29 @@ module rear_idler_mount(side=right) {
       for(z=[top,bottom]) {
         translate([0,0,z*10]) {
           rotate([90,0,0]) {
-            hole(5.2,100,8);
+            hole(m5_tight_hole,100,8);
+          }
+        }
+      }
+
+      // passthrough for endstop wiring
+      if (side == right) {
+        //wire_passthrough_diam = 10;
+        wire_passthrough_diam = 10+m5_tight_hole/2-wall_thickness*2;
+        translate([side*(wire_passthrough_diam/2-m5_tight_hole/2),0,0]) {
+          rotate([90,0,0]) {
+            hole(wire_passthrough_diam,overall_depth_for_side(side)*2+1,8);
+          }
+        }
+
+        translate([10+mech_endstop_tiny_width/2,0,-y_rail_extrusion_height/2+mech_endstop_tiny_length/2]) {
+          rotate([90,0,0]) {
+            rotate([0,0,180]) {
+              % mech_endstop_tiny();
+              position_mech_endstop_tiny_mount_holes() {
+                hole(m2_threaded_insert_diam,mech_endstop_tiny_width+5*2);
+              }
+            }
           }
         }
       }

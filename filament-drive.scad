@@ -30,9 +30,26 @@ clamp_mount_thickness = 10;
 
 allot_space_y_for_motor_mount = abs(motor_shaft_pos_y) + motor_mount_motor_opening/2 + large_diam + plate_anchor_diam + 10;
 
+idler_body_width = abs(idler_pulley_pos_y) + rel_y_rail_pos_x + y_rail_extrusion_width/2;
+idler_body_depth = abs(idler_pulley_pos_y)*2;
+
+module position_anchor_inside_extrusion() {
+  translate([-overall_width/2+plate_anchor_diam/2,idler_pulley_pos_y,0]) {
+    children();
+  }
+}
+
+module position_anchor_outside_extrusion() {
+  translate([rel_y_rail_pos_x+y_rail_extrusion_width/2+plate_anchor_diam/2,idler_pulley_pos_y,0]) {
+    children();
+  }
+}
+
 module position_motor_mount_anchor_holes() {
-  // anchor to plate
-  translate([-overall_width/2+plate_anchor_diam/2,extrusion_mount_width-plate_anchor_diam/2,0]) {
+  position_anchor_inside_extrusion() {
+    children();
+  }
+  position_anchor_outside_extrusion() {
     children();
   }
 
@@ -42,23 +59,46 @@ module position_motor_mount_anchor_holes() {
 }
 
 module motor_mount() {
-  module profile() {
-    module body() {
-      hull() {
-        for(x=[left,right]) {
-          translate([x*(overall_width/2-small_diam/2),-small_diam/2,0]) {
-            accurate_circle(small_diam,resolution);
-          }
+  module position_extrusion_mount() {
+    translate([rel_y_rail_pos_x+left*(y_rail_extrusion_width/2+extrusion_mount_thickness/2),extrusion_mount_width/2,0]) {
+      children();
+    }
+  }
 
-          translate([x*(overall_width/2-large_diam/2),motor_shaft_pos_y-motor_mount_motor_opening/2-large_diam/2,0]) {
-            accurate_circle(large_diam,resolution);
+  module profile() {
+
+    module body() {
+      // main motor body
+      translate([0,motor_shaft_pos_y,0]) {
+        rounded_square(overall_width,overall_width,large_diam);
+      }
+
+      // area for idler
+      translate([-abs(idler_pulley_pos_y)+idler_body_width/2,,0]) {
+        hull() {
+          translate([0,-idler_body_depth/2,0]) {
+            rounded_square(idler_body_width,idler_body_depth,large_diam);
+          }
+          translate([0,motor_shaft_pos_y+overall_width/2,0]) {
+            square([idler_body_width,motor_mount_wall_thickness],center=true);
+          }
+        }
+
+        // round corner between two
+        for(x=[left,right]) {
+          translate([x*(idler_body_width/2),motor_shaft_pos_y+overall_width/2,0]) {
+            rotate([0,0,45-x*45]) {
+              round_corner_filler_profile(large_diam,resolution);
+            }
           }
         }
       }
 
-      // mount to y rail
-      translate([rel_y_rail_pos_x+y_rail_extrusion_width/2+extrusion_mount_thickness/2,0,0]) {
-        square([extrusion_mount_thickness,extrusion_mount_width],center=true);
+      // avoid gap between rounded shapes of profile and extrusion mount
+      position_extrusion_mount() {
+        translate([0,-extrusion_mount_width/2,0]) {
+          square([extrusion_mount_thickness,10],center=true);
+        }
       }
 
       // motor clamp stuffs
@@ -109,27 +149,31 @@ module motor_mount() {
       }
     }
 
-    // y rail extrusion mount
-    translate([rel_y_rail_pos_x,extrusion_mount_width/2,0]) {
-      translate([y_rail_extrusion_width/2+extrusion_mount_thickness/2,0,extrusion_mount_height/2]) {
-        rounded_cube(extrusion_mount_thickness,extrusion_mount_width,extrusion_mount_height,small_diam);
+    position_extrusion_mount() {
+      height = y_rail_dist_above_plate+y_rail_extrusion_height;
+      translate([0,0,height/2]) {
+        rounded_cube(extrusion_mount_thickness,extrusion_mount_width,height,small_diam);
       }
-      translate([extrusion_mount_thickness/2,-2,y_rail_dist_above_plate/2]) {
+      translate([y_rail_extrusion_width/2,-2,y_rail_dist_above_plate/2]) {
         rounded_cube(y_rail_extrusion_width+extrusion_mount_thickness,extrusion_mount_width+4,y_rail_dist_above_plate,small_diam);
-      }
-      translate([-y_rail_extrusion_width/2,-extrusion_mount_width/2,y_rail_dist_above_plate/2]) {
-        rotate([0,0,90]) {
-          round_corner_filler(small_diam,y_rail_dist_above_plate);
-        }
       }
     }
 
     // anchor to plate by extrusion
-    translate([0,extrusion_mount_width/2,plate_anchor_thickness/2]) {
-      hull() {
-        rounded_cube(overall_width,extrusion_mount_width,plate_anchor_thickness,plate_anchor_diam);
-        translate([0,-extrusion_mount_width/2-small_diam,0]) {
-          cube([overall_width,1,plate_anchor_thickness],center=true);
+    hull() {
+      translate([0,0,plate_anchor_thickness/2]) {
+        translate([rel_y_rail_pos_x-extrusion_mount_thickness/2,extrusion_mount_width/2,0]) {
+          rounded_cube(y_rail_extrusion_width+extrusion_mount_thickness,extrusion_mount_width,plate_anchor_thickness,small_diam);
+        }
+        position_anchor_inside_extrusion() {
+          hole(plate_anchor_diam,plate_anchor_thickness,resolution);
+        }
+        position_anchor_outside_extrusion() {
+          hole(plate_anchor_diam,plate_anchor_thickness,resolution);
+        }
+
+        translate([0,motor_shaft_pos_y+overall_width/2,0]) {
+          cube([overall_width,motor_mount_wall_thickness,plate_anchor_thickness],center=true);
         }
       }
     }
@@ -164,25 +208,29 @@ module motor_mount() {
   }
 
   module holes() {
-    // avoid rounded corner
+    // avoid rounded corner interference
     corner_cavity_diam = 2;
-    translate([rel_y_rail_pos_x+y_rail_extrusion_width/2,0,overall_height/2+y_rail_dist_above_plate]) {
-      hull() {
-        hole(corner_cavity_diam,overall_height,16);
-        rotate([0,0,135]) {
-          translate([10,0,0]) {
-            cube([20,corner_cavity_diam,overall_height],center=true);
+    position_extrusion_mount() {
+      translate([extrusion_mount_thickness/2,-extrusion_mount_width/2,overall_height/2+y_rail_dist_above_plate]) {
+        hull() {
+          hole(corner_cavity_diam,overall_height,16);
+          rotate([0,0,45]) {
+            translate([10,0,0]) {
+              cube([20,corner_cavity_diam,overall_height],center=true);
+            }
           }
         }
       }
     }
 
     // screw holes to bolt to extrusion
-    translate([rel_y_rail_pos_x+extrusion_mount_thickness/2+y_rail_extrusion_width/2,extrusion_mount_width/2+1,y_rail_dist_above_plate+y_rail_extrusion_height/2]) {
-      for(z=[top,bottom]) {
-        translate([0,0,10*z]) {
-          rotate([0,90,0]) {
-            hole(5.2,20,8);
+    position_extrusion_mount() {
+      translate([0,0,y_rail_dist_above_plate+y_rail_extrusion_height/2]) {
+        for(z=[top,bottom]) {
+          translate([0,0,10*z]) {
+            rotate([0,90,0]) {
+              hole(m5_loose_hole,20,8);
+            }
           }
         }
       }
@@ -202,6 +250,16 @@ module motor_mount() {
 
     position_motor_mount_anchor_holes() {
       hole(plate_anchor_screw_hole_diam,plate_anchor_thickness*2+1,resolution);
+    }
+
+    // endstop mount
+    translate([rel_y_rail_pos_x+y_rail_extrusion_width/2+mech_endstop_tiny_width/2,extrusion_mount_width,y_rail_dist_above_plate-mech_endstop_tiny_length/2]) {
+      rotate([-90,0,0]) {
+        % mech_endstop_tiny();
+        position_mech_endstop_tiny_mount_holes() {
+          hole(m2_threaded_insert_diam,mech_endstop_tiny_width+5*2);
+        }
+      }
     }
   }
 

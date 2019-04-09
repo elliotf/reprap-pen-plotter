@@ -137,6 +137,8 @@ z_rod_diam  = 3;
 m2_threaded_insert_diam = 2.7;
 threaded_insert_diam = 3.5;
 m3_loose_hole = 3.2;
+m5_tight_hole = 5;
+m5_loose_hole = 5.2;
 
 printed_carriage_extrusion_carriage_gap = ptfe_bushing_diam*0.3 - ptfe_bushing_preload_amount;
 printed_carriage_outer_skin_from_extrusion = ptfe_bushing_diam -ptfe_bushing_preload_amount + extrude_width *6;
