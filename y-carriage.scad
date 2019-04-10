@@ -4,8 +4,7 @@ use <lib/vitamins.scad>;
 
 y_carriage_depth = 40;
 
-module y_carriage() {
-  y_carriage_overall_width =  0;
+module y_carriage(side) {
   y_carriage_overall_width  = y_rail_extrusion_width+printed_carriage_outer_skin_from_extrusion*2;
   y_carriage_overall_height  = y_rail_extrusion_height+printed_carriage_outer_skin_from_extrusion*2;
 
@@ -159,6 +158,14 @@ module y_carriage() {
       }
     }
 
+    // mounting holes for misc
+    if (side == right) {
+      for(y=[-5,5]) {
+        translate([0,y,y_carriage_overall_height/2]) {
+          hole(threaded_insert_diam,printed_carriage_wall_thickness*2+1,8);
+        }
+      }
+    }
   }
 
   difference() {
@@ -167,9 +174,9 @@ module y_carriage() {
   }
 }
 
-module to_print() {
+module to_print(side) {
   rotate([-90,0,0]) {
-    y_carriage();
+    y_carriage(side);
   }
 }
 

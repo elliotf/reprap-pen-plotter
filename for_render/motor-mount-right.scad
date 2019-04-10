@@ -1,3 +1,4 @@
 use <../filament-drive.scad>;
 
-motor_mount();
+right = 1;
+motor_mount(right);

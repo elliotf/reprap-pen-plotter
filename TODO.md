@@ -19,3 +19,11 @@
     * and likely only the motor position is affected?
 * angle contact point with z axis lifter to control acceleration?
   * rather than smacking the pen into the writing surface?
+
+## wiring
+* Power
+  * 19v-24v power supply feeds arduino CNC shield
+  * runs to a DC-DC 5v converter to power Raspberry Pi
+    * https://www.amazon.com/dp/B0758ZTS61 ?
+  * power arduino via Raspberry Pi USB (kind of a fail, but meh)
+    * could also run a second DC-DC converter?

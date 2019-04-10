@@ -1,4 +1,4 @@
-include <../config.scad>;
 use <../y-carriage.scad>;
 
-to_print();
+right = 1;
+to_print(right);

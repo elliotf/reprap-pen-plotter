@@ -178,7 +178,7 @@ module x_carriage() {
         }
 
         // anchor holes for misc
-        translate([0,-tensioner_pos_x,-tuner_thick_len+x*(tuner_thick_len/2)]) { // Z, X from PoV of right side, Y-ish
+        translate([0,-tensioner_pos_x,-tuner_thick_len+x*(5)]) { // Z, X from PoV of right side, Y-ish
           rotate([0,90,-10]) {
             hole(threaded_insert_diam,20,8);
           }

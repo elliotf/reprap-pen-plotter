@@ -5,7 +5,7 @@ define test_template
 render: renders/$(1)
 
 renders/$(1) : for_render/$(1).scad
-	openscad -m make -o $$@.stl $$^
+	openscad-nightly -m make -o $$@.stl $$^
 
 .PHONY : renders/$(1)
 

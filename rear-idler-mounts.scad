@@ -286,7 +286,7 @@ module rear_idler_mount(side=right) {
           }
         }
 
-        translate([10+mech_endstop_tiny_width/2,0,-y_rail_extrusion_height/2+mech_endstop_tiny_length/2]) {
+        translate([10+mech_endstop_tiny_width/2,-1,-y_rail_extrusion_height/2+mech_endstop_tiny_length/2]) {
           rotate([90,0,0]) {
             rotate([0,0,180]) {
               % mech_endstop_tiny();

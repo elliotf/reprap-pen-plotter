@@ -15,7 +15,7 @@ for(x=[left,right]) {
   translate([x*y_rail_pos_x,0,0]) {
     translate([0,0,20+y_rail_dist_above_plate]) {
       mirror([1-x,0,0]) {
-        y_carriage();
+        y_carriage(x);
 
         translate([x_rail_end_relative_to_y_rail_x-line_bearing_diam+0.5,10,x_rail_end_relative_to_y_rail_z-x_rail_extrusion_height/2]) {
           rotate([0,90,0]) {
@@ -36,7 +36,7 @@ for(x=[left,right]) {
 
   mirror([-1+x,0,0]) {
     translate([motor_pos_x,-y_rail_len/2-0.05,0]) {
-      motor_mount();
+      motor_mount(x);
     }
   }
 
