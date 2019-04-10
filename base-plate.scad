@@ -10,17 +10,19 @@ function overallWidth() = (x_rail_len >= 1000) ? 60*inch
                            : (x_rail_len >= 500) ? 24*inch
                            : (x_rail_len >= 250) ? 18*inch
                            : x_rail_len + allot_space_x + room_for_electronics;
-// function overallWidth() = x_rail_len + allot_space_x + room_for_electronics;
 function overallLength() = (y_rail_len >= 1000) ? 60*inch
                          : (y_rail_len >= 500) ? 36*inch
                          : (y_rail_len >= 250) ? 24*inch
                          : y_rail_len + allot_space_y_for_motor_mount + allot_space_y_for_rear_idler;
-
+function offsetForX() = (x_rail_len >= 1000) ? 8*inch
+                      : (x_rail_len >= 500) ? 0*inch
+                      : (x_rail_len >= 250) ? 2*inch
+                      : 0;
 
 base_width = overallWidth();
 base_length = overallLength();
 
-pos_x = 0; //room_for_electronics/2;
+pos_x = offsetForX();
 pos_y = -base_length/2+y_rail_len/2+allot_space_y_for_rear_idler;
 
 module base_plate() {
