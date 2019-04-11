@@ -1,5 +1,9 @@
 include <lib/vitamins.scad>;
 
+colors = ["royalblue", "green", "crimson"];
+
+function lineColorForSide(side) = colors[side+1];
+
 pi = 3.14159;
 approx_pi = 3.14159;
 inch = 25.4;

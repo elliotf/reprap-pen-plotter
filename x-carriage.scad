@@ -10,7 +10,6 @@ module x_carriage() {
   tensioner_pos_x = x_carriage_width/2-tuner_thick_diam/2-printed_carriage_wall_thickness;
   tensioner_pos_y = x_carriage_line_spacing/2;
   tensioner_pos_z = 10+line_bearing_above_extrusion+tuner_thin_diam/2;
-  tensioner_shoulder_pos_z = tuner_hole_to_shoulder;
   tensioner_angle_around_x = 9;
 
   for(y=[front,rear]) {

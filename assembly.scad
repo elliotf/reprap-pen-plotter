@@ -11,26 +11,28 @@ use <misc.scad>;
 
 base_plate_for_display();
 
-for(x=[left,right]) {
-  translate([x*y_rail_pos_x,0,0]) {
-    translate([0,0,20+y_rail_dist_above_plate]) {
-      mirror([1-x,0,0]) {
-        y_carriage(x);
+for(x=[right]) {
+  translate([x*y_rail_pos_x,0,y_rail_pos_z]) {
+    mirror([1-x,0,0]) {
+      y_carriage(x);
 
-        translate([x_rail_end_relative_to_y_rail_x-line_bearing_diam+0.5,10,x_rail_end_relative_to_y_rail_z-x_rail_extrusion_height/2]) {
-          rotate([0,90,0]) {
-            rotate([0,0,90]) {
-              endstop_flag();
-            }
+      translate([x_rail_end_relative_to_y_rail_x-line_bearing_diam+0.5,10,x_rail_end_relative_to_y_rail_z-x_rail_extrusion_height/2]) {
+        rotate([0,90,0]) {
+          rotate([0,0,90]) {
+            endstop_flag();
           }
         }
       }
+    }
 
-      rotate([0,90,0]) {
-        rotate([90,0,0]) {
-          color("silver") extrusion_2040(y_rail_len);
-        }
+    rotate([0,90,0]) {
+      rotate([90,0,0]) {
+        color("silver") extrusion_2040(y_rail_len);
       }
+    }
+
+    translate([0,y_rail_len/2,0]) {
+      rear_idler_mount(x);
     }
   }
 
@@ -38,10 +40,6 @@ for(x=[left,right]) {
     translate([motor_pos_x,-y_rail_len/2-0.05,0]) {
       motor_mount(x);
     }
-  }
-
-  translate([x*y_rail_pos_x,y_rail_len/2,20+y_rail_dist_above_plate]) {
-    rear_idler_mount(x);
   }
 }
 

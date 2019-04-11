@@ -7,7 +7,6 @@ function overall_depth_for_side(side) = 2+line_bearing_diam+y_spacing_for_side(s
 
 max_y_spacing = y_spacing_for_side(right);
 plate_pos_z = -20-y_rail_dist_above_plate;
-colors = ["crimson", "green", "royalblue"];
 
 relative_x_line_pos_x = x_line_pos_x - y_rail_pos_x;
 
@@ -33,8 +32,8 @@ module position_rear_idler_anchor_holes(pos_z=0) {
 
 module rear_idler_mount(side=right) {
   overall_depth = overall_depth_for_side(side);
-  line_color = colors[side+1];
-  opposite_line_color = colors[-side+1];
+  line_color = lineColorForSide(side);
+  opposite_line_color = lineColorForSide(-side);
 
   overall_height = abs(plate_pos_z)+15;
 

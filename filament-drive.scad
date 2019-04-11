@@ -34,6 +34,9 @@ allot_space_y_for_motor_mount = abs(motor_shaft_pos_y) + motor_mount_motor_openi
 idler_body_width = abs(idler_pulley_pos_y) + rel_y_rail_pos_x + y_rail_extrusion_width/2;
 idler_body_depth = abs(idler_pulley_pos_y)*2;
 
+rel_center_x = -motor_pos_x;
+rel_center_z = 0;
+
 module position_anchor_inside_extrusion() {
   translate([-overall_width/2+plate_anchor_diam/2,idler_pulley_pos_y,0]) {
     children();
@@ -300,6 +303,17 @@ module motor_mount(side) {
           zip_tie_cavity(wall_thickness*4,zip_tie_thickness,zip_tie_width);
         }
       }
+    }
+  }
+
+  echo("rel_center_x: ", rel_center_x);
+  echo("motor_pos_x: ", motor_pos_x);
+  translate([rel_center_x,idler_pulley_pos_y+50,rel_center_z]) {
+    translate([x_line_pos_x,0,x_line_pos_z]) {
+      % color(lineColorForSide(side)) cube([1,100,1],center=true);
+    }
+    translate([motor_line_pos_x,0,motor_line_pos_z]) {
+      % color(lineColorForSide(side)) cube([1,100,1],center=true);
     }
   }
 
