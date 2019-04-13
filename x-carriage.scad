@@ -248,27 +248,6 @@ module x_carriage() {
       }
     }
 
-    // cat5/cat6 for x carriage?
-    /*
-     2+ pair for stepper
-
-     1 5v DC
-     Z limit signal
-     X limit signal
-     Ground
-
-     */
-
-    // mounting holes for z limit switch
-    translate([z_limit_switch_pos_x,-x_carriage_overall_depth/2+printed_carriage_wall_thickness+mech_endstop_tiny_width/2,-z_carriage_carrier_height/2]) {
-      rotate([0,180,90]) {
-        % mech_endstop_tiny();
-        position_mech_endstop_tiny_mount_holes() {
-          hole(m2_threaded_insert_diam,mech_endstop_tiny_width+2*(printed_carriage_wall_thickness-wall_thickness*2),8);
-        }
-      }
-    }
-
     // zip tie hole for limit switch wire tidying
     translate([0,x_carriage_overall_depth/2,0]) {
       zip_tie_cavity(printed_carriage_wall_thickness/2,zip_tie_thickness,zip_tie_width);

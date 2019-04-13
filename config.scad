@@ -138,7 +138,7 @@ y_rail_dist_above_plate = 15;
 
 z_rod_diam  = 3;
 
-m2_threaded_insert_diam = 3;
+m2_threaded_insert_diam = 3.5;
 threaded_insert_diam = 3.5;
 m3_loose_hole = 3.2;
 m5_tight_hole = 5;

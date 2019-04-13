@@ -170,12 +170,14 @@ module z_axis_mount() {
     }
   }
 
+  bottom_bushing_pos_z = bottom*(z_bushing_holder_body_len/2+m3_nut_diam);
+
   module position_z_bushings_2d() {
     coords = [
       [z_rod_spacing/2,z_lifter_arm_top-z_bushing_holder_body_len/2],
-      [z_rod_spacing/2,bottom*(z_bushing_holder_body_len/2+m3_nut_diam)],
+      [z_rod_spacing/2,bottom_bushing_pos_z],
       [-z_rod_spacing/2,top*(z_bushing_holder_body_len/2+m3_nut_diam)],
-      [-z_rod_spacing/2,bottom*(z_bushing_holder_body_len/2+m3_nut_diam)],
+      [-z_rod_spacing/2,bottom_bushing_pos_z],
     ];
     for(coord=coords) {
       translate(coord) {
@@ -301,6 +303,28 @@ module z_axis_mount() {
       % color("ivory", 0.9) difference() {
         hole(z_bushing_od,z_bushing_len,16);
         hole(z_bushing_id,z_bushing_len+1,8);
+      }
+    }
+
+    // Z endstop
+    translate([0,front*(z_axis_mount_plate_thickness/2+mech_endstop_tiny_width/2),bottom_bushing_pos_z-mech_endstop_tiny_height]) {
+      rotate([180,0,0]) {
+        rotate([0,0,90]) {
+          % mech_endstop_tiny();
+
+          position_mech_endstop_tiny_mount_holes() {
+            hole(m2_threaded_insert_diam,30,12);
+          }
+        }
+      }
+    }
+
+    // holes to secure endstop wiring w/ zip tie
+    translate([z_rod_spacing/2+z_bushing_od,0,x_carriage_overall_height/2+zip_tie_width]) {
+      rotate([0,5,0]) {
+        rotate([180,0,0]) {
+          zip_tie_cavity(wall_thickness*2,zip_tie_thickness,zip_tie_width);
+        }
       }
     }
   }
