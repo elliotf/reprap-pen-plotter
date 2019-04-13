@@ -427,36 +427,6 @@ module z_carriage() {
   spring_hook_pos_z = z_spring_offset_z-spring_hook_height/2;
   spring_hook_pos_y = front*(z_spring_diam/2);
 
-  translate([spring_hook_gap_pos_x,spring_hook_pos_y,spring_hook_pos_z]) {
-    translate([-z_spring_diam/2+z_spring_wire_diam-0.05,0,z_spring_diam/2-z_spring_wire_diam/2]) {
-      % z_spring(spring_top_rotation-90);
-    }
-
-    translate([1,0,0]) {
-      rotate([0,90,0]) {
-        hole(z_spring_hook_diam,spring_hook_gap_width+2,8);
-      }
-    }
-    translate([left*spring_hook_gap_width/2,0,0]) {
-      rotate([-90,0,0]) {
-        translate([0,front*(z_spring_hook_diam/2),0]) {
-          mirror([1,0,0]) {
-            rotate_extrude(angle=90,$fn=8) {
-              translate([z_spring_hook_diam/2,0,0]) {
-                accurate_circle(z_spring_hook_diam,8);
-              }
-            }
-          }
-        }
-      }
-
-      tip_height = z_carriage_height/2-z_spring_offset_z+z_spring_wire_diam;
-      translate([left*(z_spring_hook_diam/2),0,z_spring_hook_diam/2+tip_height/2]) {
-        hole(z_spring_hook_diam,tip_height,8);
-      }
-    }
-  }
-
   module pen_holder() {
     module pen_holder_profile() {
       module hulled_holes(less_diam,more_diam) {
@@ -590,6 +560,36 @@ module z_carriage() {
 
     translate([0,0,-z_carriage_height/2]) {
       pen_holder();
+    }
+
+    translate([spring_hook_gap_pos_x,spring_hook_pos_y,spring_hook_pos_z]) {
+      translate([-z_spring_diam/2+z_spring_wire_diam-0.05,0,z_spring_diam/2-z_spring_wire_diam/2]) {
+        % z_spring(spring_top_rotation-90);
+      }
+
+      translate([1,0,0]) {
+        rotate([0,90,0]) {
+          hole(z_spring_hook_diam,spring_hook_gap_width+2,8);
+        }
+      }
+      translate([left*spring_hook_gap_width/2,0,0]) {
+        rotate([-90,0,0]) {
+          translate([0,front*(z_spring_hook_diam/2),0]) {
+            mirror([1,0,0]) {
+              rotate_extrude(angle=90,$fn=8) {
+                translate([z_spring_hook_diam/2,0,0]) {
+                  accurate_circle(z_spring_hook_diam,8);
+                }
+              }
+            }
+          }
+        }
+
+        tip_height = z_carriage_height/2-z_spring_offset_z+z_spring_wire_diam/2;
+        translate([left*(z_spring_hook_diam/2),0,z_spring_hook_diam/2+tip_height/2]) {
+          # hole(z_spring_hook_diam,tip_height,8);
+        }
+      }
     }
   }
 
