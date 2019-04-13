@@ -185,7 +185,7 @@ z_spring_len = 25;
 z_spring_preload = 3; // to keep sprint under tension
 z_spring_center_to_center = z_spring_len - z_spring_diam + z_spring_screw_diam - z_spring_preload;
 
-z_stepper_pos_x = 3;
+z_stepper_pos_x = 1;
 z_stepper_angle = 0;
 z_bushing_id = 3.8;
 z_bushing_od = 6;
