@@ -56,7 +56,7 @@ module rear_idler_mount(side=right) {
   z_line_angle = atan2(y_spacing,dist_from_line_to_line_x);
   other_z_line_angle = atan2(other_y_spacing,dist_from_line_to_line_x);
 
-  line_bearing_screw_hole_diam = 4.8;
+  m5_thread_into_plastic_hole_diam = 4.65;
 
   module position_xy_bearing() {
     translate([relative_x_line_pos_x,x_line_pos_y,relative_x_line_pos_z]) {
@@ -83,8 +83,8 @@ module rear_idler_mount(side=right) {
   }
 
   module bearing_bevel(angle) {
-    small_diam = line_bearing_screw_hole_diam+wall_thickness;
-    large_diam = line_bearing_screw_hole_diam+wall_thickness*4;
+    small_diam = m5_thread_into_plastic_hole_diam+wall_thickness;
+    large_diam = m5_thread_into_plastic_hole_diam+wall_thickness*4;
 
     rotate([0,0,angle]) {
       translate([0,0,-line_bearing_thickness/2-bearing_bevel_height*1.5]) {
@@ -93,7 +93,7 @@ module rear_idler_mount(side=right) {
             hole(small_diam,bearing_bevel_height*3,resolution);
             hole(large_diam,bearing_bevel_height,resolution);
           }
-          hole(line_bearing_screw_hole_diam,200,8);
+          hole(m5_thread_into_plastic_hole_diam,200,8);
         }
       }
     }
@@ -125,7 +125,7 @@ module rear_idler_mount(side=right) {
         height = relative_x_line_pos_z + 20 + y_rail_dist_above_plate + 0;
         translate([0,0,-line_bearing_thickness/2-bearing_bevel_height-height/2]) {
           rotate([0,0,other_z_line_angle]) {
-            hole(line_bearing_screw_hole_diam+wall_thickness*4,height,resolution);
+            hole(m5_thread_into_plastic_hole_diam+wall_thickness*4,height,resolution);
           }
         }
       }
@@ -133,7 +133,7 @@ module rear_idler_mount(side=right) {
         height = relative_motor_line_pos_z + 20 + y_rail_dist_above_plate + 0;
         translate([0,0,-line_bearing_thickness/2-bearing_bevel_height-height/2]) {
           rotate([0,0,-z_line_angle]) {
-            hole(line_bearing_screw_hole_diam+wall_thickness*4,height,resolution);
+            hole(m5_thread_into_plastic_hole_diam+wall_thickness*4,height,resolution);
           }
         }
       }
@@ -144,7 +144,7 @@ module rear_idler_mount(side=right) {
     position_motor_bearing() {
       rotate([0,0,-z_line_angle]) {
         hole(line_bearing_diam+1,line_bearing_thickness+bearing_bevel_height*2,resolution);
-        hole(line_bearing_screw_hole_diam,200,8);
+        hole(m5_thread_into_plastic_hole_diam,200,8);
 
         intersection() {
           rotate_extrude(convexity=3) {
@@ -184,12 +184,12 @@ module rear_idler_mount(side=right) {
     position_xy_bearing() {
       rotate([0,0,other_z_line_angle]) {
         hole(line_bearing_diam+1,line_bearing_thickness+bearing_bevel_height*2,resolution);
-        hole(line_bearing_screw_hole_diam,200,8);
+        hole(m5_thread_into_plastic_hole_diam,200,8);
       }
     }
 
     position_rear_idler_anchor_holes(plate_pos_z+plate_anchor_thickness/2) {
-      hole(line_bearing_screw_hole_diam,wall_thickness*2+1,resolution);
+      hole(m5_thread_into_plastic_hole_diam,wall_thickness*2+1,resolution);
     }
 
     // trim excess off bottom
@@ -203,7 +203,7 @@ module rear_idler_mount(side=right) {
 
       position_xy_bearing() {
         translate([0,0,-idler_bearing_screw_len/2+line_bearing_thickness/2]) {
-          # hole(line_bearing_screw_hole_diam,idler_bearing_screw_len,12);
+          hole(m5_thread_into_plastic_hole_diam,idler_bearing_screw_len,12);
         }
         translate([0,-line_bearing_diam,0]) {
           cube([line_bearing_diam,line_bearing_diam*2,200],center=true);
@@ -211,7 +211,7 @@ module rear_idler_mount(side=right) {
       }
       position_motor_bearing() {
         translate([0,0,-idler_bearing_screw_len/2+line_bearing_thickness/2]) {
-          # hole(line_bearing_screw_hole_diam,idler_bearing_screw_len,12);
+          hole(m5_thread_into_plastic_hole_diam,idler_bearing_screw_len,12);
         }
         translate([0,-line_bearing_diam,0]) {
           cube([line_bearing_diam,line_bearing_diam*2,200],center=true);

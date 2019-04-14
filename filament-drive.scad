@@ -253,7 +253,7 @@ module motor_mount(side) {
 
     // idler shaft
     translate([0,idler_pulley_pos_y,overall_height/2]) {
-      hole(pulley_idler_bearing_id+tolerance, overall_height+1, 16);
+      hole(pulley_idler_bearing_id+tolerance, overall_height+1, 8);
     }
 
     // screw holes to bolt to extrusion

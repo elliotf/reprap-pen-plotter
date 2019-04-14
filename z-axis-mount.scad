@@ -50,7 +50,7 @@ z_carriage_rounding_diam = z_carriage_plate_thickness;
 
 z_spring_hook_diam = z_spring_diam-z_spring_wire_diam*2-0.5;
 z_spring_offset_z = z_carriage_height/2-z_carriage_top_bottom_height+z_spring_hook_diam+z_spring_wire_diam/2;
-z_spring_preload = 3;
+z_spring_preload = 2;
 z_spring_stretched_len = z_spring_len+z_spring_preload;
 
 module z_spring(top_rotation=0,bottom_rotation=0) {
