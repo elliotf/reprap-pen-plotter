@@ -226,9 +226,6 @@ module preloaded_spring_y_carriage(side) {
   }
   */
 
-  spring_thickness = extrude_width*4;
-  spring_gap_width = 1;
-  preload = -0.2; // negative makes more slack both for print and UHMWPE tape
 
   cavity_overall_width = y_carriage_overall_width - wall_thickness*4;
   cavity_overall_height = y_carriage_overall_height - wall_thickness*4;
@@ -238,44 +235,8 @@ module preloaded_spring_y_carriage(side) {
   bearing_arm_support_overall_height = line_bearing_thickness_gap+2*(bearing_bevel_height+bearing_arm_thickness);
 
   module carriage_profile() {
-    module spring_profile() {
-      contact_width = 8;
-      translate([0,-preload+spring_thickness/2]) {
-        translate([left*(y_rail_extrusion_width/2-contact_width/2),0,0]) {
-          rounded_square(contact_width,spring_thickness,spring_thickness);
-        }
-        hull() {
-          translate([left*(y_rail_extrusion_width/2-contact_width+spring_thickness/2),0,0]) {
-            accurate_circle(spring_thickness,resolution);
-          }
-          translate([right*(y_rail_extrusion_width/2-spring_thickness),spring_gap_width/2,0]) {
-            accurate_circle(spring_thickness,resolution);
-          }
-        }
-        translate([right*(y_rail_extrusion_width/2-spring_thickness),2-spring_thickness/2+spring_gap_width/2,0]) {
-          # rounded_square(spring_thickness,4,spring_thickness);
-        }
-      }
-    }
-
     module profile_body() {
-      for(z=[top,bottom]) {
-        mirror([0,1-z,0]) {
-          translate([0,y_rail_extrusion_height/2]) {
-            spring_profile();
-          }
-
-          for(x=[left,right]) {
-            mirror([1-x,0,0]) {
-              translate([y_rail_extrusion_width/2,y_rail_extrusion_height/4,0]) {
-                rotate([0,0,-90]) {
-                  spring_profile();
-                }
-              }
-            }
-          }
-        }
-      }
+      printed_extrusion_carriage_profile(y_carriage_overall_width,y_carriage_overall_height,cavity_overall_width,cavity_overall_height);
 
       // arm to mount x rail / line bearing and support
       translate([line_bearing_pos_x,line_bearing_pos_z]) {
@@ -339,12 +300,6 @@ module preloaded_spring_y_carriage(side) {
         rotate([0,0,-180]) {
           round_corner_filler_profile(gap_between_x_rail_end_and_y_carriage);
         }
-      }
-
-      difference() {
-        gap_width = cavity_overall_height - y_rail_extrusion_height;
-        rounded_square(y_carriage_overall_width,y_carriage_overall_height,wall_thickness*8);
-        rounded_square(cavity_overall_width,cavity_overall_height,gap_width);
       }
     }
 

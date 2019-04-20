@@ -177,6 +177,57 @@ module zip_tie_cavity(inner_diam_input,zip_tie_thickness,zip_tie_width,fn=resolu
   }
 }
 
+module printed_extrusion_carriage_profile(body_width,body_height,cavity_width,cavity_height) {
+  spring_thickness = extrude_width*4;
+  spring_gap_width = 1;
+  preload = -0.2; // negative makes more slack both for print and UHMWPE tape
+
+  module spring_profile() {
+    contact_width = 8;
+
+    translate([0,-preload+spring_thickness/2]) {
+      translate([left*(y_rail_extrusion_width/2-contact_width/2),0,0]) {
+        rounded_square(contact_width,spring_thickness,spring_thickness);
+      }
+      hull() {
+        translate([left*(y_rail_extrusion_width/2-contact_width+spring_thickness/2),0,0]) {
+          accurate_circle(spring_thickness,resolution);
+        }
+        translate([right*(y_rail_extrusion_width/2-spring_thickness),spring_gap_width/2,0]) {
+          accurate_circle(spring_thickness,resolution);
+        }
+      }
+      translate([right*(y_rail_extrusion_width/2-spring_thickness),2-spring_thickness/2+spring_gap_width/2,0]) {
+        rounded_square(spring_thickness,4,spring_thickness);
+      }
+    }
+  }
+
+  for(z=[top,bottom]) {
+    mirror([0,1-z,0]) {
+      translate([0,y_rail_extrusion_height/2]) {
+        spring_profile();
+      }
+
+      for(x=[left,right]) {
+        mirror([1-x,0,0]) {
+          translate([y_rail_extrusion_width/2,y_rail_extrusion_height/4,0]) {
+            rotate([0,0,-90]) {
+              spring_profile();
+            }
+          }
+        }
+      }
+    }
+  }
+
+  difference() {
+    gap_width = cavity_height - y_rail_extrusion_height;
+    rounded_square(body_width,body_height,wall_thickness*8);
+    rounded_square(cavity_width,cavity_height,gap_width);
+  }
+}
+
 /*
 translate([-10,0,0]) {
   letter_L();
