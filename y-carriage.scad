@@ -228,21 +228,35 @@ module preloaded_rail_carriage(side) {
 
 
     module spring_profile() {
+      contact_width = 8;
       translate([0,-preload+spring_thickness/2]) {
-        rounded_square(y_rail_extrusion_width-1,spring_thickness,spring_thickness);
+        translate([left*(y_rail_extrusion_width/2-contact_width/2),0,0]) {
+          rounded_square(contact_width,spring_thickness,spring_thickness);
+        }
+        hull() {
+          translate([left*(y_rail_extrusion_width/2-contact_width+spring_thickness/2),0,0]) {
+            accurate_circle(spring_thickness,resolution);
+          }
+          translate([right*(y_rail_extrusion_width/2-spring_thickness/2-1),0.5,0]) {
+            accurate_circle(spring_thickness,resolution);
+          }
+        }
+        translate([right*(y_rail_extrusion_width/2-spring_thickness/2-1),2-spring_thickness/2+0.5,0]) {
+          rounded_square(spring_thickness,4,spring_thickness);
+        }
 
         translate([0,spring_thickness/2+spring_gap_width/2]) {
-          square([spring_thickness,spring_gap_width+0.5],center=true);
+          // square([spring_thickness,spring_gap_width+0.5],center=true);
 
           for(x=[left,right]) {
             mirror([1-x,0,0]) {
               translate([spring_thickness/2,spring_gap_width/2,0]) {
                 rotate([0,0,-90]) {
-                  round_corner_filler_profile(spring_gap_width,resolution);
+                  // round_corner_filler_profile(spring_gap_width,resolution);
                 }
               }
               translate([spring_thickness/2,-spring_gap_width/2,0]) {
-                round_corner_filler_profile(spring_gap_width,resolution);
+                // round_corner_filler_profile(spring_gap_width,resolution);
               }
             }
           }
@@ -259,10 +273,12 @@ module preloaded_rail_carriage(side) {
             spring_profile();
           }
 
-          for (x=[left,right]) {
-            translate([x*y_rail_extrusion_width/2,y_rail_extrusion_height/4,0]) {
-              rotate([0,0,x*-90]) {
-                spring_profile();
+          for(x=[left,right]) {
+            mirror([1-x,0,0]) {
+              translate([y_rail_extrusion_width/2,y_rail_extrusion_height/4,0]) {
+                rotate([0,0,-90]) {
+                  spring_profile();
+                }
               }
             }
           }
