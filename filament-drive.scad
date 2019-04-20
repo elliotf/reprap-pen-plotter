@@ -26,7 +26,7 @@ extrusion_mount_width = 5+wall_thickness*4+small_diam*2;
 extrusion_mount_height = y_rail_pos_z+y_rail_extrusion_height/2;
 extrusion_mount_thickness = wall_thickness*4;
 
-clamp_gap_width = motor_side/4;
+clamp_gap_width = 18;
 clamp_mount_thickness = 10;
 
 allot_space_y_for_motor_mount = abs(motor_shaft_pos_y) + motor_mount_motor_opening/2 + large_diam + plate_anchor_diam + 10;
