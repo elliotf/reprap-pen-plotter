@@ -179,6 +179,10 @@ module to_print(side) {
 }
 
 module preloaded_spring_y_carriage(side) {
+  misc_mount_hole_spacing = 10;
+  misc_mount_hole_diam = threaded_insert_diam;
+  misc_mount_hole_len = 6;
+
   wall_thickness = extrude_width*4;
   y_carriage_overall_width  = y_rail_extrusion_width+printed_carriage_outer_skin_from_extrusion*2;
   y_carriage_overall_height  = y_rail_extrusion_height+printed_carriage_outer_skin_from_extrusion*2;
@@ -224,7 +228,7 @@ module preloaded_spring_y_carriage(side) {
 
   spring_thickness = extrude_width*4;
   spring_gap_width = 1;
-  preload = -0.2;
+  preload = -0.2; // negative makes more slack both for print and UHMWPE tape
 
   cavity_overall_width = y_carriage_overall_width - wall_thickness*4;
   cavity_overall_height = y_carriage_overall_height - wall_thickness*4;
@@ -300,6 +304,29 @@ module preloaded_spring_y_carriage(side) {
         }
       }
 
+      // meat for misc mounting holes
+      if (side == right) {
+        body_width = misc_mount_hole_diam+wall_thickness*4;
+        translate([0,y_carriage_overall_height/2,0]) {
+          hull() {
+            translate([0,-0.5,0]) {
+              square([body_width,1],center=true);
+            }
+            translate([0,misc_mount_hole_len/2,0]) {
+              rounded_square(body_width,misc_mount_hole_len,wall_thickness*2);
+            }
+          }
+
+          for(x=[left,right]) {
+            translate([x*body_width/2,0,0]) {
+              rotate([0,0,45-x*45]) {
+                # round_corner_filler_profile(wall_thickness,resolution);
+              }
+            }
+          }
+        }
+      }
+
       // round top of y carriage with bearing holder
       translate([left*cavity_overall_width/2,y_carriage_overall_height/2,0]) {
         round_corner_filler_profile(printed_carriage_inner_diam*3);
@@ -335,32 +362,13 @@ module preloaded_spring_y_carriage(side) {
       linear_extrude(height=y_carriage_depth,center=true,convexity=10) {
         carriage_profile();
       }
-      // % rounded_cube(y_carriage_overall_width,y_carriage_overall_height,y_carriage_depth-1,wall_thickness*4);
       rotate([0,0,90]) {
         % extrusion_2040(10);
-      }
-      // brace between bearings, to go with the commented-out ramp below
-      translate([line_bearing_pos_x,line_bearing_pos_z]) {
-        // rounded_cube(line_bearing_diam,bearing_arm_support_overall_height,20-line_bearing_cavity_diam,bearing_arm_thickness);
       }
     }
 
     line_bearing_cavity_diam = line_bearing_diam+gap_between_x_rail_end_and_y_carriage*2+0.5;
     xz_position_for_line_bearing() {
-      // ramp make it easier to feed the line through?
-      /*
-      difference() {
-        translate([line_bearing_diam/4+1,0,0]) {
-          cube([line_bearing_diam/2,20,line_bearing_thickness_gap+bearing_bevel_height*2+1],center=true);
-        }
-        for(y=[front,rear]) {
-          translate([0,y*10,0]) {
-            hole(line_bearing_cavity_diam,line_bearing_thickness_gap*2,16);
-          }
-        }
-      }
-      */
-
       // line bearing bevels
       for(y=[front,rear]) {
         for(z=[top,bottom]) {
@@ -391,9 +399,9 @@ module preloaded_spring_y_carriage(side) {
 
     // mounting holes for misc
     if (side == right) {
-      for(y=[-5,5]) {
-        translate([0,y,y_carriage_overall_height/2]) {
-          // hole(threaded_insert_diam,printed_carriage_wall_thickness*2+1,8);
+      for(y=[front,rear]) {
+        translate([0,y*misc_mount_hole_spacing/2,y_carriage_overall_height/2+misc_mount_hole_len/2+1]) {
+          # hole(misc_mount_hole_diam,misc_mount_hole_len+2,8);
         }
       }
     }
