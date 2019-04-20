@@ -83,65 +83,74 @@ module trial_carriage() {
 
   module body() {
     rotate([90,0,0]) {
-      rounded_cube(carriage_overall_width,carriage_overall_height,carriage_depth,printed_carriage_outer_diam);
+      linear_extrude(height=carriage_depth,center=true,convexity=3) {
+        printed_extrusion_carriage_profile(carriage_overall_width,carriage_overall_height);
+      }
     }
 
     // tuner holder
-    hull() {
-      position_tuner_shoulder() {
-        translate([tuner_mount_body_width/2,0,0]) {
-          rotate([0,90,0]) {
-            hole(tuner_mount_body_diam,tuner_mount_body_width,resolution);
+    difference() {
+      union() {
+        hull() {
+          position_tuner_shoulder() {
+            translate([tuner_mount_body_width/2,0,0]) {
+              rotate([0,90,0]) {
+                hole(tuner_mount_body_diam,tuner_mount_body_width,resolution);
 
-            translate([0,-tuner_mount_body_diam/2,0]) {
-              // hole(tuner_anchor_screw_hole_diam+wall_thickness*6,tuner_mount_body_width,resolution);
+                translate([0,-tuner_mount_body_diam/2,0]) {
+                  // hole(tuner_anchor_screw_hole_diam+wall_thickness*6,tuner_mount_body_width,resolution);
+                }
+              }
+              translate([2,-tuner_mount_body_diam/4-15,-tuner_mount_body_diam]) {
+                cube([tuner_mount_body_width-4,tuner_mount_body_diam/2,1],center=true);
+              }
             }
           }
-          translate([2,-tuner_mount_body_diam/4-15,-tuner_mount_body_diam]) {
-            cube([tuner_mount_body_width-4,tuner_mount_body_diam/2,1],center=true);
+          position_tuner_anchor_hole() {
+            rotate([0,90,0]) {
+              translate([0,0,tuner_mount_body_width/2]) {
+                hole(tuner_anchor_screw_hole_diam+wall_thickness*6,tuner_mount_body_width,resolution);
+              }
+            }
+          }
+          translate([carriage_overall_width/2-printed_carriage_outer_diam/2,carriage_depth/2-1,carriage_overall_height/2-printed_carriage_outer_diam/2]) {
+            rotate([90,0,0]) {
+              hole(printed_carriage_outer_diam,2,resolution);
+            }
+            translate([-6,0,printed_carriage_outer_diam/2-1]) {
+              cube([6,2,2],center=true);
+            }
+          }
+          translate([5,-carriage_depth/2+1,carriage_overall_height/2-1]) {
+            cube([10,2,2],center=true);
           }
         }
-      }
-      position_tuner_anchor_hole() {
-        rotate([0,90,0]) {
-          translate([0,0,tuner_mount_body_width/2]) {
-            hole(tuner_anchor_screw_hole_diam+wall_thickness*6,tuner_mount_body_width,resolution);
-          }
-        }
-      }
-      translate([carriage_overall_width/2-printed_carriage_outer_diam/2,carriage_depth/2-1,carriage_overall_height/2-printed_carriage_outer_diam/2]) {
-        rotate([90,0,0]) {
-          hole(printed_carriage_outer_diam,2,resolution);
-        }
-        translate([-6,0,printed_carriage_outer_diam/2-1]) {
-          cube([6,2,2],center=true);
-        }
-      }
-      translate([5,-carriage_depth/2+1,carriage_overall_height/2-1]) {
-        cube([10,2,2],center=true);
-      }
-    }
 
-    hull() {
-      motor_line_redirector_thickness = 8;
-      translate([-y_carriage_opening_depth/2,-carriage_depth/2-0.5,y_carriage_opening_height/2]) {
-        rotate([0,0,0]) {
-          cube([printed_carriage_wall_thickness*2, 1, printed_carriage_wall_thickness*2],center=true);
-        }
-      }
-      position_motor_line_redirector() {
-        translate([0,motor_line_redirector_thickness/2,0]) {
-          rotate([90,0,0]) {
-            hole(10,motor_line_redirector_thickness*2,resolution);
+        hull() {
+          motor_line_redirector_thickness = 8;
+          translate([-y_carriage_opening_depth/2,-carriage_depth/2-0.5,y_carriage_opening_height/2]) {
+            rotate([0,0,0]) {
+              cube([printed_carriage_wall_thickness*2, 1, printed_carriage_wall_thickness*2],center=true);
+            }
           }
-          translate([0,motor_line_redirector_thickness+1,0]) {
-            rotate([-motor_line_director_angle_x,0,-motor_line_director_angle_z]) {
+          position_motor_line_redirector() {
+            translate([0,motor_line_redirector_thickness/2,0]) {
               rotate([90,0,0]) {
-                hole(10,2,resolution);
+                hole(10,motor_line_redirector_thickness*2,resolution);
+              }
+              translate([0,motor_line_redirector_thickness+1,0]) {
+                rotate([-motor_line_director_angle_x,0,-motor_line_director_angle_z]) {
+                  rotate([90,0,0]) {
+                    hole(10,2,resolution);
+                  }
+                }
               }
             }
           }
         }
+      }
+      rotate([90,0,0]) {
+        rounded_cube(carriage_overall_width-extrude_width*4,carriage_overall_height-extrude_width*4,carriage_depth+1,extrude_width*32);
       }
     }
 
@@ -155,20 +164,6 @@ module trial_carriage() {
   }
 
   module holes() {
-    rotate([90,0,0]) {
-      rounded_cube(y_carriage_opening_depth,y_carriage_opening_height,carriage_depth+1,printed_carriage_inner_diam);
-    }
-    for(y=[front,rear]) {
-      translate([0,y*(carriage_depth/2-printed_carriage_bushing_from_end-printed_carriage_bushing_len/2),0]) {
-        rotate([90,0,0]) {
-          rotate([0,0,90]) {
-            linear_extrude(height=printed_carriage_bushing_len,center=true) {
-              ptfe_bushing_profile_for_2040_extrusion();
-            }
-          }
-        }
-      }
-    }
     position_tuner_anchor_hole() {
       rotate([0,90,0]) {
         rotate([0,0,-tuner_rotation_around_x+2.5]) {
