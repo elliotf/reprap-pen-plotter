@@ -287,7 +287,7 @@ module motor_mount(side) {
 
     // endstop mount
     if (side == right) {
-      translate([rel_y_rail_pos_x+y_rail_extrusion_width/2+mech_endstop_tiny_width/2,extrusion_mount_width+1,plate_anchor_thickness+mech_endstop_tiny_length/2+1]) {
+      translate([rel_y_rail_pos_x+y_rail_extrusion_width/2+mech_endstop_tiny_width/2,extrusion_mount_width+1,plate_anchor_thickness+mech_endstop_tiny_length/2+0.5]) {
         rotate([-90,0,0]) {
           % mech_endstop_tiny();
           position_mech_endstop_tiny_mount_holes() {
