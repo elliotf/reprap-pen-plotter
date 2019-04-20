@@ -4,7 +4,7 @@ use <lib/vitamins.scad>;
 
 y_carriage_depth = 40;
 
-module y_carriage(side) {
+module ptfe_y_carriage(side) {
   y_carriage_overall_width  = y_rail_extrusion_width+printed_carriage_outer_skin_from_extrusion*2;
   y_carriage_overall_height  = y_rail_extrusion_height+printed_carriage_outer_skin_from_extrusion*2;
 
@@ -178,7 +178,7 @@ module to_print(side) {
   }
 }
 
-module preloaded_rail_carriage(side) {
+module preloaded_spring_y_carriage(side) {
   wall_thickness = extrude_width*4;
   y_carriage_overall_width  = y_rail_extrusion_width+printed_carriage_outer_skin_from_extrusion*2;
   y_carriage_overall_height  = y_rail_extrusion_height+printed_carriage_outer_skin_from_extrusion*2;
@@ -186,6 +186,7 @@ module preloaded_rail_carriage(side) {
   line_bearing_pos_x = x_rail_end_relative_to_y_rail_x - line_bearing_diam/2;
   line_bearing_pos_z = x_rail_end_relative_to_y_rail_z + 10 + line_bearing_above_extrusion;
   line_bearing_hole_diam = line_bearing_inner+0.5;
+  line_bearing_thickness_gap = line_bearing_thickness + tolerance;
 
   module xz_position_for_line_bearing() {
     translate([line_bearing_pos_x,0,line_bearing_pos_z]) {
@@ -211,22 +212,28 @@ module preloaded_rail_carriage(side) {
     }
   }
 
+  /*
+  translate([0,0,50]) {
+    color("blue") carriage_profile();
+
+    rotate([0,0,90]) {
+      color("grey") extrusion_2040(3);
+    }
+  }
+  */
+
+  spring_thickness = extrude_width*4;
+  spring_gap_width = 1;
+  preload = -0.2;
+
+  cavity_overall_width = y_carriage_overall_width - wall_thickness*4;
+  cavity_overall_height = y_carriage_overall_height - wall_thickness*4;
+
+  bearing_arm_thickness = printed_carriage_wall_thickness;
+  bearing_arm_support_joint_to_carriage_width = gap_between_x_rail_end_and_y_carriage + wall_thickness;
+  bearing_arm_support_overall_height = line_bearing_thickness_gap+2*(bearing_bevel_height+bearing_arm_thickness);
+
   module carriage_profile() {
-    spring_thickness = extrude_width*4;
-    spring_gap_width = 1;
-    preload = -0.1;
-
-    spring_overhead = spring_thickness + spring_gap_width - preload;
-    cavity_overall_width = y_rail_extrusion_width + 2*spring_overhead;
-    cavity_overall_height = y_rail_extrusion_height + 2*spring_overhead;
-    printed_carriage_outer_skin_from_extrusion = spring_overhead + wall_thickness*2;
-
-    overall_width = y_rail_extrusion_width + printed_carriage_outer_skin_from_extrusion*2;
-    overall_height = y_rail_extrusion_height + printed_carriage_outer_skin_from_extrusion*2;
-    // overall_width = cavity_overall_width + 2*(wall_thickness*2);
-    // overall_height = cavity_overall_height + 2*(wall_thickness*2);
-
-
     module spring_profile() {
       contact_width = 8;
       translate([0,-preload+spring_thickness/2]) {
@@ -237,36 +244,17 @@ module preloaded_rail_carriage(side) {
           translate([left*(y_rail_extrusion_width/2-contact_width+spring_thickness/2),0,0]) {
             accurate_circle(spring_thickness,resolution);
           }
-          translate([right*(y_rail_extrusion_width/2-spring_thickness/2-1),0.5,0]) {
+          translate([right*(y_rail_extrusion_width/2-spring_thickness),spring_gap_width/2,0]) {
             accurate_circle(spring_thickness,resolution);
           }
         }
-        translate([right*(y_rail_extrusion_width/2-spring_thickness/2-1),2-spring_thickness/2+0.5,0]) {
-          rounded_square(spring_thickness,4,spring_thickness);
-        }
-
-        translate([0,spring_thickness/2+spring_gap_width/2]) {
-          // square([spring_thickness,spring_gap_width+0.5],center=true);
-
-          for(x=[left,right]) {
-            mirror([1-x,0,0]) {
-              translate([spring_thickness/2,spring_gap_width/2,0]) {
-                rotate([0,0,-90]) {
-                  // round_corner_filler_profile(spring_gap_width,resolution);
-                }
-              }
-              translate([spring_thickness/2,-spring_gap_width/2,0]) {
-                // round_corner_filler_profile(spring_gap_width,resolution);
-              }
-            }
-          }
+        translate([right*(y_rail_extrusion_width/2-spring_thickness),2-spring_thickness/2+spring_gap_width/2,0]) {
+          # rounded_square(spring_thickness,4,spring_thickness);
         }
       }
     }
 
     module profile_body() {
-      thickness = extrude_width*4;
-      spring_gap_width = 1;
       for(z=[top,bottom]) {
         mirror([0,1-z,0]) {
           translate([0,y_rail_extrusion_height/2]) {
@@ -286,25 +274,25 @@ module preloaded_rail_carriage(side) {
       }
 
       // arm to mount x rail / line bearing and support
-      arm_thickness = wall_thickness*2;
-      arm_support_joint_to_carriage_width = gap_between_x_rail_end_and_y_carriage + arm_thickness;
-      arm_support_overall_height = line_bearing_thickness+2*(bearing_bevel_height+arm_thickness);
       translate([line_bearing_pos_x,line_bearing_pos_z]) {
-        translate([arm_support_joint_to_carriage_width/2,0,0]) {
-          for(z=[top,bottom]) {
-            translate([0,z*(arm_support_overall_height/2-arm_thickness/2)]) {
-              rounded_square(line_bearing_diam+arm_support_joint_to_carriage_width,arm_thickness,arm_thickness);
+        for(z=[top,bottom]) {
+          translate([0,z*(bearing_arm_support_overall_height/2-bearing_arm_thickness/2)]) {
+            hull() {
+              rounded_square(line_bearing_diam,bearing_arm_thickness,bearing_arm_thickness);
+              translate([line_bearing_diam/2+bearing_arm_support_joint_to_carriage_width/2,0,0]) {
+                square([bearing_arm_support_joint_to_carriage_width,bearing_arm_thickness],center=true);
+              }
             }
           }
         }
 
         // join the top and bottom supports
-        translate([line_bearing_diam/2+gap_between_x_rail_end_and_y_carriage+arm_thickness/2,0,0]) {
-          rounded_square(arm_thickness,arm_support_overall_height,arm_thickness);
+        translate([line_bearing_diam/2+gap_between_x_rail_end_and_y_carriage+wall_thickness,0,0]) {
+          rounded_square(wall_thickness*2,bearing_arm_support_overall_height,wall_thickness*2);
         }
 
         for(z=[top,bottom]) {
-          translate([line_bearing_diam/2+gap_between_x_rail_end_and_y_carriage,z*(arm_support_overall_height/2-arm_thickness)]) {
+          translate([line_bearing_diam/2+gap_between_x_rail_end_and_y_carriage,z*(bearing_arm_support_overall_height/2-bearing_arm_thickness)]) {
             rotate([0,0,135+z*(45)]) {
               round_corner_filler_profile(bearing_bevel_height*2);
             }
@@ -313,22 +301,23 @@ module preloaded_rail_carriage(side) {
       }
 
       // round top of y carriage with bearing holder
-      translate([line_bearing_pos_x+line_bearing_diam/2+arm_support_joint_to_carriage_width-0.05,y_rail_extrusion_height/2+printed_carriage_outer_skin_from_extrusion,0]) {
+      translate([left*cavity_overall_width/2,y_carriage_overall_height/2,0]) {
         round_corner_filler_profile(printed_carriage_inner_diam*3);
       }
-      translate([-overall_width/4,y_rail_extrusion_height/2+printed_carriage_outer_skin_from_extrusion-wall_thickness,0]) {
-        square([overall_width/2,wall_thickness*2],center=true);
+      translate([-y_carriage_overall_width/4,y_carriage_overall_height/2-wall_thickness,0]) {
+        square([y_carriage_overall_width/2,wall_thickness*2],center=true);
       }
 
-      translate([left*(y_rail_extrusion_width/2+printed_carriage_outer_skin_from_extrusion),line_bearing_pos_z-arm_support_overall_height/2,0]) {
+      translate([left*(y_rail_extrusion_width/2+printed_carriage_outer_skin_from_extrusion),line_bearing_pos_z-bearing_arm_support_overall_height/2,0]) {
         rotate([0,0,-180]) {
           round_corner_filler_profile(gap_between_x_rail_end_and_y_carriage);
         }
       }
 
       difference() {
-        rounded_square(overall_width,overall_height,printed_carriage_outer_skin_from_extrusion*2);
-        rounded_square(cavity_overall_width,cavity_overall_height,spring_overhead*2);
+        gap_width = cavity_overall_height - y_rail_extrusion_height;
+        rounded_square(y_carriage_overall_width,y_carriage_overall_height,wall_thickness*8);
+        rounded_square(cavity_overall_width,cavity_overall_height,gap_width);
       }
     }
 
@@ -346,19 +335,27 @@ module preloaded_rail_carriage(side) {
       linear_extrude(height=y_carriage_depth,center=true,convexity=10) {
         carriage_profile();
       }
+      // % rounded_cube(y_carriage_overall_width,y_carriage_overall_height,y_carriage_depth-1,wall_thickness*4);
+      rotate([0,0,90]) {
+        % extrusion_2040(10);
+      }
+      // brace between bearings, to go with the commented-out ramp below
+      translate([line_bearing_pos_x,line_bearing_pos_z]) {
+        // rounded_cube(line_bearing_diam,bearing_arm_support_overall_height,20-line_bearing_cavity_diam,bearing_arm_thickness);
+      }
     }
 
+    line_bearing_cavity_diam = line_bearing_diam+gap_between_x_rail_end_and_y_carriage*2+0.5;
     xz_position_for_line_bearing() {
-      // make it easier to feed the line through?
+      // ramp make it easier to feed the line through?
       /*
-      // commented out because it causes weird artifacts in cura
       difference() {
         translate([line_bearing_diam/4+1,0,0]) {
-          cube([line_bearing_diam/2,20,line_bearing_thickness+bearing_bevel_height*2+1],center=true);
+          cube([line_bearing_diam/2,20,line_bearing_thickness_gap+bearing_bevel_height*2+1],center=true);
         }
         for(y=[front,rear]) {
           translate([0,y*10,0]) {
-            hole(line_bearing_diam+gap_between_x_rail_end_and_y_carriage*2+0.5,line_bearing_thickness*2,32);
+            hole(line_bearing_cavity_diam,line_bearing_thickness_gap*2,16);
           }
         }
       }
@@ -367,7 +364,7 @@ module preloaded_rail_carriage(side) {
       // line bearing bevels
       for(y=[front,rear]) {
         for(z=[top,bottom]) {
-          translate([0,y*10,z*(line_bearing_thickness/2+bearing_bevel_height)]) {
+          translate([0,y*10,z*(line_bearing_thickness_gap/2+bearing_bevel_height)]) {
             hull() {
               hole(line_bearing_hole_diam+extrude_width*2,bearing_bevel_height*2);
               translate([0,0,z*1]) {
@@ -408,6 +405,14 @@ module preloaded_rail_carriage(side) {
   }
 }
 
-preloaded_rail_carriage(right);
+module y_carriage(side) {
+  if (1) {
+    preloaded_spring_y_carriage(side);
+  } else {
+    ptfe_y_carriage(side);
+  }
+}
+
+y_carriage(right);
 
 // to_print();
