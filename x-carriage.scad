@@ -220,7 +220,7 @@ module x_carriage() {
         // anchor holes for misc
         translate([0,-tensioner_pos_x,-tuner_thick_len+x*(5)]) { // Z, X from PoV of right side, Y-ish
           rotate([0,90,-10]) {
-            hole(threaded_insert_diam,20,8);
+            hole(m3_threaded_insert_diam,20,8);
           }
         }
       }
@@ -242,7 +242,7 @@ module x_carriage() {
       for (z=[top,bottom]) {
         translate([x*z_carriage_carrier_hole_spacing_x/2,front*(x_carriage_overall_depth/2-printed_carriage_wall_thickness/2),z*z_carriage_carrier_hole_spacing_z/2]) {
           rotate([90,0,0]) {
-            hole(threaded_insert_diam,printed_carriage_wall_thickness+1,8);
+            hole(m3_threaded_insert_diam,printed_carriage_wall_thickness+1,8);
           }
         }
       }
@@ -251,7 +251,7 @@ module x_carriage() {
     // clearance for z stepper
     /*
     hull() {
-      wide_width = z_carriage_carrier_hole_spacing_x-threaded_insert_diam;
+      wide_width = z_carriage_carrier_hole_spacing_x-m3_threaded_insert_diam;
       narrow_width = wide_width-(z_carriage_carrier_height-x_carriage_overall_height)-2;
       translate([0,front*(x_carriage_overall_depth/2-printed_carriage_wall_thickness/2),1]) {
         translate([0,0,z_carriage_carrier_height/2]) {

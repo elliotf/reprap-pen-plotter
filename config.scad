@@ -142,11 +142,14 @@ y_rail_dist_above_plate = 15;
 
 z_rod_diam  = 3;
 
-m2_threaded_insert_diam = 3.5;
-threaded_insert_diam = 3.5;
+m2_threaded_insert_diam = 3.1;
+m2_5_threaded_insert_diam = 3.6;
+m3_threaded_insert_diam = 3.5;
 m3_loose_hole = 3.2;
 m5_tight_hole = 5;
 m5_loose_hole = 5.2;
+m5_thread_into_plastic_hole_diam = 4.65;
+
 
 printed_carriage_extrusion_carriage_gap = ptfe_bushing_diam*0.3 - ptfe_bushing_preload_amount;
 printed_carriage_outer_skin_from_extrusion = ptfe_bushing_diam -ptfe_bushing_preload_amount + extrude_width *6;
@@ -177,10 +180,10 @@ x_rail_end_relative_to_y_rail_z = 6.4;
 x_carriage_width = 50;
 x_carriage_line_spacing = 20 - line_bearing_diam;
 
-z_carriage_carrier_room_for_nut = threaded_insert_diam + wall_thickness*2 + printed_carriage_inner_diam + 2;
+z_carriage_carrier_room_for_nut = m3_threaded_insert_diam + wall_thickness*2 + printed_carriage_inner_diam + 2;
 z_carriage_carrier_hole_spacing_x = x_carriage_width - z_carriage_carrier_room_for_nut;
-z_carriage_carrier_hole_spacing_z = x_carriage_overall_height + threaded_insert_diam;
-z_carriage_carrier_height = z_carriage_carrier_hole_spacing_z + threaded_insert_diam + extrude_width*16;
+z_carriage_carrier_hole_spacing_z = x_carriage_overall_height + m3_threaded_insert_diam;
+z_carriage_carrier_height = z_carriage_carrier_hole_spacing_z + m3_threaded_insert_diam + extrude_width*16;
 
 z_spring_wire_diam = 0.5;
 z_spring_diam = 6;

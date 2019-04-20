@@ -356,6 +356,7 @@ module motor_mount_brace() {
       hull() {
         hole(625_bearing_od+new_filament_drive_wall_thickness*2, body_height, 16);
 
+        // FIXME: make room for bolt/screw head
         translate([0,new_filament_drive_shaft_dist,0]) {
           hole(pulley_idler_bearing_id+new_filament_drive_wall_thickness*3, body_height, 16);
         }

@@ -75,7 +75,7 @@ module filament_pulley(diam=(16*2/pi), base_height=6, wraps=5,hole_od=0,od_heigh
     // d_cut_height  = base_height+3;
     d_cut_height  = 100;
 
-    round_shaft_allowance = 5.5;
+    round_shaft_allowance = 6;
 
     // idler branch
     if (hole_od) {

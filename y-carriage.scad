@@ -160,7 +160,7 @@ module ptfe_y_carriage(side) {
     if (side == right) {
       for(y=[-5,5]) {
         translate([0,y,y_carriage_overall_height/2]) {
-          hole(threaded_insert_diam,printed_carriage_wall_thickness*2+1,8);
+          hole(m3_threaded_insert_diam,printed_carriage_wall_thickness*2+1,8);
         }
       }
     }
@@ -174,7 +174,7 @@ module ptfe_y_carriage(side) {
 
 module preloaded_spring_y_carriage(side) {
   misc_mount_hole_spacing = 10;
-  misc_mount_hole_diam = threaded_insert_diam;
+  misc_mount_hole_diam = m3_threaded_insert_diam;
   misc_mount_hole_len = 6;
 
   wall_thickness = extrude_width*4;
@@ -274,7 +274,7 @@ module preloaded_spring_y_carriage(side) {
           for(x=[left,right]) {
             translate([x*body_width/2,0,0]) {
               rotate([0,0,45-x*45]) {
-                # round_corner_filler_profile(misc_mount_hole_len,resolution);
+                round_corner_filler_profile(misc_mount_hole_len,resolution);
               }
             }
           }
@@ -349,7 +349,7 @@ module preloaded_spring_y_carriage(side) {
     if (side == right) {
       for(y=[front,rear]) {
         translate([0,y*misc_mount_hole_spacing/2,y_carriage_overall_height/2+misc_mount_hole_len/2+1]) {
-          # hole(misc_mount_hole_diam,misc_mount_hole_len+2,8);
+          hole(misc_mount_hole_diam,misc_mount_hole_len+2,8);
         }
       }
     }

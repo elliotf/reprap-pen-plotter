@@ -56,8 +56,6 @@ module rear_idler_mount(side=right) {
   z_line_angle = atan2(y_spacing,dist_from_line_to_line_x);
   other_z_line_angle = atan2(other_y_spacing,dist_from_line_to_line_x);
 
-  m5_thread_into_plastic_hole_diam = 4.65;
-
   module position_xy_bearing() {
     translate([relative_x_line_pos_x,x_line_pos_y,relative_x_line_pos_z]) {
       rotate([0,0,-other_z_line_angle]) {

@@ -221,7 +221,7 @@ module z_axis_mount() {
         position_z_stepper_2d() {
           for(side=[left,right]) {
             translate([side*z_stepper_hole_spacing/2,0,0]) {
-              accurate_circle(threaded_insert_diam+wall_thickness*4,resolution);
+              accurate_circle(m3_threaded_insert_diam+wall_thickness*4,resolution);
             }
           }
         }
@@ -244,7 +244,7 @@ module z_axis_mount() {
         // z stepper mount screw holes
         for(side=[left,right]) {
           translate([side*z_stepper_hole_spacing/2,0,0]) {
-            accurate_circle(threaded_insert_diam,12);
+            accurate_circle(m3_threaded_insert_diam,12);
           }
         }
 
@@ -668,7 +668,7 @@ module z_carriage() {
       translate([x*z_rod_spacing/2,0,bottom*(z_carriage_height/2-z_carriage_top_bottom_height)]) {
         translate([0,front*20,0]) {
           rotate([90,0,0]) {
-            hole(threaded_insert_diam,40,8);
+            hole(m3_threaded_insert_diam,40,8);
           }
         }
       }

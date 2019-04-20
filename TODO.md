@@ -1,43 +1,30 @@
 # TODO
 
 * pulleys
-  * too low-resolution
-  * driver
-    * not enough room for round part of shaft for pulley to slide down
   * idler
-    * stop manually adding 0.2 to the idler bearing in config.scad
     * print a bevel to put the idler pulley at/near the correct height?
-    * switch to smaller od bearing?
-      * easier to print because more room between inner and outer?
-    * switch to 625 bearing?
-      * could use all the same bearings; grooved bearings would fit inside a 625 cavity
+    * switch to 625 or MR105 bearing?
+      * MR105 would mean an easier to print idler pulley; going with this for now
+      * 625 would mean we could use all the same bearings; grooved bearings would fit inside a 625 cavity
         * 8 grooved + 6 (optionally) non-grooved
       * use an m5 bolt instead of smooth rod
+        * moving forward with this, but need to adjust motor brace for bolt head
         * easier to get a given length?
         * could screw in, so a clamp wouldn't be necessary?
         * makes the brace a little harder?
           * would need to have an accurately-ish sized m5 bolt head hole
         * fewer different vitamins
           * could use the same length m5 bolts for the rear idlers
-    * rotate_extrude uses the shaft diameter calculation (piece fits inside) rather than the hole calculation (sized to fit something inside)
-      * wasn't enough room for the bearing
 * guitar tuner tensioner
   * has a screw-in collar that I forgot about, so the acute angle will make it difficult to assemble
     * maybe not use the collar? It seems to be fine without it?
-* PTFE bushings are either very tight or have chatter
-  * tried a live spring version, but it means I'll have to re-think the X carriage
-    * because the new body doesn't have as much room in its walls
-      * for threaded inserts (for x limit switches)
-      * for zip ties (cable organization for x limit switches)
-* use correct diam for idler shafts
-  * make a tighter fit for m5 to thread into
 * make it easier to assemble
-  * make motor idler shaft hole larger and make some sort of screw-down clamp
+  * make motor idler shaft hole larger and make some sort of screw-down clamp?
+    * no, using a bolt instead of a shaft
   * make it easier to slide extrusions into carriages
-    * fewer bushings?
-      * two on one side, one on the other rather than two on each?
+    * the spring design is at least 5x easier
 * use correct diameter for brass threaded inserts
-  * need to validate sizes
+  * measured inserts, but need to validate sizes w/a test print and test insertion
   * m2
   * m2.5
   * m3 (done? which inserts do we want to use?)
