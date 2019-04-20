@@ -4,6 +4,8 @@ include <lib/vitamins.scad>;
 use <x-carriage.scad>;
 use <misc.scad>;
 
+at_top_of_travel = 0;
+
 z_wall_thickness = extrude_width*8;
 m3_diam_to_thread_into = 2.7;
 
@@ -17,7 +19,8 @@ z_rod_spacing = z_carriage_carrier_hole_spacing_x-z_bushing_holder_body_width-3;
 
 z_carriage_rod_dist = z_bushing_od/2+zip_tie_thickness+2;
 z_rod_hole_diam = z_rod_diam + 0.5;
-z_carriage_overall_width = 2*(z_rod_spacing/2 + z_rod_hole_diam + wall_thickness*2);
+rounding_around_rod = z_rod_hole_diam+wall_thickness*4;
+z_carriage_overall_width = 2*(z_rod_spacing/2 + rounding_around_rod/2);
 
 z_spring_hook_thickness = extrude_width*6;
 z_spring_dist_from_z_rod_x = (z_carriage_overall_width/2-z_rod_spacing/2)+z_spring_diam/2;
@@ -30,17 +33,20 @@ z_lifter_arm_thickness = z_stepper_shaft_flat_length;
 z_lifter_arm_len = 9;
 z_lifter_small_diam = m3_diam_to_thread_into+extrude_width*3*4;
 z_lifter_large_diam = z_stepper_shaft_diam+tolerance+extrude_width*3*4;
+ensure_endstop_is_hit_at_top_of_travel = 4.5;
 
 z_carriage_plate_thickness = wall_thickness*2;
 z_carriage_top_bottom_height = zip_tie_width+extrude_width*3;
 // calculated bottom to top
-z_carriage_desired_travel = 8;
+z_carriage_desired_travel = 7.5;
 z_lifter_arm_top = z_stepper_dist_from_x_rail_z - z_stepper_shaft_from_center + z_lifter_large_diam/2;
 z_carriage_height_calculated = z_carriage_top_bottom_height*2 +
                                z_carriage_carrier_height/2 +
                                z_carriage_desired_travel +
-                               2 + // compensate for hitting z bushings with angle
-                               z_lifter_arm_top;
+                               z_lifter_arm_top +
+                               m3_nut_max_diam/2 +
+                               - ensure_endstop_is_hit_at_top_of_travel
+                               ;
 z_carriage_height = z_carriage_height_calculated;
 z_carriage_hole_spacing = 15;
 z_carriage_hole_from_bottom = z_carriage_top_bottom_height;
@@ -52,6 +58,8 @@ z_spring_hook_diam = z_spring_diam-z_spring_wire_diam*2-0.5;
 z_spring_offset_z = z_carriage_height/2-z_carriage_top_bottom_height+z_spring_hook_diam+z_spring_wire_diam/2;
 z_spring_preload = 2;
 z_spring_stretched_len = z_spring_len+z_spring_preload;
+
+bottom_of_z_carrier = bottom*(z_carriage_carrier_hole_spacing_z/2);
 
 module z_spring(top_rotation=0,bottom_rotation=0) {
   spring_portion = z_spring_stretched_len - z_spring_diam*2;
@@ -159,8 +167,10 @@ module z_axis_mount() {
 
   module position_mounting_screws_2d() {
     coords = [
-      [left*z_carriage_carrier_hole_spacing_x/2,0],
-      [right*z_carriage_carrier_hole_spacing_x/2,0],
+      [left*z_carriage_carrier_hole_spacing_x/2,top*z_carriage_carrier_hole_spacing_z/2],
+      [left*z_carriage_carrier_hole_spacing_x/2,bottom*z_carriage_carrier_hole_spacing_z/2],
+      [right*z_carriage_carrier_hole_spacing_x/2,top*z_carriage_carrier_hole_spacing_z/2],
+      [right*z_carriage_carrier_hole_spacing_x/2,bottom*z_carriage_carrier_hole_spacing_z/2],
     ];
 
     for(coord=coords) {
@@ -170,14 +180,15 @@ module z_axis_mount() {
     }
   }
 
-  bottom_bushing_pos_z = bottom*(z_bushing_holder_body_len/2+m3_nut_diam);
+  bottom_bushing_pos_z = bottom*(z_carriage_carrier_hole_spacing_z/2-z_bushing_holder_body_len/2-m3_nut_max_diam/2);
 
   module position_z_bushings_2d() {
     coords = [
       [z_rod_spacing/2,z_lifter_arm_top-z_bushing_holder_body_len/2],
-      [z_rod_spacing/2,bottom_bushing_pos_z],
-      [-z_rod_spacing/2,top*(z_bushing_holder_body_len/2+m3_nut_diam)],
-      [-z_rod_spacing/2,bottom_bushing_pos_z],
+      [z_rod_spacing/2,bottom_bushing_pos_z+1],
+      //[-z_rod_spacing/2,top*(z_carriage_carrier_hole_spacing_z/2+z_bushing_holder_body_len/2+m3_nut_diam)],
+      [-z_rod_spacing/2,bottom_bushing_pos_z+1+z_bushing_holder_body_len],
+      [-z_rod_spacing/2,bottom_bushing_pos_z+1],
     ];
     for(coord=coords) {
       translate(coord) {
@@ -307,7 +318,7 @@ module z_axis_mount() {
     }
 
     // Z endstop
-    translate([0,front*(z_axis_mount_plate_thickness/2+mech_endstop_tiny_width/2),bottom_bushing_pos_z-mech_endstop_tiny_height]) {
+    translate([0,front*(z_axis_mount_plate_thickness/2+mech_endstop_tiny_width/2),bottom_bushing_pos_z-mech_endstop_tiny_height-1]) {
       rotate([180,0,0]) {
         rotate([0,0,90]) {
           % mech_endstop_tiny();
@@ -323,7 +334,7 @@ module z_axis_mount() {
     translate([z_rod_spacing/2+z_bushing_od,0,x_carriage_overall_height/2+zip_tie_width]) {
       rotate([0,5,0]) {
         rotate([180,0,0]) {
-          zip_tie_cavity(wall_thickness*2,zip_tie_thickness,zip_tie_width);
+          // zip_tie_cavity(wall_thickness*2,zip_tie_thickness,zip_tie_width);
         }
       }
     }
@@ -341,7 +352,7 @@ module z_axis_mount() {
 
   position_z_stepper() {
     translate([0,-z_stepper_shaft_from_center,z_stepper_shoulder_height+z_lifter_arm_thickness/2+1]) {
-      rotate([0,0,-z_stepper_angle]) { // bottom of travel (min Z)
+      rotate([0,0,-z_stepper_angle-90*at_top_of_travel]) { // bottom of travel (min Z)
         % z_lifter_arm();
       }
     }
@@ -405,20 +416,20 @@ module z_carriage() {
 
   pen_holder_main_body_diam = pen_max_diam+wall_thickness*4;
 
-  min_to_max_dist = sqrt(pow(pen_max_diam/2,2)*2) - sqrt(pow(pen_min_diam/2,2)*2);
+  pen_min_to_max_dist = sqrt(pow(pen_max_diam/2,2)*2) - sqrt(pow(pen_min_diam/2,2)*2);
 
   outer_diam = pen_max_diam+wall_thickness*4;
 
-  min_pos_y = front*(clearance_for_z_bushings_and_zip_ties+z_carriage_plate_thickness+pen_min_diam/2);
-  max_pos_y = min_pos_y+front*(min_to_max_dist);
+  pen_min_pos_y = front*(clearance_for_z_bushings_and_zip_ties+z_carriage_plate_thickness+pen_min_diam/2);
+  pen_max_pos_y = pen_min_pos_y+front*(pen_min_to_max_dist);
 
   set_screw_hole_diam = 4.7;
-  set_screw_body_pos_y = max_pos_y+front*(pen_holder_main_body_diam/2);
+  set_screw_body_pos_y = pen_max_pos_y+front*(pen_holder_main_body_diam/2);
   set_screw_body_depth = wall_thickness*2;
   set_screw_body_height = set_screw_hole_diam+wall_thickness*4;
 
-  overall_depth = pen_min_diam/2 + min_to_max_dist + pen_holder_main_body_diam/2 + set_screw_body_depth/2;
-  half_depth = abs(abs(max_pos_y) - abs(set_screw_body_pos_y));
+  overall_depth = pen_min_diam/2 + pen_min_to_max_dist + pen_holder_main_body_diam/2 + set_screw_body_depth/2;
+  half_depth = abs(abs(pen_max_pos_y) - abs(set_screw_body_pos_y));
 
   pen_holder_height = pen_set_screw_height + set_screw_body_height/2 + overall_depth + 4;
 
@@ -431,10 +442,10 @@ module z_carriage() {
   module pen_holder_profile() {
     module hulled_holes(less_diam,more_diam) {
       hull() {
-        translate([0,max_pos_y,0]) {
+        translate([0,pen_max_pos_y,0]) {
           accurate_circle(more_diam,resolution);
         }
-        translate([0,min_pos_y,0]) {
+        translate([0,pen_min_pos_y,0]) {
           accurate_circle(less_diam,resolution);
         }
       }
@@ -469,13 +480,27 @@ module z_carriage() {
     angled_bottom_height = z_carriage_top_bottom_height+(clearance_for_z_bushings_and_zip_ties+carriage_bottom_depth/2);
     // bottom
     hull() {
-      translate([0,0,bottom*(z_carriage_height/2-z_carriage_top_bottom_height/2)]) {
-        rounded_cube(z_carriage_overall_width,carriage_bottom_depth,z_carriage_top_bottom_height,z_carriage_rounding_diam);
-      }
+      translate([0,0,bottom*(z_carriage_height/2)]) {
+        // rod side
+        translate([0,0,z_carriage_top_bottom_height/2]) {
+          rounded_cube(z_carriage_overall_width-0,rounding_around_rod,z_carriage_top_bottom_height,rounding_around_rod,8);
+        }
 
-      // main plate
-      translate([0,front*(clearance_for_z_bushings_and_zip_ties+z_carriage_plate_thickness/2),bottom*(z_carriage_height/2-angled_bottom_height/2)]) {
-        rounded_cube(z_carriage_overall_width,z_carriage_plate_thickness,angled_bottom_height,z_carriage_rounding_diam);
+        // main plate side
+        translate([0,front*(clearance_for_z_bushings_and_zip_ties+z_carriage_plate_thickness/2),angled_bottom_height/2]) {
+          rounded_cube(z_carriage_overall_width,z_carriage_plate_thickness,angled_bottom_height,z_carriage_rounding_diam);
+        }
+      }
+    }
+
+    // top
+    top_depth = extrude_width*5 + z_rod_hole_diam/2 + clearance_for_z_bushings_and_zip_ties + z_carriage_plate_thickness;
+    hull() {
+      translate([0,0,top*(z_carriage_height/2-z_carriage_top_bottom_height/2)]) {
+        translate([0,front*(clearance_for_z_bushings_and_zip_ties+z_carriage_plate_thickness/2),0]) {
+          rounded_cube(z_carriage_overall_width,z_carriage_plate_thickness,z_carriage_top_bottom_height,z_carriage_plate_thickness);
+        }
+        rounded_cube(z_carriage_overall_width-0,rounding_around_rod,z_carriage_top_bottom_height,rounding_around_rod,8);
       }
     }
 
@@ -532,12 +557,6 @@ module z_carriage() {
           }
         }
       }
-    }
-
-    // top
-    top_depth = extrude_width*5 + z_rod_hole_diam/2 + clearance_for_z_bushings_and_zip_ties + z_carriage_plate_thickness;
-    translate([0,front*(clearance_for_z_bushings_and_zip_ties+z_carriage_plate_thickness-top_depth/2),top*(z_carriage_height/2-z_carriage_top_bottom_height/2)]) {
-      rounded_cube(z_carriage_overall_width,top_depth,z_carriage_top_bottom_height,z_carriage_rounding_diam);
     }
 
     // main plate
@@ -597,7 +616,7 @@ module z_carriage() {
 
     translate([0,0,pen_holder_height/2-z_carriage_height/2]) {
       // set screw hole for pen
-      translate([0,max_pos_y+front*(pen_holder_main_body_diam/2),-pen_holder_height/2+pen_set_screw_height]) {
+      translate([0,pen_max_pos_y+front*(pen_holder_main_body_diam/2),-pen_holder_height/2+pen_set_screw_height]) {
         rotate([90,0,0]) {
           hole(set_screw_hole_diam,pen_holder_main_body_diam,8);
         }
@@ -615,7 +634,7 @@ module z_carriage() {
             }
 
           }
-          translate([0,max_pos_y+front*(half_depth),pen_set_screw_height+set_screw_body_height/2+half_depth*1.2+z_carriage_height/2]) {
+          translate([0,pen_max_pos_y+front*(half_depth),pen_set_screw_height+set_screw_body_height/2+half_depth*1.2+z_carriage_height/2]) {
             cube([pen_holder_main_body_diam+1,half_depth*2,z_carriage_height],center=true);
           }
         }
@@ -624,7 +643,7 @@ module z_carriage() {
           translate([0,set_screw_body_pos_y-set_screw_body_depth/2-1,pen_set_screw_height-set_screw_body_height/2]) {
             cube([pen_holder_main_body_diam*2,2,1],center=true);
           }
-          translate([0,min_pos_y+front*(pen_holder_main_body_diam-pen_min_diam/2),-1]) {
+          translate([0,pen_min_pos_y+front*(pen_holder_main_body_diam-pen_min_diam/2),-1]) {
             cube([pen_holder_main_body_diam*2,pen_holder_main_body_diam*2,2],center=true);
           }
         }
@@ -668,7 +687,7 @@ module z_carriage() {
     // round sides of pen holder
     stiffening_rib_height = z_carriage_height-pen_set_screw_height;
     for(x=[left,right]) {
-      translate([x*(pen_holder_main_body_diam/2-z_carriage_plate_thickness/2),max_pos_y,z_carriage_height/2-stiffening_rib_height/2]) {
+      translate([x*(pen_holder_main_body_diam/2-z_carriage_plate_thickness/2),pen_max_pos_y,z_carriage_height/2-stiffening_rib_height/2]) {
         hole(z_carriage_plate_thickness,stiffening_rib_height,resolution);
       }
     }
@@ -683,11 +702,16 @@ module z_carriage() {
   bridges();
 }
 
+module pen_wedge() {
+}
+
+pen_wedge();
+
 module z_axis_assembly() {
   translate([0,-z_axis_mount_plate_thickness/2-0.5,0]) {
     z_axis_mount();
 
-    translate([0,-z_rod_dist_from_z_mount,z_carriage_pos_z]) {
+    translate([0,-z_rod_dist_from_z_mount,z_carriage_pos_z+z_carriage_desired_travel*at_top_of_travel]) {
       // color("grey", 0.4) %
       z_carriage();
     }

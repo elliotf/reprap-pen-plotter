@@ -37,7 +37,7 @@ module rear_idler_mount(side=right) {
 
   overall_height = abs(plate_pos_z)+15;
 
-  relative_motor_line_pos_x = motor_line_pos_x - y_rail_pos_x;
+  relative_motor_line_pos_x = right*(line_bearing_diam/2-5);
 
   y_spacing = y_spacing_for_side(side);
   other_y_spacing = (-side+1)*3;

@@ -177,10 +177,14 @@ module zip_tie_cavity(inner_diam_input,zip_tie_thickness,zip_tie_width,fn=resolu
   }
 }
 
-module printed_extrusion_carriage_profile(body_width,body_height,cavity_width,cavity_height) {
+module printed_extrusion_carriage_profile(body_width,body_height) {
   spring_thickness = extrude_width*4;
   spring_gap_width = 1;
   preload = -0.2; // negative makes more slack both for print and UHMWPE tape
+  wall_thickness = extrude_width*4;
+
+  cavity_width = body_width - wall_thickness*4;
+  cavity_height = body_height - wall_thickness*4;
 
   module spring_profile() {
     contact_width = 8;

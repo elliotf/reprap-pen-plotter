@@ -17,6 +17,8 @@ module filament_pulley(diam=(16*2/pi), base_height=6, wraps=5,hole_od=0,od_heigh
   bottom_pos_z   = 0;
   top_pos_z      = (base_height > 0) ? base_pos_z + base_height/2 : height;
 
+  overall_height = top_pos_z - bottom_pos_z;
+
   module profile() {
     difference() {
       union() {
@@ -63,28 +65,6 @@ module filament_pulley(diam=(16*2/pi), base_height=6, wraps=5,hole_od=0,od_heigh
     }
   }
 
-  module hole_profile() {
-    hole_id_diff = 1;
-    hole_id = hole_od - hole_id_diff*1.75;
-
-    for (z=[top_pos_z,bottom_pos_z]) {
-      translate([0,z]) {
-        hull() {
-          translate([hole_od/4,0]) {
-            square([hole_od/2,od_height*2],center=true);
-          }
-          translate([hole_id/4,0]) {
-            square([hole_id/2,(od_height+hole_id_diff)*2],center=true);
-          }
-        }
-      }
-    }
-
-    translate([hole_id/4,0,0]) {
-      square([hole_id/2,2*(height+base_height)],center=true);
-    }
-  }
-
   module holes() {
     // for driver
     nut_thickness = 2.70;
@@ -95,15 +75,22 @@ module filament_pulley(diam=(16*2/pi), base_height=6, wraps=5,hole_od=0,od_heigh
     // d_cut_height  = base_height+3;
     d_cut_height  = 100;
 
+    round_shaft_allowance = 5.5;
+
     // idler branch
     if (hole_od) {
-      rotate_extrude(convexity=10,$fn=12) {
-        hole_profile();
-      }
+      hole_diam = pulley_idler_bearing_od + tolerance;
+      bearing_hole_resolution = 12;
+      hole_id = hole_diam-1;
+      hole(hole_id,40,bearing_hole_resolution);
 
-      for(z=[top_pos_z+0.1,bottom_pos_z-0.1]) {
+      for(z=[top_pos_z-pulley_idler_bearing_height/2,bottom_pos_z+pulley_idler_bearing_height/2]) {
         translate([0,0,z]) {
-          hole(hole_od,0.05,resolution);
+          % hole(pulley_idler_bearing_od, pulley_idler_bearing_height+0.05, resolution*2);
+          hull() {
+            hole(hole_diam, pulley_idler_bearing_height, bearing_hole_resolution);
+            hole(hole_diam-1, pulley_idler_bearing_height+1, bearing_hole_resolution);
+          }
         }
       }
     }
@@ -113,8 +100,8 @@ module filament_pulley(diam=(16*2/pi), base_height=6, wraps=5,hole_od=0,od_heigh
       difference() {
         hole(shaft_diam,50,12);
 
-        translate([shaft_diam/2,0,0]) {
-          cube([d_cut_depth*2,shaft_diam+1,d_cut_height*2],center=true);
+        translate([shaft_diam/2,0,overall_height/2+round_shaft_allowance-0.05]) {
+          cube([d_cut_depth*2,shaft_diam+1,overall_height],center=true);
         }
       }
       translate([shaft_diam/2-d_cut_depth-0.1+nut_thickness/2,0,top_pos_z-nut_diam/2]) {
@@ -140,12 +127,18 @@ module filament_pulley(diam=(16*2/pi), base_height=6, wraps=5,hole_od=0,od_heigh
 }
 
 module driver_pulley() {
-  base_height   = 6;
+  base_height   = 7;
 
   filament_pulley(driver_diam,base_height,driver_wraps);
 }
 
 module idler_pulley() {
-  filament_pulley(pulley_idler_diam,0,idler_wraps,pulley_idler_bearing_od,pulley_idler_bearing_height);
+  intersection() {
+    filament_pulley(pulley_idler_diam,0,idler_wraps,pulley_idler_bearing_od,pulley_idler_bearing_height);
+
+    translate([0,20,0]) {
+      // cube([40,40,40],center=true);
+    }
+  }
 }
 

@@ -51,20 +51,23 @@ line_bearing_inner     = 5;
 bearing_bevel_height = 1;
 
 // 625
-// pulley_idler_bearing_id     = 5;
-//pulley_idler_bearing_od     = 16;
-//pulley_idler_bearing_height = 5;
+pulley_idler_bearing_id     = 5;
+pulley_idler_bearing_od     = 16;
+pulley_idler_bearing_height = 5;
 
 // MR105 or 623
-//pulley_idler_bearing_od     = 10.2;
+//pulley_idler_bearing_id     = 3; // 623
+//pulley_idler_bearing_id     = 5; // MR105
+//pulley_idler_bearing_od     = 10;
 //pulley_idler_bearing_height = 4;
 
 // 688 bearing
-pulley_idler_bearing_id     = 8;
-pulley_idler_bearing_od     = 16.2;
-pulley_idler_bearing_height = 4;
+//pulley_idler_bearing_id     = 8;
+//pulley_idler_bearing_od     = 16;
+//pulley_idler_bearing_height = 5;
 
-pulley_idler_diam = pulley_idler_bearing_od + (extrude_width*7);
+//pulley_idler_diam = pulley_idler_bearing_od + (extrude_width*7);
+pulley_idler_diam = 16.2 + (extrude_width*10);
 
 //
 // plotter
@@ -127,6 +130,7 @@ zip_tie_thickness = 2.5;
 zip_tie_width     = 4;
 
 wall_thickness = extrude_width*3;
+carriage_wall_thickness = extrude_width*4;
 
 y_rail_extrusion_width = 20;
 y_rail_extrusion_height = 40;
@@ -175,8 +179,8 @@ x_carriage_line_spacing = 20 - line_bearing_diam;
 
 z_carriage_carrier_room_for_nut = threaded_insert_diam + wall_thickness*2 + printed_carriage_inner_diam + 2;
 z_carriage_carrier_hole_spacing_x = x_carriage_width - z_carriage_carrier_room_for_nut;
-z_carriage_carrier_hole_spacing_z = x_carriage_overall_height + z_carriage_carrier_room_for_nut;
-z_carriage_carrier_height = z_carriage_carrier_hole_spacing_z + z_carriage_carrier_room_for_nut;
+z_carriage_carrier_hole_spacing_z = x_carriage_overall_height + threaded_insert_diam;
+z_carriage_carrier_height = z_carriage_carrier_hole_spacing_z + threaded_insert_diam + extrude_width*16;
 
 z_spring_wire_diam = 0.5;
 z_spring_diam = 6;
@@ -220,7 +224,7 @@ z_stepper_shaft_flat_offset = round_nema14_shaft_flat_offset;
 z_stepper_shoulder_diam = round_nema14_shoulder_diam;
 z_stepper_shoulder_height = round_nema14_shoulder_height;
 z_stepper_shaft_from_center = round_nema14_shaft_from_center;
-z_stepper_dist_from_x_rail_z = x_carriage_overall_height/2 + z_stepper_body_diam/2 + 0.5;
+z_stepper_dist_from_x_rail_z = z_carriage_carrier_height/2 + z_stepper_body_diam/2 + 0.5;
 z_stepper_extra_meat_for_set_screw = -2; // for long-shaft nema14 stepper
 
 // z_stepper_body_diam = byj_body_diam;

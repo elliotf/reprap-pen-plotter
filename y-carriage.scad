@@ -172,12 +172,6 @@ module ptfe_y_carriage(side) {
   }
 }
 
-module to_print(side) {
-  rotate([-90,0,0]) {
-    y_carriage(side);
-  }
-}
-
 module preloaded_spring_y_carriage(side) {
   misc_mount_hole_spacing = 10;
   misc_mount_hole_diam = threaded_insert_diam;
@@ -228,7 +222,6 @@ module preloaded_spring_y_carriage(side) {
 
 
   cavity_overall_width = y_carriage_overall_width - wall_thickness*4;
-  cavity_overall_height = y_carriage_overall_height - wall_thickness*4;
 
   bearing_arm_thickness = printed_carriage_wall_thickness;
   bearing_arm_support_joint_to_carriage_width = gap_between_x_rail_end_and_y_carriage + wall_thickness;
@@ -236,7 +229,7 @@ module preloaded_spring_y_carriage(side) {
 
   module carriage_profile() {
     module profile_body() {
-      printed_extrusion_carriage_profile(y_carriage_overall_width,y_carriage_overall_height,cavity_overall_width,cavity_overall_height);
+      printed_extrusion_carriage_profile(y_carriage_overall_width,y_carriage_overall_height);
 
       // arm to mount x rail / line bearing and support
       translate([line_bearing_pos_x,line_bearing_pos_z]) {
@@ -281,7 +274,7 @@ module preloaded_spring_y_carriage(side) {
           for(x=[left,right]) {
             translate([x*body_width/2,0,0]) {
               rotate([0,0,45-x*45]) {
-                # round_corner_filler_profile(wall_thickness,resolution);
+                # round_corner_filler_profile(misc_mount_hole_len,resolution);
               }
             }
           }
@@ -376,6 +369,10 @@ module y_carriage(side) {
   }
 }
 
-y_carriage(right);
+module to_print(side) {
+  rotate([-90,0,0]) {
+    y_carriage(side);
+  }
+}
 
-// to_print();
+y_carriage(right);
