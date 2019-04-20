@@ -80,7 +80,7 @@ module filament_pulley(diam=(16*2/pi), base_height=6, wraps=5,hole_od=0,od_heigh
     // idler branch
     if (hole_od) {
       hole_diam = pulley_idler_bearing_od + tolerance;
-      bearing_hole_resolution = 12;
+      bearing_hole_resolution = 36;
       hole_id = hole_diam-1;
       hole(hole_id,40,bearing_hole_resolution);
 
@@ -134,7 +134,7 @@ module driver_pulley() {
 
 module idler_pulley() {
   intersection() {
-    filament_pulley(pulley_idler_diam,0,idler_wraps,pulley_idler_bearing_od,pulley_idler_bearing_height);
+    filament_pulley(pulley_idler_diam,0,idler_wraps,pulley_idler_bearing_od+tolerance,pulley_idler_bearing_height);
 
     translate([0,20,0]) {
       // cube([40,40,40],center=true);

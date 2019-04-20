@@ -51,23 +51,23 @@ line_bearing_inner     = 5;
 bearing_bevel_height = 1;
 
 // 625
-pulley_idler_bearing_id     = 5;
-pulley_idler_bearing_od     = 16;
-pulley_idler_bearing_height = 5;
+//pulley_idler_bearing_id     = 5;
+//pulley_idler_bearing_od     = 16;
+//pulley_idler_bearing_height = 5;
 
 // MR105 or 623
 //pulley_idler_bearing_id     = 3; // 623
-//pulley_idler_bearing_id     = 5; // MR105
-//pulley_idler_bearing_od     = 10;
-//pulley_idler_bearing_height = 4;
+pulley_idler_bearing_id     = 5; // MR105
+pulley_idler_bearing_od     = 10;
+pulley_idler_bearing_height = 4;
 
 // 688 bearing
 //pulley_idler_bearing_id     = 8;
 //pulley_idler_bearing_od     = 16;
 //pulley_idler_bearing_height = 5;
 
-//pulley_idler_diam = pulley_idler_bearing_od + (extrude_width*7);
-pulley_idler_diam = 16.2 + (extrude_width*10);
+//pulley_idler_diam = pulley_idler_bearing_od + tolerance + (extrude_width*10);
+pulley_idler_diam = 16 + tolerance + (extrude_width*10);
 
 //
 // plotter
