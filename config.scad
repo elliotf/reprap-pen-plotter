@@ -4,7 +4,7 @@ colors = ["royalblue", "green", "crimson"];
 
 function lineColorForSide(side) = colors[side+1];
 
-pi = 3.14159;
+pi = 3.141592;
 approx_pi = 3.14159;
 inch = 25.4;
 extrude_width = 0.4;
@@ -26,8 +26,7 @@ driver_wraps         = 5;
 idler_wraps          = driver_wraps + 1;
 
 steps_per_turn = 200*32; // 1.8deg stepper at 1/32 microstepping
-desired_steps_per_mm = 140;
-// driver_circumference = 25*2; // akin to a 20T gt2 pulley
+desired_steps_per_mm = 140; // 200 = 16T GT2, 160 = 20T GT2
 driver_circumference = steps_per_turn/desired_steps_per_mm;
 
 driver_diam = driver_circumference/pi;

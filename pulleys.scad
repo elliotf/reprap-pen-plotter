@@ -70,7 +70,7 @@ module filament_pulley(diam=(16*2/pi), base_height=6, wraps=5,hole_od=0,od_heigh
     nut_thickness = 2.70;
     nut_diam      = 5.55;
     screw_diam    = 3.15;
-    shaft_diam    = 5.1;
+    shaft_diam    = 5.2;
     d_cut_depth   = shaft_diam-4.6;
     // d_cut_height  = base_height+3;
     d_cut_height  = 100;
