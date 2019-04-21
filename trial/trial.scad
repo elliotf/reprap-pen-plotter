@@ -184,7 +184,7 @@ module trial_carriage() {
 
     position_motor_line_redirector() {
       rotate([90,0,0]) {
-        hole(1.5,carriage_depth+1,8);
+        hole(2,carriage_depth+1,8);
         // color("red") cube([1,50,1.1],center=true);
       }
     }

@@ -128,7 +128,7 @@ module x_carriage() {
     }
   }
 
-  line_hole_diam = 1.5;
+  line_hole_diam = 2;
 
   module body() {
     rotate([90,0,0]) {
