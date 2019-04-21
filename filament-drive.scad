@@ -26,8 +26,8 @@ extrusion_mount_width = 5+wall_thickness*4+small_diam*2;
 extrusion_mount_height = y_rail_pos_z+y_rail_extrusion_height/2;
 extrusion_mount_thickness = wall_thickness*4;
 
-clamp_gap_width = 18;
-clamp_mount_thickness = 10;
+clamp_gap_width = 17;
+clamp_mount_thickness = 5;
 
 allot_space_y_for_motor_mount = abs(motor_shaft_pos_y) + motor_mount_motor_opening/2 + large_diam + plate_anchor_diam + 10;
 
@@ -49,6 +49,12 @@ module position_anchor_outside_extrusion() {
   }
 }
 
+module position_anchor_by_motor_clamp() {
+  translate([clamp_gap_width/2+clamp_mount_thickness+plate_anchor_diam/2,motor_shaft_pos_y-motor_mount_motor_opening/2-motor_mount_wall_thickness-plate_anchor_diam/2,0]) {
+    children();
+  }
+}
+
 module position_motor_mount_anchor_holes() {
   position_anchor_inside_extrusion() {
     children();
@@ -57,7 +63,7 @@ module position_motor_mount_anchor_holes() {
     children();
   }
 
-  translate([overall_width/2-plate_anchor_diam/2,motor_shaft_pos_y-motor_mount_motor_opening/2-motor_mount_wall_thickness-plate_anchor_diam/2-2,0]) {
+  position_anchor_by_motor_clamp() {
     children();
   }
 }
@@ -208,12 +214,14 @@ module motor_mount(side) {
 
     // anchor to plate by clamp
     hull() {
-      translate([overall_width/2,motor_shaft_pos_y-motor_mount_motor_opening/2-motor_mount_wall_thickness,plate_anchor_thickness/2]) {
-        motor_mount_portion_width = (overall_width - clamp_gap_width) / 2;
-        translate([-motor_mount_portion_width/2,0,0]) {
-          rounded_cube(motor_mount_portion_width,motor_mount_wall_thickness*2,plate_anchor_thickness,motor_mount_wall_thickness);
+      translate([0,0,plate_anchor_thickness/2]) {
+        translate([overall_width/2,motor_shaft_pos_y-motor_mount_motor_opening/2-motor_mount_wall_thickness,0]) {
+          motor_mount_portion_width = (overall_width - clamp_gap_width) / 2;
+          translate([-motor_mount_portion_width/2,0,0]) {
+            rounded_cube(motor_mount_portion_width,motor_mount_wall_thickness*2,plate_anchor_thickness,motor_mount_wall_thickness);
+          }
         }
-        translate([-plate_anchor_diam/2,-plate_anchor_diam/2-2,0]) {
+        position_anchor_by_motor_clamp() {
           hole(plate_anchor_diam,plate_anchor_thickness,resolution);
         }
       }
@@ -274,7 +282,8 @@ module motor_mount(side) {
       rotate([0,90,0]) {
         for(side=[left,right]) {
           translate([0,0,side*(clamp_gap_width/2+clamp_mount_thickness)]) {
-            hole(m3_nut_diam,8,6);
+            nut_cavity_depth = 2;
+            hole(m3_nut_diam,nut_cavity_depth*2,6);
           }
         }
         hole(m3_loose_hole,overall_width,8);
