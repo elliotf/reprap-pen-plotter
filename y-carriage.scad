@@ -184,7 +184,7 @@ module preloaded_spring_y_carriage(side) {
   line_bearing_pos_x = x_rail_end_relative_to_y_rail_x - line_bearing_diam/2;
   line_bearing_pos_z = x_rail_end_relative_to_y_rail_z + 10 + line_bearing_above_extrusion;
   line_bearing_hole_diam = line_bearing_inner+0.5;
-  line_bearing_thickness_gap = line_bearing_thickness + tolerance;
+  line_bearing_thickness_gap = line_bearing_thickness;
 
   module xz_position_for_line_bearing() {
     translate([line_bearing_pos_x,0,line_bearing_pos_z]) {
@@ -320,7 +320,7 @@ module preloaded_spring_y_carriage(side) {
       // line bearing bevels
       for(y=[front,rear]) {
         for(z=[top,bottom]) {
-          translate([0,y*10,z*(line_bearing_thickness_gap/2+bearing_bevel_height)]) {
+          translate([0,y*10,z*(line_bearing_thickness_gap/2+bearing_bevel_height+tolerance)]) {
             hull() {
               hole(line_bearing_hole_diam+extrude_width*2,bearing_bevel_height*2);
               translate([0,0,z*1]) {

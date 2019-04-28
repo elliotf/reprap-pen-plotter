@@ -1,5 +1,10 @@
 # TODO
 
+* make y carriage get pulled by center of mass
+  * lower X rail
+  * move x limit switches to z axis
+    * all wiring could come from z axis!
+  * or just stop faffing around get some sort of plotter done?
 * pulleys
   * idler
     * print a bevel to put the idler pulley at/near the correct height?
