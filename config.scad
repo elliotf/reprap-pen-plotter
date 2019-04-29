@@ -9,7 +9,9 @@ approx_pi = 3.14159;
 inch = 25.4;
 extrude_width = 0.4;
 
-rail_len = 120;
+debug = 1;
+
+rail_len = (debug) ? 120 : 500;
 
 y_rail_len = rail_len;
 x_rail_len = rail_len;
@@ -40,6 +42,10 @@ pulley_idler_height = idler_top_bottom_groove_dist + groove_height + groove_dept
 625_bearing_id        = 5;
 625_bearing_od        = 16; // 625zz v-groove for filament
 625_bearing_thickness = 5;  // 625zz v-groove for filament
+
+mr105_bearing_id        = 5;
+mr105_bearing_od        = 10;
+mr105_bearing_thickness = 4;
 
 line_height            = 1;
 line_thickness         = 1;
