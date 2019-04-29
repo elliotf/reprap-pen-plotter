@@ -2,10 +2,6 @@ include <config.scad>;
 include <lib/util.scad>;
 include <lib/vitamins.scad>;
 
-x_carriage_bushing_len   = 10;
-x_carriage_bushing_pos_y = x_rail_extrusion_width/2 + ptfe_bushing_diam/2 - ptfe_bushing_preload_amount;
-x_carriage_bushing_pos_z = x_rail_extrusion_height/2  + ptfe_bushing_diam/2 - ptfe_bushing_preload_amount;
-
 module x_carriage() {
   tensioner_pos_x = x_carriage_width/2-tuner_thick_diam/2-printed_carriage_wall_thickness;
   tensioner_pos_y = x_carriage_line_spacing/2;
@@ -234,8 +230,6 @@ module x_carriage() {
         }
       }
     }
-
-    bushing_from_wall = x_rail_extrusion_height/5;
 
     // z carriage carrier mounting holes
     for(x=[left,right]) {

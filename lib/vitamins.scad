@@ -395,7 +395,7 @@ module motor_nema14() {
 
   translate([0,0,nema14_shaft_len/2]) {
     hole(nema14_shaft_diam,nema14_shaft_len,16);
-    hole(line_pulley_diam,line_pulley_height,16);
+    // hole(line_pulley_diam,line_pulley_height,16);
   }
 }
 
@@ -573,5 +573,22 @@ module mech_endstop_tiny() {
   difference() {
     body();
     holes();
+  }
+}
+
+mini_v_wheel_od = 15.23;
+mini_v_wheel_smaller_od = 12.21; // according to some random image of the internet
+mini_v_wheel_id = 10;
+mini_v_wheel_thickness = 8.8;
+mini_v_wheel_flat_width = 5.78;
+mini_v_wheel_extrusion_spacing = 11.90/2; // distance from edge of aluminum extrusion to wheel axle
+
+module mini_v_wheel() {
+  difference() {
+    hull() {
+      hole(mini_v_wheel_od,mini_v_wheel_flat_width,resolution);
+      hole(mini_v_wheel_smaller_od,mini_v_wheel_thickness,resolution);
+    }
+    hole(mini_v_wheel_id,mini_v_wheel_thickness+1,resolution);
   }
 }

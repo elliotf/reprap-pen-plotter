@@ -98,13 +98,13 @@ m3_bolt_head_diam   = 7;
 spacer  = 1;
 
 nema17_side = 42;
-nema17_len = 47;
+nema17_len = 48;
 nema17_hole_spacing = 31;
 nema17_shoulder_diam = 22;
 nema17_shoulder_height = 2;
 nema17_screw_diam = m3_diam;
 nema17_shaft_diam = 5;
-nema17_shaft_len = 24;
+nema17_shaft_len = 26;
 
 nema14_side = 35.3;
 nema14_len = nema14_side;
