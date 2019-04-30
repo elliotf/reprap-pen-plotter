@@ -1,6 +1,6 @@
 all: render
 
-define test_template
+define render_template
 
 render: renders/$(1)
 
@@ -11,9 +11,24 @@ renders/$(1) : for_render/$(1).scad
 
 endef
 
-scads := $(foreach scad, $(wildcard for_render/*.scad),$(patsubst %.scad,%,$(notdir $(scad))))
+render_scads := $(foreach scad, $(wildcard for_render/*.scad),$(patsubst %.scad,%,$(notdir $(scad))))
 
-$(foreach scad, $(scads), $(eval $(call test_template,$(scad))))
+$(foreach scad, $(render_scads), $(eval $(call render_template,$(scad))))
+
+define render_simpler_template
+
+simpler: simpler/renders/$(1)
+
+simpler/renders/$(1) : simpler/$(1).scad
+	openscad-nightly -m make -o $$@.stl $$^ && echo $$^
+
+.PHONY : simpler/renders/$(1)
+
+endef
+
+simpler_scads := $(foreach scad, $(wildcard simpler/*.scad),$(patsubst %.scad,%,$(notdir $(scad))))
+
+$(foreach scad, $(simpler_scads), $(eval $(call render_simpler_template,$(scad))))
 
 trial: trial-end trial-carriage trial-motor-mount trial-motor-mount-brace
 	

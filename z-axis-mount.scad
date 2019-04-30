@@ -187,7 +187,7 @@ module z_axis_mount() {
       [z_rod_spacing/2,z_lifter_arm_top-z_bushing_holder_body_len/2],
       [z_rod_spacing/2,bottom_bushing_pos_z+1],
       //[-z_rod_spacing/2,top*(z_carriage_carrier_hole_spacing_z/2+z_bushing_holder_body_len/2+m3_nut_diam)],
-      [-z_rod_spacing/2,bottom_bushing_pos_z+1+z_bushing_holder_body_len],
+      [-z_rod_spacing/2,z_carriage_carrier_hole_spacing_z/2+z_bushing_holder_body_len],
       [-z_rod_spacing/2,bottom_bushing_pos_z+1],
     ];
     for(coord=coords) {
@@ -273,6 +273,11 @@ module z_axis_mount() {
           }
         }
       }
+
+      // endstop/limit switch wire routing
+      translate([z_carriage_carrier_hole_spacing_x/2-4-6,z_carriage_carrier_height/2+1,0]) {
+        rounded_square(12,6,3,resolution);
+      }
     }
 
     difference() {
@@ -293,6 +298,33 @@ module z_axis_mount() {
     position_z_bushings() {
       translate([0,rear*z_bushing_od/2,0]) {
         cube([z_bushing_holder_body_width,z_bushing_od,z_bushing_holder_body_len],center=true);
+      }
+    }
+
+    translate([left*(z_rod_spacing/2+z_spring_dist_from_z_rod_x),0,z_spring_hook_pos_z]) {
+      rotate([90,0,0]) {
+        hull() {
+          translate([0,0,z_axis_mount_plate_thickness/2-0.5]) {
+            hole(z_spring_hook_height,1,resolution);
+          }
+          translate([0,0,z_rod_dist_from_z_mount/2]) {
+            hole(z_spring_hook_diam,z_rod_dist_from_z_mount,resolution);
+          }
+        }
+
+        translate([0,0,z_rod_dist_from_z_mount]) {
+          hole(z_spring_hook_diam,z_spring_wire_diam*2,resolution);
+
+          translate([0,0,z_spring_wire_diam]) {
+            hull() {
+              hole(z_spring_hook_diam,0.1,resolution);
+
+              translate([0,-2,4]) {
+                hole(z_spring_hook_diam,0.2,resolution);
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -317,6 +349,13 @@ module z_axis_mount() {
       }
     }
 
+    // zip ties for endstop/limit switch cable management
+    translate([0,-1.25,z_carriage_carrier_hole_spacing_z/2-2]) {
+      rotate([0,0,180]) {
+        zip_tie_cavity(extrude_width*6,2.5,5);
+      }
+    }
+
     // Z endstop
     translate([0,front*(z_axis_mount_plate_thickness/2+mech_endstop_tiny_width/2),bottom_bushing_pos_z-mech_endstop_tiny_height-1]) {
       rotate([180,0,0]) {
@@ -325,6 +364,28 @@ module z_axis_mount() {
 
           position_mech_endstop_tiny_mount_holes() {
             hole(m2_threaded_insert_diam,30,12);
+          }
+        }
+      }
+    }
+
+    // x limit switches in front the plate
+    for(x=[left,right]) {
+      endstop_pos_x = x_carriage_width/2+1;
+      endstop_pos_y = front*(z_axis_mount_plate_thickness/2+mech_endstop_tiny_width/2-1.5);
+      endstop_pos_z = z_carriage_carrier_hole_spacing_z/2-4-mech_endstop_tiny_length/2;
+      translate([x*(endstop_pos_x),endstop_pos_y,endstop_pos_z]) {
+        rotate([0,0,x*90]) {
+          rotate([90,0,0]) {
+            % mech_endstop_tiny();
+
+            position_mech_endstop_tiny_mount_holes() {
+              hole(m2_threaded_insert_diam,mech_endstop_tiny_width+z_axis_mount_plate_thickness*2,12);
+            }
+
+            translate([0,0,-mech_endstop_tiny_height/2]) {
+              cube([mech_endstop_tiny_width+1,mech_endstop_tiny_length+1,mech_endstop_tiny_height+1],center=true);
+            }
           }
         }
       }
@@ -363,41 +424,10 @@ module z_axis_mount() {
     }
   }
 
-  module bridges() {
-    translate([left*(z_rod_spacing/2+z_spring_dist_from_z_rod_x),0,z_spring_hook_pos_z]) {
-      rotate([90,0,0]) {
-        hull() {
-          translate([0,0,z_axis_mount_plate_thickness/2-0.5]) {
-            hole(z_spring_hook_height,1,resolution);
-          }
-          translate([0,0,z_rod_dist_from_z_mount/2]) {
-            hole(z_spring_hook_diam,z_rod_dist_from_z_mount,resolution);
-          }
-        }
-
-        translate([0,0,z_rod_dist_from_z_mount]) {
-          hole(z_spring_hook_diam,z_spring_wire_diam*2,resolution);
-
-          translate([0,0,z_spring_wire_diam]) {
-            hull() {
-              hole(z_spring_hook_diam,0.1,resolution);
-
-              translate([0,-2,4]) {
-                hole(z_spring_hook_diam,0.2,resolution);
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
   difference() {
     body();
     holes();
   }
-
-  bridges();
 }
 
 module z_carriage() {
