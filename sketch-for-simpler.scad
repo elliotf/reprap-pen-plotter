@@ -52,7 +52,7 @@ x_belt_idler_body_diam = m5_thread_into_plastic_hole_diam+wall_thickness*4;
 x_belt_idler_spacing = nema17_hole_spacing;
 
 x_motor_mount_thickness = 3;
-x_motor_pos_z = -m5_bolt_head_diam/2-tolerance;
+x_motor_pos_z = -m5_bolt_head_diam/2-tolerance-0.2;
 x_motor_pos_y = y_motor_endcap_thickness+nema17_side/2+tolerance+belt_thickness*2;
 x_belt_idler_pos_y = x_motor_pos_y-nema17_hole_spacing/2;
 x_belt_idler_bevel_pos_z = x_motor_pos_z-x_motor_mount_thickness-bevel_height;

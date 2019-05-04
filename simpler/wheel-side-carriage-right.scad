@@ -2,7 +2,7 @@ include <../lib/util.scad>;
 include <../config.scad>;
 use <../sketch-for-simpler.scad>;
 
-debug = true;
+debug = false;
 
 angle = (debug) ? 0 : 180;
 
