@@ -93,7 +93,7 @@ module z_spring(top_rotation=0,bottom_rotation=0) {
 
 module z_lifter_arm() {
   tolerance = 0.2;
-  shaft_hole_diam = z_stepper_shaft_diam+tolerance;
+  shaft_hole_diam = z_stepper_shaft_diam+tolerance*2;
   overall_thickness = z_lifter_arm_thickness+z_stepper_extra_meat_for_set_screw;
 
   module body() {
@@ -123,9 +123,9 @@ module z_lifter_arm() {
     // stepper shaft cavity
     translate([0,0,0]) {
       intersection() {
-        hole(shaft_hole_diam,2*(z_stepper_shaft_flat_length+1),16);
+        hole(shaft_hole_diam,2*(z_stepper_shaft_flat_length+1),12);
         translate([0,z_stepper_shaft_flat_offset,0]) {
-          cube([shaft_hole_diam+2,z_stepper_shaft_flat_thickness+tolerance,z_lifter_arm_thickness*2+1],center=true);
+          cube([shaft_hole_diam+2,z_stepper_shaft_flat_thickness+tolerance*2,z_lifter_arm_thickness*2+1],center=true);
         }
       }
     }
