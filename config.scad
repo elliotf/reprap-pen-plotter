@@ -95,7 +95,7 @@ base_plate_thickness = 1/2*inch;
 
 m5_bolt_diam        = 5.25;
 m5_bolt_head_height = 5;
-m5_bolt_head_diam   = 10;
+m5_bolt_head_diam   = 9;
 m5_nut_thickness    = 5;
 m3_bolt_diam        = 3.25;
 m3_bolt_head_height = 5;
@@ -147,7 +147,7 @@ y_rail_dist_above_plate = 15;
 
 z_rod_diam  = 3;
 
-m2_threaded_insert_diam = 3.1;
+m2_threaded_insert_diam = 3.2;
 m2_5_threaded_insert_diam = 3.6;
 m3_threaded_insert_diam = 3.5;
 m3_loose_hole = 3.2;

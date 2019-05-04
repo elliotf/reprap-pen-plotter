@@ -703,6 +703,11 @@ module z_carriage() {
         }
       }
     }
+
+    // endstop trigger
+    translate([-2,1.5,-z_carriage_height/2]) {
+      hole(2.9,30,resolution);
+    }
   }
 
   for(x=[left,right]) {
