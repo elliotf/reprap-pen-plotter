@@ -1,6 +1,9 @@
 # Simpler version TODO
 
 ## todo
+* figure out the screw lengths for the X motor
+  * to make sure they can be screwed in all the way
+    * should be able to recess the non-shaft side's head in to ensure a correct distance
 * anchor holes on X ends
   * to anchor printer to a board
   * to make the board take the force of the belt tension rather than a cantilevered plastic part

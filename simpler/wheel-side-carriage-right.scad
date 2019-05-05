@@ -13,4 +13,11 @@ rotate([0,angle,0]) {
       % color("silver",0.3) extrusion_2040(40);
     }
   }
+  if (debug) {
+    translate([-40,0,0]) {
+      mirror([1,0,0]) {
+        wheeled_sidemount(left);
+      }
+    }
+  }
 }
