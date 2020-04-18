@@ -267,6 +267,7 @@ v_slot_depth     = 1.80;
 v_slot_width     = 9.5;
 v_slot_gap       = v_slot_width-v_slot_depth*2;
 v_slot_opening   = 6.2;
+v_slot_cavity_depth = 12.2/2;
 
 module extrusion_2040_profile() {
 
@@ -282,15 +283,14 @@ module extrusion_2040_profile() {
       }
     }
 
-    groove_depth = 12.2/2;
     opening_behind_slot = 1.64;
-    opening_behind_slot_width = v_slot_gap+(groove_depth-opening_behind_slot-v_slot_depth)*2;
+    opening_behind_slot_width = v_slot_gap+(v_slot_cavity_depth-opening_behind_slot-v_slot_depth)*2;
 
     for(side=[left,right]) {
       translate([side*v_slot_depth,0,0]) {
         hull() {
-          translate([side*(groove_depth-v_slot_depth)/2,0,0]) {
-            square([groove_depth-v_slot_depth,v_slot_gap],center=true);
+          translate([side*(v_slot_cavity_depth-v_slot_depth)/2,0,0]) {
+            square([v_slot_cavity_depth-v_slot_depth,v_slot_gap],center=true);
           }
           translate([side*opening_behind_slot/2,0,0]) {
             square([opening_behind_slot,opening_behind_slot_width],center=true);

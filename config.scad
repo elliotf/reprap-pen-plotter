@@ -99,7 +99,7 @@ m5_bolt_head_diam   = 9;
 m5_nut_thickness    = 5;
 m3_bolt_diam        = 3.25;
 m3_bolt_head_height = 5;
-m3_bolt_head_diam   = 7;
+m3_bolt_head_diam   = 6;
 
 spacer  = 1;
 
@@ -113,7 +113,7 @@ nema17_shaft_diam = 5;
 nema17_shaft_len = 26;
 
 nema14_side = 35.3;
-nema14_len = nema14_side;
+nema14_len = 44;
 nema14_hole_spacing = 26;
 nema14_shoulder_diam = 22;
 nema14_shoulder_height = 2;
@@ -154,6 +154,8 @@ m3_loose_hole = 3.2;
 m5_tight_hole = 5;
 m5_loose_hole = 5.2;
 m5_thread_into_plastic_hole_diam = 4.65;
+m4_thread_into_plastic_hole_diam = 3.7;
+m3_thread_into_plastic_hole_diam = 2.8;
 
 
 printed_carriage_extrusion_carriage_gap = ptfe_bushing_diam*0.3 - ptfe_bushing_preload_amount;

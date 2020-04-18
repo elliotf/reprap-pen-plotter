@@ -33,7 +33,7 @@ z_lifter_arm_thickness = z_stepper_shaft_flat_length;
 z_lifter_arm_len = 9;
 z_lifter_small_diam = m3_diam_to_thread_into+extrude_width*3*4;
 z_lifter_large_diam = z_stepper_shaft_diam+tolerance+extrude_width*3*4;
-ensure_endstop_is_hit_at_top_of_travel = 4.5;
+ensure_endstop_is_hit_at_top_of_travel = 12;
 
 z_carriage_plate_thickness = wall_thickness*2;
 z_carriage_top_bottom_height = zip_tie_width+extrude_width*3;
@@ -56,7 +56,7 @@ z_carriage_rounding_diam = z_carriage_plate_thickness;
 
 z_spring_hook_diam = z_spring_diam-z_spring_wire_diam*2-0.5;
 z_spring_offset_z = z_carriage_height/2-z_carriage_top_bottom_height+z_spring_hook_diam+z_spring_wire_diam/2;
-z_spring_preload = 2;
+z_spring_preload = 1;
 z_spring_stretched_len = z_spring_len+z_spring_preload;
 
 bottom_of_z_carrier = bottom*(z_carriage_carrier_hole_spacing_z/2);
@@ -370,6 +370,7 @@ module z_axis_mount() {
     }
 
     // x limit switches in front the plate
+    /*
     for(x=[left,right]) {
       endstop_pos_x = x_carriage_width/2+1;
       endstop_pos_y = front*(z_axis_mount_plate_thickness/2+mech_endstop_tiny_width/2-1.5);
@@ -390,6 +391,7 @@ module z_axis_mount() {
         }
       }
     }
+    */
 
     // holes to secure endstop wiring w/ zip tie
     translate([z_rod_spacing/2+z_bushing_od,0,x_carriage_overall_height/2+zip_tie_width]) {
@@ -698,15 +700,19 @@ module z_carriage() {
       translate([x*z_rod_spacing/2,0,bottom*(z_carriage_height/2-z_carriage_top_bottom_height)]) {
         translate([0,front*20,0]) {
           rotate([90,0,0]) {
-            hole(m3_threaded_insert_diam,40,8);
+            hole(m4_thread_into_plastic_hole_diam,40,8);
           }
         }
       }
     }
 
+    // room for z endstop
+    translate([0,rounding_around_rod/2,-z_carriage_height/2+z_carriage_top_bottom_height+10]) {
+      rounded_cube(mech_endstop_tiny_length+4,(mech_endstop_tiny_width+2.5)*2,20,2);
+    }
     // endstop trigger
-    translate([-2,1.5,-z_carriage_height/2]) {
-      hole(2.9,30,resolution);
+    translate([-2,1.5,-z_carriage_height/2-15+z_carriage_top_bottom_height-0.2]) {
+      hole(m3_thread_into_plastic_hole_diam,30,resolution);
     }
   }
 
