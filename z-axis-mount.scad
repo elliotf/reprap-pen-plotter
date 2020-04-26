@@ -4,18 +4,18 @@ include <lib/vitamins.scad>;
 use <x-carriage.scad>;
 use <misc.scad>;
 
-at_top_of_travel = 0;
+at_top_of_travel = 1;
 
 z_wall_thickness = extrude_width*8;
 m3_diam_to_thread_into = 2.7;
 
-z_bushing_len = 12;
+z_bushing_len = 10;
 
 z_bushing_hole_diam = z_bushing_od+0.5;
 z_bushing_hole_len = z_bushing_len+0.5;
 z_bushing_holder_body_width = z_bushing_hole_diam+extrude_width*4;
 z_bushing_holder_body_len = z_bushing_hole_len+extrude_width*4;
-z_rod_spacing = z_carriage_carrier_hole_spacing_x-z_bushing_holder_body_width-3;
+z_rod_spacing = z_carriage_carrier_hole_spacing_x-z_bushing_holder_body_width-m3_nut_max_diam-0.5;
 
 z_carriage_rod_dist = z_bushing_od/2+zip_tie_thickness+2;
 z_rod_hole_diam = z_rod_diam + 0.5;
@@ -30,15 +30,15 @@ z_axis_mount_plate_thickness = 5;
 z_rod_dist_from_z_mount = z_axis_mount_plate_thickness/2 + 1.5 + z_bushing_od/2;
 
 z_lifter_arm_thickness = z_stepper_shaft_flat_length;
-z_lifter_arm_len = 9;
+z_lifter_arm_len = 7;
 z_lifter_small_diam = m3_diam_to_thread_into+extrude_width*3*4;
 z_lifter_large_diam = z_stepper_shaft_diam+tolerance+extrude_width*3*4;
-ensure_endstop_is_hit_at_top_of_travel = 12;
+ensure_endstop_is_hit_at_top_of_travel = 1;
 
 z_carriage_plate_thickness = wall_thickness*2;
 z_carriage_top_bottom_height = zip_tie_width+extrude_width*3;
 // calculated bottom to top
-z_carriage_desired_travel = 7.5;
+z_carriage_desired_travel = 5;
 z_lifter_arm_top = z_stepper_dist_from_x_rail_z - z_stepper_shaft_from_center + z_lifter_large_diam/2;
 z_carriage_height_calculated = z_carriage_top_bottom_height*2 +
                                z_carriage_carrier_height/2 +
@@ -167,10 +167,8 @@ module z_axis_mount() {
 
   module position_mounting_screws_2d() {
     coords = [
-      [left*z_carriage_carrier_hole_spacing_x/2,top*z_carriage_carrier_hole_spacing_z/2],
-      [left*z_carriage_carrier_hole_spacing_x/2,bottom*z_carriage_carrier_hole_spacing_z/2],
-      [right*z_carriage_carrier_hole_spacing_x/2,top*z_carriage_carrier_hole_spacing_z/2],
-      [right*z_carriage_carrier_hole_spacing_x/2,bottom*z_carriage_carrier_hole_spacing_z/2],
+      [left*z_carriage_carrier_hole_spacing_x/2,0],
+      [right*z_carriage_carrier_hole_spacing_x/2,0],
     ];
 
     for(coord=coords) {
@@ -180,15 +178,15 @@ module z_axis_mount() {
     }
   }
 
-  bottom_bushing_pos_z = bottom*(z_carriage_carrier_hole_spacing_z/2-z_bushing_holder_body_len/2-m3_nut_max_diam/2);
+  bottom_bushing_pos_z = bottom*(z_bushing_holder_body_len/2+m3_nut_max_diam*0.25);
 
   module position_z_bushings_2d() {
     coords = [
-      [z_rod_spacing/2,z_lifter_arm_top-z_bushing_holder_body_len/2],
-      [z_rod_spacing/2,bottom_bushing_pos_z+1],
-      //[-z_rod_spacing/2,top*(z_carriage_carrier_hole_spacing_z/2+z_bushing_holder_body_len/2+m3_nut_diam)],
-      [-z_rod_spacing/2,z_carriage_carrier_hole_spacing_z/2+z_bushing_holder_body_len],
-      [-z_rod_spacing/2,bottom_bushing_pos_z+1],
+      [z_rod_spacing/2,z_lifter_arm_top-z_bushing_holder_body_len*0.75],
+      [z_rod_spacing/2,bottom_bushing_pos_z],
+      //[-z_rod_spacing/2,z_carriage_carrier_hole_spacing_z/2+z_bushing_holder_body_len],
+      [-z_rod_spacing/2,z_spring_hook_pos_z+z_bushing_holder_body_len/2-1],
+      [-z_rod_spacing/2,bottom_bushing_pos_z],
     ];
     for(coord=coords) {
       translate(coord) {
@@ -350,7 +348,7 @@ module z_axis_mount() {
     }
 
     // zip ties for endstop/limit switch cable management
-    translate([0,-1.25,z_carriage_carrier_hole_spacing_z/2-2]) {
+    translate([0,-1.25,z_carriage_carrier_hole_spacing_z/2-15]) {
       rotate([0,0,180]) {
         zip_tie_cavity(extrude_width*6,2.5,5);
       }
@@ -707,12 +705,12 @@ module z_carriage() {
     }
 
     // room for z endstop
-    translate([0,rounding_around_rod/2,-z_carriage_height/2+z_carriage_top_bottom_height+10]) {
+    translate([0,rounding_around_rod/2,-z_carriage_height/2+z_carriage_top_bottom_height+11]) {
       rounded_cube(mech_endstop_tiny_length+4,(mech_endstop_tiny_width+2.5)*2,20,2);
     }
     // endstop trigger
     translate([-2,1.5,-z_carriage_height/2-15+z_carriage_top_bottom_height-0.2]) {
-      hole(m3_thread_into_plastic_hole_diam,30,resolution);
+      hole(m3_thread_into_plastic_hole_diam,32,resolution);
     }
   }
 

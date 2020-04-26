@@ -188,9 +188,11 @@ x_carriage_width = 50;
 x_carriage_line_spacing = 20 - line_bearing_diam;
 
 z_carriage_carrier_room_for_nut = m3_threaded_insert_diam + wall_thickness*2 + printed_carriage_inner_diam + 2;
-z_carriage_carrier_hole_spacing_x = x_carriage_width - z_carriage_carrier_room_for_nut;
+//z_carriage_carrier_hole_spacing_x = x_carriage_width - z_carriage_carrier_room_for_nut;
+z_carriage_carrier_hole_spacing_x = round_nema14_hole_spacing - 2;// - 5;
+echo("z_carriage_carrier_hole_spacing_x: ", z_carriage_carrier_hole_spacing_x);
 z_carriage_carrier_hole_spacing_z = x_carriage_overall_height + m3_threaded_insert_diam;
-z_carriage_carrier_height = z_carriage_carrier_hole_spacing_z + m3_threaded_insert_diam + extrude_width*16;
+z_carriage_carrier_height = 35; //z_carriage_carrier_hole_spacing_z + m3_threaded_insert_diam + extrude_width*16;
 
 z_spring_wire_diam = 0.5;
 z_spring_diam = 6;
@@ -234,7 +236,7 @@ z_stepper_shaft_flat_offset = round_nema14_shaft_flat_offset;
 z_stepper_shoulder_diam = round_nema14_shoulder_diam;
 z_stepper_shoulder_height = round_nema14_shoulder_height;
 z_stepper_shaft_from_center = round_nema14_shaft_from_center;
-z_stepper_dist_from_x_rail_z = z_carriage_carrier_height/2 + z_stepper_body_diam/2 + 0.5;
+z_stepper_dist_from_x_rail_z = z_carriage_carrier_height/2 + z_stepper_body_diam/2 + 2;
 z_stepper_extra_meat_for_set_screw = -2; // for long-shaft nema14 stepper
 
 // z_stepper_body_diam = byj_body_diam;
