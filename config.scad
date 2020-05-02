@@ -11,10 +11,8 @@ extrude_width = 0.4;
 
 debug = 1;
 
-rail_len = (debug) ? 120 : 500;
-
-y_rail_len = rail_len;
-x_rail_len = rail_len;
+y_rail_len = (debug) ? 120 : 500;
+x_rail_len = (debug) ? 120 : 1000;
 
 tolerance = 0.2;
 

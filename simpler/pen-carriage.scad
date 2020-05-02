@@ -1,5 +1,5 @@
 use <../sketch-for-simpler.scad>;
 
-rotate([0,90,0]) {
-  pen_carriage();
+rotate([90,0,0]) {
+  y_carriage();
 }
