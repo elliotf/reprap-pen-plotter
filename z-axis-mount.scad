@@ -4,7 +4,7 @@ include <lib/vitamins.scad>;
 use <x-carriage.scad>;
 use <misc.scad>;
 
-at_top_of_travel = 1;
+at_top_of_travel = 0;
 
 z_wall_thickness = extrude_width*8;
 m3_diam_to_thread_into = 2.7;
@@ -18,7 +18,7 @@ z_bushing_holder_body_len = z_bushing_hole_len+extrude_width*4;
 z_rod_spacing = z_carriage_carrier_hole_spacing_x-z_bushing_holder_body_width-m3_nut_max_diam-0.5;
 
 z_carriage_rod_dist = z_bushing_od/2+zip_tie_thickness+2;
-z_rod_hole_diam = z_rod_diam + 0.5;
+z_rod_hole_diam = z_rod_diam + 0.2;
 rounding_around_rod = z_rod_hole_diam+wall_thickness*4;
 z_carriage_overall_width = 2*(z_rod_spacing/2 + rounding_around_rod/2);
 

@@ -384,7 +384,7 @@ module x_max_endcap() {
       // mount to extrusion
       for(x=[left,right]) {
         translate([x*extrusion_width/4,0,0]) {
-          accurate_circle(5,resolution);
+          accurate_circle(5+tolerance,resolution);
         }
       }
 
@@ -455,13 +455,13 @@ module belt_idler_bearings() {
   }
 }
 
-module y_endcap() {
-  height = 20 + nema14_side;
+module y_endcap_with_motor() {
+  height = 20 + nema17_side;
 
   m3_hole_diam = m3_diam;
   m3_hole_body_diam = m3_hole_diam + wall_thickness*4;
 
-  wheel_spacing = 20+wheel_holder_body_diam+m5_bolt_head_diam+tolerance;
+  wheel_spacing = extrusion_width+(wheel_holder_body_diam);
 
   thread_into_motor = 4;
   non_shaft_side_screw_length = 50;
@@ -470,25 +470,30 @@ module y_endcap() {
 
   non_shaft_side_screw_head_pos_z = x_motor_pos_z + thread_into_motor + 1 + non_shaft_side_screw_length;
 
-  motor_shoulder_room = nema14_shoulder_height+0.1;
+  motor_shoulder_room = nema17_shoulder_height+0.1;
   motor_mount_thickness = motor_shoulder_room+wall_thickness*2;
 
   belt_hole_opening_width = belt_width+2;
 
-  //y_motor_pos_x = y_belt_offset_x+belt_hole_opening_width/2+motor_mount_thickness;
-  //y_motor_pos_x = y_belt_offset_x+m5_bolt_head_diam/2+tolerance*2+motor_mount_thickness;
-  y_motor_pos_x = extrusion_width/2+motor_mount_thickness+0.1;
-  y_motor_pos_y = y_motor_endcap_thickness+5;
-  y_motor_pos_z = y_belt_offset_z - x_pulley_diam/2;
+  //pulley_opening_diam = x_pulley_diam + 3; // too small
+  pulley_opening_diam = 15;
 
   motor_angle = 45;
+  shaft_to_screw = sqrt(pow(nema17_hole_spacing,2)/2);
 
-  body_top_pos_z = y_motor_pos_z+nema14_side/2+6;
+  //y_motor_pos_x = y_belt_offset_x+belt_hole_opening_width/2+motor_mount_thickness;
+  //y_motor_pos_x = y_belt_offset_x+m5_bolt_head_diam/2+tolerance*2+motor_mount_thickness;
+  //y_motor_pos_x = extrusion_width/2+motor_mount_thickness+0.1;
+  y_motor_pos_x = wheel_spacing/2+y_motor_endcap_thickness/2;
+  //y_motor_pos_y = y_motor_endcap_thickness+5;
+  y_motor_pos_y = -m3_nut_max_diam/2-0.5+shaft_to_screw;
+  y_motor_pos_z = y_belt_offset_z - x_pulley_diam/2;
 
-  pulley_opening_diam = x_pulley_diam + 3;
+  //body_top_pos_z = y_motor_pos_z+nema17_side/2+6;
+  body_top_pos_z = y_motor_pos_z+shaft_to_screw+(nema17_side/2-nema17_hole_spacing/2);
 
   position_motor() {
-    % motor_nema14();
+    % motor_nema17();
   }
 
   module position_motor() {
@@ -552,16 +557,19 @@ module y_endcap() {
 
     // motor mount plate
     hull() {
-      top_joiner_length = 16;
-      translate([y_motor_pos_x-motor_mount_thickness/2,top_joiner_length/2,body_top_pos_z-1]) {
-        rounded_cube(motor_mount_thickness,top_joiner_length,2,2);
+      top_joiner_length = 21.8;
+      for(z=[top,bottom]) {
+        translate([y_motor_pos_x-motor_mount_thickness/2,1,y_motor_pos_z+z*(shaft_to_screw)]) {
+          rounded_cube(motor_mount_thickness,2,nema17_side-nema17_hole_spacing,2);
+        }
       }
       position_motor() {
         for(x=[left,right],y=[front,rear]) {
-          translate([x*(nema14_hole_spacing/2),y*(nema14_hole_spacing/2),motor_mount_thickness/2]) {
+          translate([x*(nema17_hole_spacing/2),y*(nema17_hole_spacing/2),motor_mount_thickness/2]) {
             rotate([0,0,-motor_angle]) {
               rotate([0,90,0]) {
-                rounded_cube(motor_mount_thickness,nema14_side-nema14_hole_spacing,6,2);
+                rounded_cube(motor_mount_thickness,nema17_side-nema17_hole_spacing,6,2);
+                rounded_cube(motor_mount_thickness,6,nema17_side-nema17_hole_spacing,2);
               }
             }
           }
@@ -570,10 +578,10 @@ module y_endcap() {
     }
 
     // brace between motor plate and main plate to resist belt tension
-    brace_thickness = 1.2;
-    brace_length = 22;
-    brace_angle_height = 9;
     for(z=[top]) {
+      brace_thickness = 1.2;
+      brace_length = 22;
+      brace_angle_height = 15;
       translate([y_motor_pos_x-motor_mount_thickness,y_motor_endcap_thickness,y_motor_pos_z+z*(pulley_opening_diam/2+brace_thickness/2+0.2)]) {
         hull() {
           translate([1,brace_length/2,0]) {
@@ -581,6 +589,25 @@ module y_endcap() {
           }
           translate([-brace_length/2,-1,0]) {
             cube([brace_length,2,brace_thickness],center=true);
+          }
+          translate([1,-1,z*brace_angle_height]) {
+            cube([2,2,1],center=true);
+          }
+        }
+      }
+    }
+    for(z=[top]) {
+      brace_thickness = 1.2;
+      brace_length = 18;
+      brace_width = 11.5;
+      brace_angle_height = 14;
+      translate([y_motor_pos_x-motor_mount_thickness,y_motor_endcap_thickness,y_motor_pos_z-(shaft_to_screw-m3_nut_max_diam/2-brace_thickness/2-0.2)]) {
+        hull() {
+          translate([1,brace_length/2,0]) {
+            cube([2,brace_length,brace_thickness],center=true);
+          }
+          translate([-brace_width/2,-1,0]) {
+            cube([brace_width,2,brace_thickness],center=true);
           }
           translate([1,-1,z*brace_angle_height]) {
             cube([2,2,1],center=true);
@@ -600,7 +627,7 @@ module y_endcap() {
       // mount to extrusion
       translate([x*10,y_motor_endcap_thickness,0]) {
         rotate([-90,0,0]) {
-          hole(5+tolerance/2,50,16);
+          hole(5+tolerance,50,16);
 
           translate([0,0,m5_bolt_head_height/2]) {
             % hole(m5_bolt_head_diam+tolerance,m5_bolt_head_height,resolution);
@@ -626,9 +653,9 @@ module y_endcap() {
       translate([0,0,0]) {
         hull() {
           translate([0,0,-0.1]) {
-            hole(nema14_shoulder_diam+(nema14_shoulder_height+1)*2,0.2,resolution);
+            hole(nema17_shoulder_diam+(nema17_shoulder_height+1)*2,0.2,resolution);
           }
-          hole(nema14_shoulder_diam+1,motor_shoulder_room*2,resolution);
+          hole(nema17_shoulder_diam+1,motor_shoulder_room*2,resolution);
         }
       }
       hull() {
@@ -641,7 +668,7 @@ module y_endcap() {
       }
       // screw holes
       for(x=[left,right],y=[front,rear]) {
-        translate([x*(nema14_hole_spacing/2),y*(nema14_hole_spacing/2),motor_mount_thickness+2]) {
+        translate([x*(nema17_hole_spacing/2),y*(nema17_hole_spacing/2),motor_mount_thickness+2]) {
           hole(3.2,100,16);
           % hole(m3_nut_max_diam,4,16);
         }
@@ -656,11 +683,11 @@ module y_endcap() {
     /*
     translate([y_relative_y_motor_pos_x,y_relative_y_motor_pos_y,y_relative_y_motor_pos_z]) {
       rotate([0,90,0]) {
-        hole(nema14_shoulder_diam+2,20,resolution);
+        hole(nema17_shoulder_diam+2,20,resolution);
       }
 
       for(z=[top,bottom]) {
-        translate([0,nema14_hole_spacing/2,z*nema14_hole_spacing/2]) {
+        translate([0,nema17_hole_spacing/2,z*nema17_hole_spacing/2]) {
           rotate([0,90,0]) {
             hole(m3_diam+tolerance,20,16);
           }
@@ -749,7 +776,7 @@ module y_endcap_with_idler() {
       // mount to extrusion
       for(x=[left,right]) {
         translate([x*extrusion_width/4,0,0]) {
-          accurate_circle(5,resolution);
+          accurate_circle(5+tolerance,resolution);
         }
       }
 
@@ -1202,7 +1229,7 @@ translate([0*29,0,sketch_y_rail_pos_z]) {
     }
 
     translate([0,y_rail_len/2,0]) {
-      y_endcap();
+      y_endcap_with_motor();
     }
 
     translate([0,-y_rail_len/2,0]) {
