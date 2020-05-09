@@ -58,9 +58,11 @@ module round_corner_filler(diam,length) {
 }
 
 module round_corner_filler_profile(diam,res=resolution) {
+  extra = 0.1;
+  main = diam/2+extra;
   difference() {
-    translate([diam/4,diam/4,0]) {
-      square([diam/2,diam/2],center=true);
+    translate([diam/4-extra,diam/4-extra,0]) {
+      square([main,main],center=true);
     }
     translate([diam/2,diam/2,0]) {
       accurate_circle(diam,res);

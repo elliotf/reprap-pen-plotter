@@ -10,12 +10,9 @@ use <base-plate.scad>;
 use <misc.scad>;
 
 // TODO
-// make X endstop static
-// move Y endstop to XY carriage (off of X carriage)
-//   include trigger flag on z axis mount
-// make X motor static
-// make it so that Y belt can be flipped
-//   Y- side should have teeth pointing up
+// cable chain mounts for Y
+// cable chain mounts for X
+// tensioning for pen/Y carriage?
 
 // base_plate_for_display();
 resolution = 64;
@@ -167,9 +164,9 @@ module x_min_endcap() {
   overall_width = nema17_side + plate_thickness;
   overall_depth = x_motor_offset_y + extrusion_width/2;
 
-  endstop_mount_hole_diam = mech_endstop_tiny_mounting_hole_diam+0.2;
+  endstop_mount_hole_diam = mech_endstop_tiny_mounting_hole_diam-0.2;
   endstop_mount_height = 10;
-  endstop_mount_width = endstop_mount_hole_diam+wall_thickness*4;
+  endstop_mount_width = mech_endstop_tiny_mounting_hole_from_top*2-2.5;
   endstop_mount_depth = mech_endstop_tiny_length+4;
 
   module position_main_block() {
@@ -179,7 +176,7 @@ module x_min_endcap() {
   }
 
   module position_endstop() {
-    translate([mech_endstop_tiny_height,extrusion_width/2+mech_endstop_tiny_length/2-3,x_motor_offset_z+nema17_side/2+mech_endstop_tiny_width/2]) {
+    translate([1.25,extrusion_width/2-endstop_mount_depth/2,x_motor_offset_z+nema17_side/2+mech_endstop_tiny_width/2+endstop_mount_height/2]) {
       rotate([0,90,0]) {
         rotate([0,0,0]) {
           children();
@@ -211,10 +208,14 @@ module x_min_endcap() {
       position_endstop() {
         translate([mech_endstop_tiny_width/2+endstop_mount_height/2,0,-mech_endstop_tiny_mounting_hole_from_top]) {
           cube([endstop_mount_height,endstop_mount_depth,endstop_mount_width],center=true);
+        }
+      }
 
-          translate([0,-endstop_mount_depth/2,-endstop_mount_width/2+0.1]) {
-            rotate([90,0,0]) {
-              cube([endstop_mount_height,0.2,endstop_mount_width*2],center=true);
+      position_main_block() {
+        translate([0,0,overall_height/2-1]) {
+          rotate([0,0,-41.25]) {
+            translate([0,-2,0]) {
+              # cube([30,0.1,2],center=true);
             }
           }
         }
@@ -237,7 +238,7 @@ module x_min_endcap() {
       for(y=[front,rear]) {
         translate([0,y*mech_endstop_mounting_hole_spacing_y/2,-mech_endstop_tiny_mounting_hole_from_top]) {
           rotate([0,90,0]) {
-            hole(endstop_mount_hole_diam,50,8);
+            hole(endstop_mount_hole_diam,20,8);
           }
         }
       }
@@ -264,14 +265,11 @@ module x_min_endcap() {
 
     // cut away the when-printing peak
     position_main_block() {
-      round_amount = 2;
-      translate([overall_width/2,overall_depth/2,-endstop_mount_height]) {
-        linear_extrude(height=overall_height,center=true) {
-          difference() {
-            square([round_amount,round_amount],center=true);
-            translate([-round_amount/2,-round_amount/2,0]) {
-              accurate_circle(round_amount,32);
-            }
+      round_amount = 3;
+      translate([overall_width/2,overall_depth/2,0]) {
+        linear_extrude(height=overall_height*2,center=true) {
+          rotate([0,0,180]) {
+            round_corner_filler_profile(round_amount);
           }
         }
       }
@@ -456,7 +454,7 @@ module belt_idler_bearings() {
 }
 
 module y_endcap_with_motor() {
-  height = 20 + nema17_side;
+  rounded_diam = 3;
 
   m3_hole_diam = m3_diam;
   m3_hole_body_diam = m3_hole_diam + wall_thickness*4;
@@ -495,6 +493,13 @@ module y_endcap_with_motor() {
   position_motor() {
     % motor_nema17();
   }
+
+  x_belt_pos_y = -y_rail_motor_endcap_offset-extrusion_width/2+x_belt_offset_y;
+  x_belt_min_pos_x = -extrusion_width/2-belt_thickness-belt_tooth_diam/2;
+  x_belt_max_pos_x = extrusion_width/2+belt_thickness;
+
+  x_belt_relative_pos_z = bottom*(extrusion_height + sketch_space_between_rails - x_belt_pos_z + extrusion_height/2);
+  belt_access_hole_height = x_pulley_diam+3;
 
   module position_motor() {
     translate([y_motor_pos_x,y_motor_pos_y,y_motor_pos_z]) {
@@ -598,9 +603,9 @@ module y_endcap_with_motor() {
     }
     for(z=[top]) {
       brace_thickness = 1.2;
-      brace_length = 18;
+      brace_length = 19;
       brace_width = 11.5;
-      brace_angle_height = 14;
+      brace_angle_height = 13;
       translate([y_motor_pos_x-motor_mount_thickness,y_motor_endcap_thickness,y_motor_pos_z-(shaft_to_screw-m3_nut_max_diam/2-brace_thickness/2-0.2)]) {
         hull() {
           translate([1,brace_length/2,0]) {
@@ -611,6 +616,94 @@ module y_endcap_with_motor() {
           }
           translate([1,-1,z*brace_angle_height]) {
             cube([2,2,1],center=true);
+          }
+        }
+      }
+    }
+
+    x_belt_greater_anchor_height = body_top_pos_z - x_belt_relative_pos_z - belt_thickness;
+    x_belt_lesser_anchor_height = body_top_pos_z - y_motor_pos_z - belt_access_hole_height/2;
+
+    // x belt anchor (max)
+    translate([0,0,0]) {
+      //height = body_top_pos_z + extrusion_height + sketch_space_between_rails - x_belt_pos_z + extrusion_height/2 - belt_thickness;
+      width = y_motor_pos_x-extrusion_width/2-tolerance;
+      translate([0,0,body_top_pos_z]) {
+        translate([0,0,-x_belt_greater_anchor_height/2]) {
+          linear_extrude(height=x_belt_greater_anchor_height,center=true,convexity=3) {
+            hull() {
+              translate([y_motor_pos_x-width/2,0,0]) {
+                rounded_square(width,rounded_diam*2,rounded_diam,resolution);
+
+                translate([0,x_belt_pos_y,0]) {
+                  rounded_square(width,belt_width+rounded_diam,rounded_diam,resolution);
+                }
+              }
+            }
+          }
+        }
+        anchor_width = width+6;
+        translate([y_motor_pos_x-anchor_width/2,0,-x_belt_lesser_anchor_height/2]) {
+          translate([-anchor_width/2,0,0]) {
+            rotate([0,0,180]) {
+              round_corner_filler(rounded_diam,x_belt_lesser_anchor_height);
+            }
+          }
+          hull() {
+            for(y=[x_belt_pos_y,0]) {
+              translate([0,y,0]) {
+                rounded_cube(anchor_width,belt_width+rounded_diam,x_belt_lesser_anchor_height,rounded_diam,resolution);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // x belt anchor (min)
+    difference() {
+      union() {
+        lesser_height = x_belt_greater_anchor_height-extrusion_height/2-sketch_space_between_rails-1.5;
+        width = y_motor_endcap_thickness-tolerance-belt_thickness-belt_tooth_diam;
+        anchor_width = width + 7;
+        translate([0,0,body_top_pos_z]) {
+          translate([0,0,-x_belt_greater_anchor_height/2]) {
+            linear_extrude(height=x_belt_greater_anchor_height,center=true,convexity=3) {
+              hull() {
+                translate([-wheel_spacing/2,y_motor_endcap_thickness/2,0]) {
+                  accurate_circle(y_motor_endcap_thickness,resolution);
+                }
+                translate([-wheel_spacing/2-y_motor_endcap_thickness/2+width/2,x_belt_pos_y,0]) {
+                  rounded_square(width,belt_width+rounded_diam,rounded_diam,resolution);
+                }
+              }
+              translate([-wheel_spacing/2-y_motor_endcap_thickness/2,0,0]) {
+                translate([anchor_width,0,0]) {
+                  rotate([0,0,-90]) {
+                    round_corner_filler_profile(rounded_diam);
+                  }
+                }
+                hull() {
+                  for(y=[x_belt_pos_y,0]) {
+                    translate([anchor_width/2,y,0]) {
+                      rounded_square(anchor_width,belt_width+rounded_diam,rounded_diam,resolution);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // clearance for extrusion on min-side
+      translate([0,-19,0]) {
+        hull() {
+          translate([-extrusion_width/4,0,0]) {
+            cube([extrusion_width/2,40,extrusion_height+tolerance*2],center=true);
+          }
+          translate([x_belt_min_pos_x,0,0]) {
+            cube([belt_thickness_cavity+tolerance,40,extrusion_height+tolerance*2],center=true);
           }
         }
       }
@@ -640,11 +733,11 @@ module y_endcap_with_motor() {
     }
 
     
-    // belt access
+    // Y belt access
     translate([extrusion_width/4,0,y_motor_pos_z]) {
       rotate([90,0,0]) {
         //  rounded_cube();
-        rounded_cube(belt_hole_opening_width,x_pulley_diam+3,30,3,resolution);
+        rounded_cube(belt_hole_opening_width,belt_access_hole_height,30,3,resolution);
       }
     }
 
@@ -669,32 +762,28 @@ module y_endcap_with_motor() {
       // screw holes
       for(x=[left,right],y=[front,rear]) {
         translate([x*(nema17_hole_spacing/2),y*(nema17_hole_spacing/2),motor_mount_thickness+2]) {
-          hole(3.2,100,16);
-          % hole(m3_nut_max_diam,4,16);
-        }
-      }
-    }
-    /*
-    translate([y_motor_pos_x,y_motor_pos_y,y_motor_pos_z]) {
-
-      }
-    }
-    */
-    /*
-    translate([y_relative_y_motor_pos_x,y_relative_y_motor_pos_y,y_relative_y_motor_pos_z]) {
-      rotate([0,90,0]) {
-        hole(nema17_shoulder_diam+2,20,resolution);
-      }
-
-      for(z=[top,bottom]) {
-        translate([0,nema17_hole_spacing/2,z*nema17_hole_spacing/2]) {
-          rotate([0,90,0]) {
-            hole(m3_diam+tolerance,20,16);
+          hole(3.2,motor_mount_thickness*4,16);
+          translate([0,0,10]) {
+            hole(m3_nut_max_diam+tolerance,4+20,16);
           }
         }
       }
     }
-    */
+
+    // X min-side belt anchor
+    for(x=[x_belt_min_pos_x,x_belt_max_pos_x]) {
+      translate([x,x_belt_pos_y,0]) {
+        rotate([90,0,0]) {
+          belt_teeth(50);
+        }
+        translate([0,-belt_width,0]) {
+          hull() {
+            cube([belt_thickness,belt_width,100],center=true);
+            cube([belt_width,0.1,100],center=true);
+          }
+        }
+      }
+    }
   }
 
   difference() {
