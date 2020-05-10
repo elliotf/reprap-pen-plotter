@@ -958,234 +958,6 @@ module y_endcap_with_idler() {
   }
 }
 
-module old_y_carriage() {
-  //wall_thickness = 0.8;
-  rounded_diam = wall_thickness*2;
-
-  preload = -0.3; // negative makes more slack both for print and UHMWPE tape
-
-  contact_width = 5;
-  gap_between_contact = (extrusion_width/2-contact_width*2);
-
-  outer_rounded_diam = rounded_diam+wall_thickness*4;
-
-  solid_side_overhead = rounded_diam;
-  spring_arm_thickness = extrude_width*4;
-  spring_arm_spacing = 2;
-  spring_side_overhead = -preload + spring_arm_thickness + spring_arm_spacing;
-
-  cavity_width   = extrusion_width +solid_side_overhead+spring_side_overhead-rounded_diam/2;
-  cavity_height  = extrusion_height+solid_side_overhead+spring_side_overhead-rounded_diam/2;
-
-  spring_cavity_x=extrusion_width/2+spring_side_overhead-rounded_diam/2;
-  spring_cavity_y=extrusion_height/2+spring_side_overhead-rounded_diam/2;
-  solid_cavity_x=extrusion_width/2+rounded_diam/2;
-  solid_cavity_y=extrusion_height/2+rounded_diam/2;
-
-  outer_pos_x = x_carriage_overall_depth/2-outer_rounded_diam/2;
-
-  belt_retainer_width = belt_width+2+wall_thickness*2;
-  belt_retainer_height = belt_thickness_cavity + belt_tooth_diam + wall_thickness*4;
-
-  module spring_profile() {
-    spring_contact = 4;
-    dist_between_spring_ends = 0.4;
-    square([spring_arm_thickness,rounded_diam-spring_arm_spacing],center=true);
-    for(x=[left,right]) {
-      translate([0,spring_side_overhead-spring_arm_thickness/2+preload,0]) {
-        translate([x*(extrusion_width/4-spring_contact/2-dist_between_spring_ends/2),0,0]) {
-          rounded_square(spring_contact,spring_arm_thickness,spring_arm_thickness);
-        }
-
-        hull() {
-          translate([0,-spring_arm_spacing,0]) {
-            accurate_circle(spring_arm_thickness,resolution);
-          }
-          translate([x*(extrusion_width/4+spring_arm_thickness/2-spring_contact-dist_between_spring_ends/2),0,0]) {
-            accurate_circle(spring_arm_thickness,resolution);
-          }
-        }
-      }
-    }
-  }
-
-  module body_profile() {
-    outer_coords = [
-      [-spring_cavity_x,solid_cavity_y,0],
-      [-spring_cavity_x,-spring_cavity_y,0],
-      [outer_pos_x,solid_cavity_y,0],
-      [outer_pos_x,-spring_cavity_y,0],
-    ];
-
-    cavity_coords = [
-      [-spring_cavity_x,solid_cavity_y-rounded_diam/2,0],
-      [-spring_cavity_x,-spring_cavity_y,0],
-      [solid_cavity_x-rounded_diam/2,solid_cavity_y-rounded_diam/2,0],
-      [solid_cavity_x-rounded_diam/2,-spring_cavity_y,0],
-    ];
-    module body() {
-      difference() {
-        hull() {
-          for(coord=outer_coords) {
-            translate(coord) { accurate_circle(outer_rounded_diam,resolution); }
-          }
-        }
-        hull() {
-          for(coord=cavity_coords) {
-            translate(coord) { accurate_circle(rounded_diam,resolution); }
-          }
-        }
-        hull() {
-          for(coord=[
-            [-spring_cavity_x,-spring_cavity_y,0],
-            [solid_cavity_x,-spring_cavity_y,0],
-            [solid_cavity_x,-solid_cavity_y,0],
-          ]) {
-            translate(coord) { accurate_circle(rounded_diam,resolution); }
-          }
-        }
-        hull() {
-          for(coord=[
-            [-spring_cavity_x,solid_cavity_y,0],
-            [-solid_cavity_x,solid_cavity_y,0],
-            [-spring_cavity_x,-spring_cavity_y,0],
-          ]) {
-            translate(coord) { accurate_circle(rounded_diam,resolution); }
-          }
-        }
-      }
-
-      // belt attachment
-      hull() {
-        translate([y_belt_offset_x-belt_width/2-1+belt_retainer_width/2,0,0]) {
-          translate([0,y_belt_offset_z,0]) {
-            rounded_square(belt_retainer_width,belt_retainer_height,wall_thickness*2);
-          }
-          translate([0,solid_cavity_y+outer_rounded_diam/2,0]) {
-            square([belt_retainer_width,1],center=true);
-          }
-        }
-      }
-
-      // top rail gliders
-      translate([0,extrusion_height/2+rounded_diam/2,0]) {
-        rounded_square(contact_width*2,rounded_diam,rounded_diam);
-
-        for(x=[left,right]) {
-          translate([x*(20-contact_width/2),0,0]) {
-            rounded_square(contact_width,rounded_diam,rounded_diam);
-          }
-        }
-      }
-
-      // front rail gliders
-      hull() {
-        for(y=[front,rear]) {
-          translate([extrusion_width/2+rounded_diam/2,y*(extrusion_height/2-contact_width/2),0]) {
-            rounded_square(rounded_diam,contact_width,rounded_diam);
-          }
-        }
-      }
-
-      for(x=[left,right]) {
-        translate([x*extrusion_width/4,-extrusion_height/2-spring_side_overhead,0]) {
-          spring_profile();
-        }
-      }
-
-      translate([-extrusion_width/2-spring_side_overhead,0,0]) {
-        rotate([0,0,-90]) {
-          spring_profile();
-        }
-      }
-    }
-
-    module holes() {
-      for(x=[left,right]) {
-        translate([0,extrusion_height/2+rounded_diam/2,0]) {
-          // top outer gaps
-          translate([x*(extrusion_width/2+rounded_diam/2),0,0]) {
-            accurate_circle(rounded_diam,resolution);
-          }
-          // top inner gaps
-          translate([x*(contact_width+gap_between_contact/2),0,0]) {
-            rounded_square(gap_between_contact,rounded_diam,rounded_diam);
-          }
-        }
-      }
-
-      translate([y_belt_offset_x,y_belt_offset_z,0]) {
-        square([belt_width+2,belt_thickness],center=true);
-        translate([-belt_width,0,0]) {
-          hull() {
-            square([belt_width,belt_thickness],center=true);
-            square([0.1,belt_width],center=true);
-          }
-        }
-      }
-    }
-
-    difference() {
-      body();
-      holes();
-    }
-  }
-
-  module body() {
-    rotate([90,0,0]) {
-      linear_extrude(height=x_carriage_width,center=true,convexity=3) {
-        body_profile();
-      }
-    }
-  }
-
-  module holes() {
-    // z carriage mounting
-    for(y=[front,rear]) {
-      translate([x_carriage_overall_depth/2,y*z_carriage_carrier_hole_spacing_x/2,0]) {
-        rotate([0,90,0]) {
-          hole(m3_threaded_insert_diam,printed_carriage_wall_thickness*4,resolution);
-        }
-      }
-    }
-
-    // belt teeth
-    translate([y_belt_offset_x,0,y_belt_offset_z]) {
-      translate([0,-x_carriage_width/2,0]) {
-        rotate([0,-90,0]) {
-          belt_teeth(x_carriage_width/2);
-        }
-      }
-      translate([0,x_carriage_width/2,0]) {
-        rotate([0,90,0]) {
-          belt_teeth(x_carriage_width/2,bottom);
-        }
-      }
-    }
-
-    // make room for stepper
-    translate([0,z_stepper_pos_x,z_stepper_dist_from_x_rail_z]) {
-      rotate([0,90,0]) {
-        hole(round_nema14_body_diam+1,50,resolution);
-      }
-    }
-    translate([y_belt_offset_x-belt_width/2,z_stepper_pos_x,y_belt_offset_z+20]) {
-      cut_width = 17;
-      hull() {
-        cube([(belt_width+1)*2,cut_width,40],center=true);
-        translate([-belt_width/2,(belt_width+1)/2,0]) {
-          cube([0.1,cut_width+(belt_width+1),40],center=true);
-        }
-      }
-    }
-  }
-
-  difference() {
-    body();
-    holes();
-  }
-}
-
 module y_carriage() {
   //wall_thickness = 0.8;
   rounded_diam = wall_thickness*2;
@@ -1193,6 +965,7 @@ module y_carriage() {
   preload = -0.3; // negative makes more slack both for print and UHMWPE tape
 
   contact_width = 5;
+  contact_depth = 12;
   gap_between_contact = (extrusion_width/2-contact_width*2);
 
   outer_rounded_diam = rounded_diam+wall_thickness*4;
@@ -1216,42 +989,53 @@ module y_carriage() {
   belt_retainer_height = belt_thickness_cavity + belt_tooth_diam + wall_thickness*4;
 
   module spring_profile() {
-    spring_contact = 5;
     translate([-extrusion_height/2,0,0]) {
       square([spring_arm_thickness,rounded_diam-spring_arm_spacing/2],center=true);
     }
     translate([0,spring_side_overhead-spring_arm_thickness/2+preload,0]) {
-      translate([extrusion_width/4-spring_contact/2,0,0]) {
-        # rounded_square(spring_contact,spring_arm_thickness,spring_arm_thickness);
+      translate([extrusion_width/4-contact_width/2,0,0]) {
+        # rounded_square(contact_width,spring_arm_thickness,spring_arm_thickness);
       }
 
       hull() {
         translate([-extrusion_height/2,-spring_arm_spacing,0]) {
           # accurate_circle(spring_arm_thickness,resolution);
         }
-        translate([extrusion_height/2+spring_arm_thickness/2-spring_contact,0,0]) {
+        translate([extrusion_height/2+spring_arm_thickness/2-contact_width,0,0]) {
           accurate_circle(spring_arm_thickness,resolution);
         }
       }
     }
-    /*
-    % for(x=[left,right]) {
-      translate([0,spring_side_overhead-spring_arm_thickness/2+preload,0]) {
-        translate([x*(extrusion_width/4-spring_contact/2-dist_between_spring_ends/2),0,0]) {
-          rounded_square(spring_contact,spring_arm_thickness,spring_arm_thickness);
-        }
+  }
 
-        hull() {
-          translate([0,-spring_arm_spacing,0]) {
-            accurate_circle(spring_arm_thickness,resolution);
-          }
-          translate([x*(extrusion_width/4+spring_arm_thickness/2-spring_contact-dist_between_spring_ends/2),0,0]) {
-            accurate_circle(spring_arm_thickness,resolution);
-          }
+  module spring_arm() {
+    hull() {
+      translate([-extrusion_width/4,0,-x_carriage_width/4-1]) {
+        cube([spring_arm_thickness,rounded_diam-spring_arm_spacing/2,x_carriage_width/2+2],center=true);
+
+        translate([0,spring_side_overhead-spring_arm_spacing-spring_arm_thickness/2+preload,0]) {
+          hole(spring_arm_thickness,x_carriage_width/2+2,resolution);
         }
       }
     }
-    */
+    translate([0,spring_side_overhead-spring_arm_thickness/2+preload]) {
+      hull() {
+        translate([extrusion_width/4-spring_arm_thickness/2,0,-contact_depth/2]) {
+          hole(spring_arm_thickness,contact_depth,resolution);
+        }
+        translate([extrusion_width/4-contact_width+spring_arm_thickness/2,0,-contact_depth/2-contact_width/4]) {
+          hole(spring_arm_thickness,contact_depth+contact_width/2,resolution);
+        }
+      }
+      hull() {
+        translate([extrusion_width/4-contact_width+spring_arm_thickness/2,0,-contact_depth/2-contact_width/4]) {
+          hole(spring_arm_thickness,contact_depth+contact_width/2,resolution);
+        }
+        translate([-extrusion_width/4,-spring_arm_spacing,-contact_depth/2-contact_width/2-extrusion_width/8]) {
+          hole(spring_arm_thickness,contact_depth+contact_width+extrusion_width/4,resolution);
+        }
+      }
+    }
   }
 
   module solid_glider(width=contact_width,depth=10) {
@@ -1322,16 +1106,10 @@ module y_carriage() {
       [solid_cavity_x,-spring_cavity_y,0],
     ];
     module body() {
-      difference() {
-        hull() {
-          for(coord=outer_coords) {
-            translate(coord) { accurate_circle(outer_rounded_diam,resolution); }
-          }
-        }
-        hull() {
-          for(coord=cavity_coords) {
-            translate(coord) { accurate_circle(rounded_diam,resolution); }
-          }
+      // main body
+      hull() {
+        for(coord=outer_coords) {
+          translate(coord) { accurate_circle(outer_rounded_diam,resolution); }
         }
       }
 
@@ -1346,58 +1124,17 @@ module y_carriage() {
           }
         }
       }
-
-/*
-      // top rail gliders
-      % translate([0,extrusion_height/2+rounded_diam/2,0]) {
-        rounded_square(contact_width*2,rounded_diam,rounded_diam);
-
-        for(x=[left,right]) {
-          translate([x*(20-contact_width/2),0,0]) {
-            rounded_square(contact_width,rounded_diam,rounded_diam);
-          }
-        }
-      }
-
-      // front rail gliders
-      % hull() {
-        for(y=[front,rear]) {
-          translate([extrusion_width/2+rounded_diam/2,y*(extrusion_height/2-contact_width/2),0]) {
-            rounded_square(rounded_diam,contact_width,rounded_diam);
-          }
-        }
-      }
-      */
-
-      for(x=[left,right]) {
-        mirror([1-x,0,0]) {
-          translate([extrusion_height/2,-extrusion_height/2-spring_side_overhead,0]) {
-            spring_profile();
-          }
-        }
-      }
-
-      translate([-extrusion_width/2-spring_side_overhead,0,0]) {
-        rotate([0,0,-90]) {
-          spring_profile();
-        }
-      }
     }
 
     module holes() {
-      for(x=[left,right]) {
-        translate([0,extrusion_height/2+rounded_diam/2,0]) {
-          // top outer gaps
-          translate([x*(extrusion_width/2+rounded_diam/2),0,0]) {
-            accurate_circle(rounded_diam,resolution);
-          }
-          // top inner gaps
-          translate([x*(contact_width+gap_between_contact/2),0,0]) {
-            rounded_square(gap_between_contact,rounded_diam,rounded_diam);
-          }
+      // main cavity
+      hull() {
+        for(coord=cavity_coords) {
+          translate(coord) { accurate_circle(rounded_diam,resolution); }
         }
       }
 
+      // belt opening
       translate([y_belt_offset_x,y_belt_offset_z,0]) {
         square([belt_width+2,belt_thickness],center=true);
         translate([-belt_width,0,0]) {
@@ -1423,7 +1160,6 @@ module y_carriage() {
     }
 
     for(y=[front,rear]) {
-      contact_depth = 12;
       mirror([0,y-1,0]) {
         translate([0,x_carriage_width/2-contact_depth/2,0]) {
           // front rail gliders
@@ -1441,6 +1177,26 @@ module y_carriage() {
               translate([x*(extrusion_width/2-contact_width/2),0,0]) {
                 solid_glider(contact_width,contact_depth);
               }
+            }
+          }
+        }
+      }
+
+      mirror([0,y+1,0]) {
+        for(x=[left,right]) {
+          mirror([x-1,0,0]) {
+            translate([extrusion_width/4,-x_carriage_width/2,-extrusion_height/2-spring_side_overhead]) {
+              rotate([90,0,0]) {
+                spring_arm();
+              }
+            }
+          }
+        }
+
+        translate([-extrusion_width/2-spring_side_overhead,-x_carriage_width/2,0]) {
+          rotate([0,90,0]) {
+            rotate([90,0,0]) {
+              spring_arm();
             }
           }
         }
