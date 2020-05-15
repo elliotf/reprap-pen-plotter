@@ -53,7 +53,7 @@ x_belt_idler_id = mr105_bearing_id;
 x_belt_idler_thickness = mr105_bearing_thickness*2;
 
 belt_thickness = 0.63;
-extra_belt_thickness_room = 0.15;
+extra_belt_thickness_room = 0.0;
 belt_thickness_cavity = 1.15;
 belt_tooth_diam  = 1.4;
 
@@ -276,9 +276,9 @@ module x_min_endcap() {
     translate([0,wheeled_sidemount_rear_bolt_pos_y,extrusion_height+sketch_space_between_rails]) {
       hull() {
         for(y=[front,rear]) {
-          translate([0,-extrusion_width/2+y*2,0]) {
+          translate([0,-extrusion_width/2+y,0]) {
             rotate([0,90,0]) {
-              hole(m5_bolt_head_diam+2,30,8);
+              hole(m5_bolt_head_diam+1,30,8);
             }
           }
         }
@@ -478,30 +478,22 @@ module y_endcap_with_motor() {
 
   non_shaft_side_screw_head_pos_z = x_motor_pos_z + thread_into_motor + 1 + non_shaft_side_screw_length;
 
-  motor_shoulder_room = nema17_shoulder_height+0.1;
+  motor_shoulder_room = nema14_shoulder_height+0.1;
   motor_mount_thickness = motor_shoulder_room+wall_thickness*2;
 
   belt_hole_opening_width = belt_width+2;
 
-  //pulley_opening_diam = x_pulley_diam + 3; // too small
   pulley_opening_diam = 15;
 
-  motor_angle = 45;
-  shaft_to_screw = sqrt(pow(nema17_hole_spacing,2)/2);
-
-  //y_motor_pos_x = y_belt_offset_x+belt_hole_opening_width/2+motor_mount_thickness;
-  //y_motor_pos_x = y_belt_offset_x+m5_bolt_head_diam/2+tolerance*2+motor_mount_thickness;
-  //y_motor_pos_x = extrusion_width/2+motor_mount_thickness+0.1;
-  y_motor_pos_x = wheel_spacing/2+y_motor_endcap_thickness/2;
-  //y_motor_pos_y = y_motor_endcap_thickness+5;
-  y_motor_pos_y = -m3_nut_max_diam/2-0.5+shaft_to_screw;
+  y_motor_pos_x = y_belt_offset_x + m5_bolt_head_diam +  motor_mount_thickness;
+  y_motor_pos_y = y_motor_endcap_thickness+nema14_side/2+1;
   y_motor_pos_z = y_belt_offset_z - x_pulley_diam/2;
 
-  //body_top_pos_z = y_motor_pos_z+nema17_side/2+6;
-  body_top_pos_z = y_motor_pos_z+shaft_to_screw+(nema17_side/2-nema17_hole_spacing/2);
+  //body_top_pos_z = y_motor_pos_z+nema14_side/2+6;
+  body_top_pos_z = y_motor_pos_z+nema14_side/2 + motor_mount_thickness;
 
   position_motor() {
-    % motor_nema17();
+    % motor_nema14();
   }
 
   x_belt_pos_y = -y_rail_motor_endcap_offset-extrusion_width/2+x_belt_offset_y;
@@ -514,9 +506,7 @@ module y_endcap_with_motor() {
   module position_motor() {
     translate([y_motor_pos_x,y_motor_pos_y,y_motor_pos_z]) {
       rotate([0,-90,0]) {
-        rotate([0,0,motor_angle]) {
-          children();
-        }
+        children();
       }
     }
   }
@@ -571,61 +561,24 @@ module y_endcap_with_motor() {
     }
 
     // motor mount plate
+    motor_mount_plate_height = body_top_pos_z - y_motor_pos_z + nema14_side/2;
+    translate([y_motor_pos_x-motor_mount_thickness/2,y_motor_pos_y-y_motor_endcap_thickness/2,body_top_pos_z-motor_mount_plate_height/2]) {
+      rounded_cube(motor_mount_thickness,nema14_side+y_motor_endcap_thickness,motor_mount_plate_height,motor_mount_thickness/2);
+    }
+    translate([y_motor_pos_x-motor_mount_thickness,y_motor_endcap_thickness,y_motor_pos_z]) {
+      rotate([0,0,90]) {
+        round_corner_filler(3,nema14_side);
+      }
+    }
+    // motor mount plate reinforcement
     hull() {
-      top_joiner_length = 21.8;
-      for(z=[top,bottom]) {
-        translate([y_motor_pos_x-motor_mount_thickness/2,1,y_motor_pos_z+z*(shaft_to_screw)]) {
-          rounded_cube(motor_mount_thickness,2,nema17_side-nema17_hole_spacing,2);
-        }
-      }
-      position_motor() {
-        for(x=[left,right],y=[front,rear]) {
-          translate([x*(nema17_hole_spacing/2),y*(nema17_hole_spacing/2),motor_mount_thickness/2]) {
-            rotate([0,0,-motor_angle]) {
-              rotate([0,90,0]) {
-                rounded_cube(motor_mount_thickness,nema17_side-nema17_hole_spacing,6,2);
-                rounded_cube(motor_mount_thickness,6,nema17_side-nema17_hole_spacing,2);
-              }
-            }
+      translate([0,0,body_top_pos_z-motor_mount_thickness/2]) {
+        linear_extrude(height=motor_mount_thickness,center=true,convexity=3) {
+          translate([y_motor_pos_x-motor_mount_thickness/2,y_motor_pos_y-y_motor_endcap_thickness/2,0]) {
+            rounded_square(motor_mount_thickness,nema14_side+y_motor_endcap_thickness,motor_mount_thickness/2);
           }
-        }
-      }
-    }
-
-    // brace between motor plate and main plate to resist belt tension
-    for(z=[top]) {
-      brace_thickness = 1.2;
-      brace_length = 22;
-      brace_angle_height = 15;
-      translate([y_motor_pos_x-motor_mount_thickness,y_motor_endcap_thickness,y_motor_pos_z+z*(pulley_opening_diam/2+brace_thickness/2+0.2)]) {
-        hull() {
-          translate([1,brace_length/2,0]) {
-            cube([2,brace_length,brace_thickness],center=true);
-          }
-          translate([-brace_length/2,-1,0]) {
-            cube([brace_length,2,brace_thickness],center=true);
-          }
-          translate([1,-1,z*brace_angle_height]) {
-            cube([2,2,1],center=true);
-          }
-        }
-      }
-    }
-    for(z=[top]) {
-      brace_thickness = 1.2;
-      brace_length = 19;
-      brace_width = 11.5;
-      brace_angle_height = 13;
-      translate([y_motor_pos_x-motor_mount_thickness,y_motor_endcap_thickness,y_motor_pos_z-(shaft_to_screw-m3_nut_max_diam/2-brace_thickness/2-0.2)]) {
-        hull() {
-          translate([1,brace_length/2,0]) {
-            cube([2,brace_length,brace_thickness],center=true);
-          }
-          translate([-brace_width/2,-1,0]) {
-            cube([brace_width,2,brace_thickness],center=true);
-          }
-          translate([1,-1,z*brace_angle_height]) {
-            cube([2,2,1],center=true);
+          translate([-wheel_spacing/2,y_motor_endcap_thickness/2,0]) {
+            accurate_circle(y_motor_endcap_thickness,resolution);
           }
         }
       }
@@ -634,95 +587,63 @@ module y_endcap_with_motor() {
     x_belt_greater_anchor_height = body_top_pos_z - x_belt_relative_pos_z - belt_thickness;
     x_belt_lesser_anchor_height = body_top_pos_z - y_motor_pos_z - belt_access_hole_height/2;
 
-    // x belt anchor (max)
-    translate([0,0,0]) {
-      //height = body_top_pos_z + extrusion_height + sketch_space_between_rails - x_belt_pos_z + extrusion_height/2 - belt_thickness;
-      width = y_motor_pos_x-extrusion_width/2-tolerance;
-      translate([0,0,body_top_pos_z]) {
-        translate([0,0,-x_belt_greater_anchor_height/2]) {
-          linear_extrude(height=x_belt_greater_anchor_height,center=true,convexity=3) {
-            hull() {
-              translate([y_motor_pos_x-width/2,0,0]) {
-                rounded_square(width,rounded_diam*2,rounded_diam,resolution);
+    // x belt anchor (min/max)
+    for(x=[left,right]) {
+      mirror([-x+1,0,0]) {
+        difference() {
+          lesser_height = x_belt_greater_anchor_height-extrusion_height/2-sketch_space_between_rails-1.5;
+          width = y_motor_endcap_thickness-tolerance-belt_thickness-belt_tooth_diam;
+          anchor_width = width + 7;
 
-                translate([0,x_belt_pos_y,0]) {
-                  rounded_square(width,belt_width+rounded_diam,rounded_diam,resolution);
-                }
-              }
-            }
-          }
-        }
-        anchor_width = width+6;
-        translate([y_motor_pos_x-anchor_width/2,0,-x_belt_lesser_anchor_height/2]) {
-          translate([-anchor_width/2,0,0]) {
-            rotate([0,0,180]) {
-              round_corner_filler(rounded_diam,x_belt_lesser_anchor_height);
-            }
-          }
-          hull() {
-            for(y=[x_belt_pos_y,0]) {
-              translate([0,y,0]) {
-                rounded_cube(anchor_width,belt_width+rounded_diam,x_belt_lesser_anchor_height,rounded_diam,resolution);
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // x belt anchor (min)
-    difference() {
-      lesser_height = x_belt_greater_anchor_height-extrusion_height/2-sketch_space_between_rails-1.5;
-      width = y_motor_endcap_thickness-tolerance-belt_thickness-belt_tooth_diam;
-      anchor_width = width + 7;
-
-      union() {
-        translate([0,0,body_top_pos_z]) {
-          translate([0,0,-x_belt_greater_anchor_height/2]) {
-            linear_extrude(height=x_belt_greater_anchor_height,center=true,convexity=3) {
-              hull() {
-                translate([-wheel_spacing/2,y_motor_endcap_thickness/2,0]) {
-                  accurate_circle(y_motor_endcap_thickness,resolution);
-                }
-                translate([-wheel_spacing/2-y_motor_endcap_thickness/2+width/2,x_belt_pos_y,0]) {
-                  rounded_square(width,belt_width+rounded_diam,rounded_diam,resolution);
-                }
-              }
-              translate([-wheel_spacing/2-y_motor_endcap_thickness/2,0,0]) {
-                translate([anchor_width,0,0]) {
-                  rotate([0,0,-90]) {
-                    round_corner_filler_profile(rounded_diam);
+          union() {
+            translate([0,0,body_top_pos_z]) {
+              translate([0,0,-x_belt_greater_anchor_height/2]) {
+                linear_extrude(height=x_belt_greater_anchor_height,center=true,convexity=3) {
+                  hull() {
+                    translate([-wheel_spacing/2,y_motor_endcap_thickness/2,0]) {
+                      accurate_circle(y_motor_endcap_thickness,resolution);
+                    }
+                    translate([-wheel_spacing/2-y_motor_endcap_thickness/2+width/2,x_belt_pos_y,0]) {
+                      rounded_square(width,belt_width+rounded_diam,rounded_diam,resolution);
+                    }
                   }
-                }
-                hull() {
-                  for(y=[x_belt_pos_y,0]) {
-                    translate([anchor_width/2,y,0]) {
-                      rounded_square(anchor_width,belt_width+rounded_diam,rounded_diam,resolution);
+                  translate([-wheel_spacing/2-y_motor_endcap_thickness/2,0,0]) {
+                    translate([anchor_width,0,0]) {
+                      rotate([0,0,-90]) {
+                        round_corner_filler_profile(rounded_diam);
+                      }
+                    }
+                    hull() {
+                      for(y=[x_belt_pos_y,0]) {
+                        translate([anchor_width/2,y,0]) {
+                          rounded_square(anchor_width,belt_width+rounded_diam,rounded_diam,resolution);
+                        }
+                      }
                     }
                   }
                 }
               }
             }
           }
-        }
-      }
 
-      // clearance for extrusion on min-side
-      translate([0,-19,0]) {
-        hull() {
-          translate([-extrusion_width/4,0,0]) {
-            cube([extrusion_width/2,40,extrusion_height+tolerance*2],center=true);
+          // clearance for extrusion on min-side
+          translate([0,-19,0]) {
+            hull() {
+              translate([-extrusion_width/4,0,0]) {
+                cube([extrusion_width/2,40,extrusion_height+tolerance*2],center=true);
+              }
+              translate([x_belt_min_pos_x,0,0]) {
+                cube([belt_thickness_cavity+tolerance,40,extrusion_height+tolerance*2],center=true);
+              }
+            }
           }
-          translate([x_belt_min_pos_x,0,0]) {
-            cube([belt_thickness_cavity+tolerance,40,extrusion_height+tolerance*2],center=true);
-          }
-        }
-      }
 
-      translate([x_belt_min_pos_x-belt_thickness_cavity/2-0.1,0,body_top_pos_z-x_belt_greater_anchor_height]) {
-        rotate([90,0,0]) {
-          rotate([0,0,90]) {
-            round_corner_filler(width*1.75,40);
+          translate([x_belt_min_pos_x-belt_thickness_cavity/2-0.1,0,body_top_pos_z-x_belt_greater_anchor_height]) {
+            rotate([90,0,0]) {
+              rotate([0,0,90]) {
+                round_corner_filler(width*1.75,40);
+              }
+            }
           }
         }
       }
@@ -765,22 +686,20 @@ module y_endcap_with_motor() {
       translate([0,0,0]) {
         hull() {
           translate([0,0,-0.1]) {
-            hole(nema17_shoulder_diam+(nema17_shoulder_height+1)*2,0.2,resolution);
+            hole(nema14_shoulder_diam+(nema14_shoulder_height+1)*2,0.2,resolution);
           }
-          hole(nema17_shoulder_diam+1,motor_shoulder_room*2,resolution);
+          hole(nema14_shoulder_diam+1,motor_shoulder_room*2,resolution);
         }
       }
       hull() {
-        hole(pulley_opening_diam,nema17_shaft_len,resolution);
-        rotate([0,0,-motor_angle]) {
-          translate([-pulley_opening_diam/2+1,0,0]) {
-            cube([2,pulley_opening_diam/2,nema17_shaft_len],center=true);
-          }
+        hole(pulley_opening_diam,nema14_shaft_len,resolution);
+        translate([-pulley_opening_diam/2+1,0,0]) {
+          cube([2,pulley_opening_diam/2,nema14_shaft_len],center=true);
         }
       }
       // screw holes
       for(x=[left,right],y=[front,rear]) {
-        translate([x*(nema17_hole_spacing/2),y*(nema17_hole_spacing/2),motor_mount_thickness+2]) {
+        translate([x*(nema14_hole_spacing/2),y*(nema14_hole_spacing/2),motor_mount_thickness+2]) {
           hole(3.2,motor_mount_thickness*4,16);
           translate([0,0,10]) {
             hole(m3_nut_max_diam+tolerance,4+20,16);
