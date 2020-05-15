@@ -234,7 +234,7 @@ z_stepper_shaft_flat_offset = round_nema14_shaft_flat_offset;
 z_stepper_shoulder_diam = round_nema14_shoulder_diam;
 z_stepper_shoulder_height = round_nema14_shoulder_height;
 z_stepper_shaft_from_center = round_nema14_shaft_from_center;
-z_stepper_dist_from_x_rail_z = z_carriage_carrier_height/2 + z_stepper_body_diam/2 + 2;
+z_stepper_dist_from_x_rail_z = z_carriage_carrier_height/2 + z_stepper_body_diam/2 + 5;
 z_stepper_extra_meat_for_set_screw = -2; // for long-shaft nema14 stepper
 
 // z_stepper_body_diam = byj_body_diam;
