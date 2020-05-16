@@ -8,6 +8,7 @@ use <z-axis-mount.scad>;
 use <rear-idler-mounts.scad>;
 use <base-plate.scad>;
 use <misc.scad>;
+use <electronics-mount.scad>;
 
 // TODO
 // cable chain mounts for Y
@@ -104,10 +105,10 @@ dragchain_10_20_min_outer_diam = (18+dragchain_10_20_height_outer)*2;
 
 dragchain_10_10_width_outer = 20;
 dragchain_10_10_width_inner = 10;
-dragchain_10_10_height_outer = 18;
+dragchain_10_10_height_outer = 15;
 dragchain_10_10_height_inner = 10;
 dragchain_10_10_anchor_thickness = 3;
-dragchain_10_10_anchor_depth = 17;
+dragchain_10_10_anchor_depth = 29;
 dragchain_10_10_min_outer_diam = (18+dragchain_10_20_height_outer)*2;
 
 module position_dragchain_10_20_anchor_holes() {
@@ -121,6 +122,57 @@ module position_dragchain_10_20_anchor_holes() {
   }
   translate([0,-single_hole_from_end,0]) {
     children();
+  }
+}
+
+module position_dragchain_10_10_anchor_holes() {
+  hole_from_end = [-4,-12];
+
+  for(y=hole_from_end) {
+    translate([0,y,0]) {
+      children();
+    }
+  }
+}
+
+module dragchain_10_10_anchor() {
+  module body() {
+    hull() {
+      translate([0,-1,dragchain_10_10_anchor_thickness/2]) {
+        cube([dragchain_10_10_width_outer,2,dragchain_10_10_anchor_thickness],center=true);
+      }
+      nose_rounded_diam = 5;
+      translate([0,-nose_rounded_diam/2,nose_rounded_diam]) {
+        rotate([0,90,0]) {
+          hole(nose_rounded_diam,dragchain_10_10_width_outer,resolution);
+        }
+      }
+      translate([0,-dragchain_10_10_anchor_depth+dragchain_10_10_height_outer/2,dragchain_10_10_height_outer/2]) {
+        rotate([0,90,0]) {
+          hole(dragchain_10_10_height_outer,dragchain_10_10_width_outer,resolution);
+        }
+      }
+    }
+  }
+
+  module holes() {
+    translate([0,-dragchain_10_10_anchor_depth/2+dragchain_10_10_height_inner-0.5,dragchain_10_10_height_outer/2+dragchain_10_10_anchor_thickness]) {
+      cube([dragchain_10_10_width_inner,dragchain_10_10_anchor_depth,dragchain_10_10_height_outer],center=true);
+    }
+    translate([0,-dragchain_10_10_anchor_depth,0]) {
+      cube([dragchain_10_10_width_inner,dragchain_10_10_height_inner*2,dragchain_10_10_height_outer*3],center=true);
+    }
+
+    position_dragchain_10_10_anchor_holes() {
+      translate([0,0,dragchain_10_10_anchor_thickness]) {
+        hole(2.5,10,resolution);
+      }
+    }
+  }
+
+  difference() {
+    body();
+    holes();
   }
 }
 
@@ -145,8 +197,8 @@ module dragchain_10_20_anchor() {
   }
 
   module holes() {
-    translate([0,-dragchain_10_20_anchor_depth/2,dragchain_10_20_height_outer/2+dragchain_10_20_anchor_thickness]) {
-      cube([dragchain_10_20_width_inner,dragchain_10_20_anchor_depth+1,dragchain_10_20_height_outer],center=true);
+    translate([0,-dragchain_10_20_anchor_depth/2+dragchain_10_10_height_inner-0.5,dragchain_10_20_height_outer/2+dragchain_10_20_anchor_thickness]) {
+      cube([dragchain_10_20_width_inner,dragchain_10_20_anchor_depth,dragchain_10_20_height_outer],center=true);
     }
     translate([0,-dragchain_10_20_anchor_depth,0]) {
       cube([dragchain_10_20_width_inner,dragchain_10_20_height_inner*2,dragchain_10_20_height_outer*3],center=true);
@@ -567,17 +619,6 @@ module x_min_endcap() {
   }
 }
 
-module bevel(outer,inner,height) {
-  hull() {
-    translate([0,0,-height-0.1]) {
-      hole(outer,0.2,resolution);
-    }
-    translate([0,0,-0.1]) {
-      hole(inner,0.2,resolution);
-    }
-  }
-}
-
 module x_max_endcap() {
   rounded_diam = 3;
   overall_height = extrusion_height;
@@ -723,7 +764,7 @@ module y_endcap_with_motor() {
   motor_shoulder_room = nema14_shoulder_height+0.1;
   motor_mount_thickness = motor_shoulder_room+wall_thickness*2;
 
-  y_motor_pos_x = y_belt_offset_x + m5_bolt_head_diam +  motor_mount_thickness;
+  y_motor_pos_x = y_belt_offset_x - m5_bolt_head_diam - motor_mount_thickness;
   y_motor_pos_y = y_motor_endcap_thickness+nema14_side/2+1;
   y_motor_pos_z = y_belt_offset_z - x_pulley_diam/2;
 
@@ -741,18 +782,23 @@ module y_endcap_with_motor() {
   x_belt_relative_pos_z = bottom*(extrusion_height + sketch_space_between_rails - x_belt_pos_z + extrusion_height/2);
   belt_access_hole_height = x_pulley_diam+3;
 
-  echo("dragchain_10_20_min_outer_diam: ", dragchain_10_20_min_outer_diam);
-  translate([y_motor_pos_x,y_motor_pos_y+nema14_side/2+dragchain_10_20_width_outer/2,-extrusion_height*1.5-sketch_space_between_rails+dragchain_10_20_min_outer_diam-dragchain_10_20_anchor_depth]) {
-    rotate([0,90,0]) {
-      rotate([0,0,-90]) {
-        % color("#333", 0.7) dragchain_10_20_anchor();
+  module position_x_dragchain() {
+    translate([12.5,y_motor_pos_y+nema14_side/2-dragchain_10_20_width_outer/2,body_top_pos_z-motor_mount_thickness]) {
+      rotate([0,0,90]) {
+        rotate([0,180,0]) {
+          children();
+        }
       }
     }
   }
 
+  position_x_dragchain() {
+    % color("#333", 0.7) dragchain_10_20_anchor();
+  }
+
   module position_motor() {
     translate([y_motor_pos_x,y_motor_pos_y,y_motor_pos_z]) {
-      rotate([0,-90,0]) {
+      rotate([0,90,0]) {
         children();
       }
     }
@@ -809,23 +855,28 @@ module y_endcap_with_motor() {
 
     // motor mount plate
     motor_mount_plate_height = body_top_pos_z - y_motor_pos_z + nema14_side/2;
-    translate([y_motor_pos_x-motor_mount_thickness/2,y_motor_pos_y-y_motor_endcap_thickness/2,body_top_pos_z-motor_mount_plate_height/2]) {
+    translate([y_motor_pos_x+motor_mount_thickness/2,y_motor_pos_y-y_motor_endcap_thickness/2,body_top_pos_z-motor_mount_plate_height/2]) {
       rounded_cube(motor_mount_thickness,nema14_side+y_motor_endcap_thickness,motor_mount_plate_height,motor_mount_thickness/2);
     }
-    translate([y_motor_pos_x-motor_mount_thickness,y_motor_endcap_thickness,y_motor_pos_z]) {
-      rotate([0,0,90]) {
-        round_corner_filler(3,nema14_side);
-      }
+    translate([y_motor_pos_x+motor_mount_thickness,y_motor_endcap_thickness,y_motor_pos_z]) {
+      round_corner_filler(3,nema14_side);
     }
     // motor mount plate reinforcement
     hull() {
       translate([0,0,body_top_pos_z-motor_mount_thickness/2]) {
         linear_extrude(height=motor_mount_thickness,center=true,convexity=3) {
-          translate([y_motor_pos_x-motor_mount_thickness/2,y_motor_pos_y-y_motor_endcap_thickness/2,0]) {
+          translate([y_motor_pos_x+motor_mount_thickness/2,y_motor_pos_y-y_motor_endcap_thickness/2,0]) {
             rounded_square(motor_mount_thickness,nema14_side+y_motor_endcap_thickness,motor_mount_thickness/2);
           }
-          translate([-wheel_spacing/2,y_motor_endcap_thickness/2,0]) {
-            accurate_circle(y_motor_endcap_thickness,resolution);
+          for(x=[left,right]) {
+            translate([x*wheel_spacing/2,y_motor_endcap_thickness/2,0]) {
+              accurate_circle(y_motor_endcap_thickness,resolution);
+            }
+          }
+          position_x_dragchain() {
+            position_dragchain_10_20_anchor_holes() {
+              accurate_circle(y_motor_endcap_thickness,resolution);
+            }
           }
         }
       }
@@ -912,9 +963,7 @@ module y_endcap_with_motor() {
           translate([0,0,m5_bolt_head_height/2]) {
             // % hole(m5_bolt_head_diam+tolerance,m5_bolt_head_height,resolution);
           }
-          translate([0,0,10]) {
-            hole(m5_bolt_head_diam+1,2*(10+m5_bolt_head_height),8);
-          }
+          hole(m5_bolt_head_diam+1,2*(m5_bolt_head_height+0.5),resolution);
         }
       }
     }
@@ -940,7 +989,7 @@ module y_endcap_with_motor() {
       }
       hull() {
         hole(pulley_opening_diam,nema14_shaft_len,resolution);
-        translate([-pulley_opening_diam/2+1,0,0]) {
+        translate([pulley_opening_diam/2-1,0,0]) {
           cube([2,pulley_opening_diam/2,nema14_shaft_len],center=true);
         }
       }
@@ -966,6 +1015,21 @@ module y_endcap_with_motor() {
             cube([belt_thickness,belt_width,100],center=true);
             cube([belt_width,0.1,100],center=true);
           }
+        }
+      }
+    }
+
+    position_x_dragchain() {
+      position_dragchain_10_20_anchor_holes() {
+        hole(m3_thread_into_plastic_hole_diam,40,resolution);
+      }
+    }
+
+    // some sort of anchor system for I-don't-know-what-yet
+    translate([0,y_motor_endcap_thickness/2,body_top_pos_z]) {
+      for(x=[left,0,right]) {
+        translate([x*extrusion_width/2,0,0]) {
+          hole(m3_threaded_insert_diam,10*2,resolution);
         }
       }
     }
@@ -1154,6 +1218,8 @@ module y_carriage() {
   belt_retainer_width = belt_width+2+wall_thickness*2;
   belt_retainer_height = belt_thickness_cavity + belt_tooth_diam + wall_thickness*4;
 
+  dragchain_surface_z = solid_cavity_y+outer_rounded_diam/2+2+wall_thickness*2;
+
   module spring_profile() {
     translate([-extrusion_height/2,0,0]) {
       square([spring_arm_thickness,rounded_diam-spring_arm_spacing/2],center=true);
@@ -1165,7 +1231,7 @@ module y_carriage() {
 
       hull() {
         translate([-extrusion_height/2,-spring_arm_spacing,0]) {
-          # accurate_circle(spring_arm_thickness,resolution);
+          accurate_circle(spring_arm_thickness,resolution);
         }
         translate([extrusion_height/2+spring_arm_thickness/2-contact_width,0,0]) {
           accurate_circle(spring_arm_thickness,resolution);
@@ -1280,13 +1346,40 @@ module y_carriage() {
       }
 
       // belt attachment
-      hull() {
-        translate([y_belt_offset_x-belt_width/2-1+belt_retainer_width/2,0,0]) {
+      translate([y_belt_offset_x-belt_width/2-1+belt_retainer_width/2,0,0]) {
+        hull() {
           translate([0,y_belt_offset_z,0]) {
             rounded_square(belt_retainer_width,belt_retainer_height,wall_thickness*2);
           }
           translate([0,solid_cavity_y+outer_rounded_diam/2,0]) {
             square([belt_retainer_width,1],center=true);
+          }
+        }
+        for(x=[left,right]) {
+          mirror([1-x,0,0]) {
+            translate([belt_retainer_width/2,solid_cavity_y+outer_rounded_diam/2,0]) {
+              round_corner_filler_profile(3);
+            }
+          }
+        }
+      }
+
+      // dragchain attachment
+      translate([-10,0,0]) {
+        hull() {
+          rounded_diam = wall_thickness*2;
+          translate([0,dragchain_surface_z-rounded_diam/2,0]) {
+            rounded_square(belt_retainer_width,rounded_diam,rounded_diam);
+          }
+          translate([0,solid_cavity_y+outer_rounded_diam/2,0]) {
+            square([belt_retainer_width,0.1],center=true);
+          }
+        }
+        for(x=[left,right]) {
+          mirror([1-x,0,0]) {
+            translate([belt_retainer_width/2,solid_cavity_y+outer_rounded_diam/2,0]) {
+              round_corner_filler_profile(3);
+            }
           }
         }
       }
@@ -1395,9 +1488,9 @@ module y_carriage() {
     }
 
     // make room for stepper
-    translate([0,z_stepper_pos_x,z_stepper_dist_from_x_rail_z]) {
+    translate([20,z_stepper_pos_x,z_stepper_dist_from_x_rail_z]) {
       rotate([0,90,0]) {
-        hole(round_nema14_body_diam+1,50,resolution);
+        hole(round_nema14_body_diam+1,40,resolution);
       }
     }
     translate([y_belt_offset_x-belt_width/2,z_stepper_pos_x,y_belt_offset_z+20]) {
@@ -1406,6 +1499,16 @@ module y_carriage() {
         cube([(belt_width+1)*2,cut_width,40],center=true);
         translate([-belt_width/2,(belt_width+1)/2,0]) {
           cube([0.1,cut_width+(belt_width+1),40],center=true);
+        }
+      }
+    }
+
+    // dragchain anchor
+    translate([-10,0,0]) {
+      for(y=[front,0,rear]) {
+        //translate([0,y*extrusion_width/2,dragchain_surface_z]) {
+        translate([0,y*extrusion_width/2,solid_cavity_y+rounded_diam/2+wall_thickness*2+10]) {
+          hole(m3_threaded_insert_diam,20,resolution);
         }
       }
     }
@@ -1526,6 +1629,14 @@ translate([0,y_rail_len/2-20,sketch_x_rail_pos_z]) {
   }
 }
 
+translate([-x_rail_len/2-nema17_side/2-20,y_rail_len/2-40-nema17_len-40,50]) {
+  rotate([0,0,-0]) {
+    rotate([0,-90,0]) {
+      // electronics_mount();
+    }
+  }
+}
+
 translate([-1*28,0,sketch_y_rail_pos_z]) {
   translate([0,y_rail_len/2,]) {
     translate([0,-40,0]) {
@@ -1536,6 +1647,10 @@ translate([-1*28,0,sketch_y_rail_pos_z]) {
           }
         }
       }
+    }
+
+    translate([-10,0,nema14_side]) {
+      color("#333", 0.7) dragchain_10_10_anchor();
     }
   }
 
@@ -1558,6 +1673,10 @@ translate([-1*28,0,sketch_y_rail_pos_z]) {
         rotate([0,0,90]) {
           z_axis_assembly();
         }
+      }
+
+      translate([-10,0,x_carriage_overall_height/2]) {
+        color("#333", 0.7) dragchain_10_10_anchor();
       }
     }
 

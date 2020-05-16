@@ -154,6 +154,8 @@ m5_loose_hole = 5.2;
 m5_thread_into_plastic_hole_diam = 4.65;
 m4_thread_into_plastic_hole_diam = 3.7;
 m3_thread_into_plastic_hole_diam = 2.8;
+m2_5_thread_into_plastic_hole_diam = 2.5-0.2;
+m2_thread_into_plastic_hole_diam = 2-0.2;
 
 
 printed_carriage_extrusion_carriage_gap = ptfe_bushing_diam*0.3 - ptfe_bushing_preload_amount;

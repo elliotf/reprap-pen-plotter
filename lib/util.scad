@@ -234,6 +234,17 @@ module printed_extrusion_carriage_profile(body_width,body_height) {
   }
 }
 
+module bevel(outer,inner,height) {
+  hull() {
+    translate([0,0,-height-0.1]) {
+      hole(outer,0.2,resolution);
+    }
+    translate([0,0,-0.1]) {
+      hole(inner,0.2,resolution);
+    }
+  }
+}
+
 /*
 translate([-10,0,0]) {
   letter_L();
