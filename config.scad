@@ -9,10 +9,10 @@ approx_pi = 3.14159;
 inch = 25.4;
 extrude_width = 0.4;
 
-debug = 1;
+debug = 0;
 
 y_rail_len = (debug) ? 120 : 500;
-x_rail_len = (debug) ? 120 : 1000;
+x_rail_len = (debug) ? 120 : 500;
 
 tolerance = 0.2;
 
@@ -148,7 +148,8 @@ z_rod_diam  = 3;
 m2_threaded_insert_diam = 3.4;
 m2_5_threaded_insert_diam = 3.6;
 m3_threaded_insert_diam = 5.4;
-m3_loose_hole = 3.2;
+m2_5_loose_hole = 2.5 + 0.3;
+m3_loose_hole = 3.4;
 m5_tight_hole = 5;
 m5_loose_hole = 5.2;
 m5_thread_into_plastic_hole_diam = 4.65;

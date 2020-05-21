@@ -18,9 +18,9 @@ use <sketch-for-simpler.scad>;
 
 mount_plate_thickness = wall_thickness*2;
 
-ender3_max_x = 100;
-ender3_max_y = 70.25;
-ender3_hole_coords = [
+ender3_board_max_x = 100;
+ender3_board_max_y = 70.25;
+ender3_board_hole_coords = [
   [100-2.54,2.54],
   [2.54,70.25-38.20],
   [20.40,70.25-2.54],
@@ -47,7 +47,7 @@ controller_side_depth = 23 + bevel_height;
 overall_depth = raspi_side_depth + controller_side_depth + mount_plate_thickness;
 
 module position_ender3_holes() {
-  for(coord=ender3_hole_coords) {
+  for(coord=ender3_board_hole_coords) {
     translate(coord) {
       children();
     }
@@ -63,27 +63,25 @@ module position_pi_holes() {
 }
 
 module electronics_mount() {
-  room_for_screw_terminal_cables = 4;
+  room_for_screw_terminal_cables = 6;
+  room_above_ender3_board = 4;
+  room_below_ender3_board = 10;
+  board_space = 2;
   brace_thickness = wall_thickness*2;
-  main_height = ender3_max_x + bevel_height*2;
-  main_width = ender3_max_y + room_for_screw_terminal_cables + brace_thickness*2;
+  main_height = ender3_board_max_x + bevel_height*2 + room_below_ender3_board + room_above_ender3_board;
+  main_width = ender3_board_max_y + board_space + room_for_screw_terminal_cables + brace_thickness*2;
+  base_thickness = 3;
+
+  echo("electronics mount height: ", main_height);
+  echo("electronics mount width: ", main_width);
+  echo("electronics mount depth: ", overall_depth);
 
   module position_ender3_board() {
-    rotate([0,-90,0]) {
-      rotate([180,0,0]) {
-        // push ender board aside slightly to make room for cables to screw-in terminals
-        translate([-ender3_max_x/2,-ender3_max_y/2+room_for_screw_terminal_cables-tolerance,mount_plate_thickness/2+bevel_height]) {
-          children();
-        }
-      }
-    }
-  }
-
-  module position_pi_board() {
-    rotate([0,-90,0]) {
-      translate([ender3_max_x/2-rasp_a_plus_max_x/2,-ender3_max_y/2+rasp_a_plus_max_y/2-room_for_screw_terminal_cables+tolerance,mount_plate_thickness/2+bevel_height]) {
-        rotate([0,0,180]) {
-          translate([-rasp_a_plus_max_x/2,-rasp_a_plus_max_y/2,0]) {
+    translate([right*(mount_plate_thickness/2+bevel_height),0,room_below_ender3_board/2-room_above_ender3_board/2]) {
+      rotate([0,-90,0]) {
+        rotate([180,0,0]) {
+          // push ender board aside slightly to make room for cables to screw-in terminals
+          translate([-ender3_board_max_x/2,-ender3_board_max_y/2+room_for_screw_terminal_cables/2-tolerance,0]) {
             children();
           }
         }
@@ -91,18 +89,32 @@ module electronics_mount() {
     }
   }
 
-  module body_profile() {
+  module position_pi_board() {
+    translate([left*(mount_plate_thickness/2+bevel_height),0,room_below_ender3_board/2-room_above_ender3_board/2]) {
+      rotate([0,-90,0]) {
+        translate([ender3_board_max_x/2-rasp_a_plus_max_x/2,-ender3_board_max_y/2+rasp_a_plus_max_y/2-room_for_screw_terminal_cables/2+tolerance,0]) {
+          rotate([0,0,180]) {
+            translate([-rasp_a_plus_max_x/2,-rasp_a_plus_max_y/2,0]) {
+              children();
+            }
+          }
+        }
+      }
+    }
+  }
 
+  module body_profile() {
     square([mount_plate_thickness,main_width],center=true);
+
     for(y=[front,rear]) {
       mirror([0,y-1,0]) {
-        translate([-raspi_side_depth-mount_plate_thickness/2+overall_depth/2,main_width/2+brace_thickness/2,0]) {
+        translate([-raspi_side_depth-mount_plate_thickness/2+overall_depth/2,main_width/2-brace_thickness/2,0]) {
           rounded_square(overall_depth,brace_thickness,brace_thickness);
         }
 
         for(x=[left,right]) {
           mirror([x-1,0,0]) {
-            translate([mount_plate_thickness/2,main_width/2,0]) {
+            translate([mount_plate_thickness/2,main_width/2-brace_thickness,0]) {
               rotate([0,0,-90]) {
                 round_corner_filler_profile(brace_thickness);
               }
@@ -116,6 +128,9 @@ module electronics_mount() {
   module body() {
     linear_extrude(height=main_height,center=true,convexity=3) {
       body_profile();
+    }
+    translate([-raspi_side_depth-brace_thickness/2+overall_depth/2,0,-main_height/2+base_thickness/2]) {
+      rounded_cube(overall_depth,main_width,base_thickness,brace_thickness);
     }
     /*
     cube([mount_plate_thickness,main_width,main_width+bevel_height*2],center=true);
@@ -154,17 +169,19 @@ module electronics_mount() {
     }
   }
 
-  position_ender3_board() {
-    % ender3_board();
-  }
+  translate([raspi_side_depth+mount_plate_thickness/2,0,0]) {
+    position_ender3_board() {
+      % ender3_board();
+    }
 
-  position_pi_board() {
-    % pi_a_plus();
-  }
+    position_pi_board() {
+      % pi_a_plus();
+    }
 
-  difference() {
-    body();
-    holes();
+    difference() {
+      body();
+      holes();
+    }
   }
 }
 
@@ -175,7 +192,7 @@ module ender3_board() {
   ender3_usb_connector_height = 5.2;
   ender3_usb_connector_width = 29.92 - ender3_usb_offset_from_top_y;
   ender3_usb_connector_depth = 8;
-  ender3_usb_connector_offset_y = ender3_max_y-ender3_usb_offset_from_top_y-ender3_usb_connector_width/2;
+  ender3_usb_connector_offset_y = ender3_board_max_y-ender3_usb_offset_from_top_y-ender3_usb_connector_width/2;
 
   power_input_width = 11;
   power_input_depth = 11;
@@ -184,11 +201,11 @@ module ender3_board() {
   power_input_pos_y = 5+power_input_width/2;
 
   module body() {
-    translate([ender3_max_x/2,ender3_max_y/2,board_thickness/2]) {
-      color("green") cube([ender3_max_x,ender3_max_y,board_thickness],center=true);
+    translate([ender3_board_max_x/2,ender3_board_max_y/2,board_thickness/2]) {
+      color("green") cube([ender3_board_max_x,ender3_board_max_y,board_thickness],center=true);
     }
 
-    translate([ender3_max_x-ender3_usb_connector_depth/2+2,ender3_usb_connector_offset_y,board_thickness+ender3_usb_connector_height/2]) {
+    translate([ender3_board_max_x-ender3_usb_connector_depth/2+2,ender3_usb_connector_offset_y,board_thickness+ender3_usb_connector_height/2]) {
       color("silver") cube([ender3_usb_connector_depth,ender3_usb_connector_width,ender3_usb_connector_height],center=true);
     }
 
@@ -204,7 +221,7 @@ module ender3_board() {
       color("lightgreen") cube([output_block_width,output_block_depth,output_block_height],center=true);
     }
 
-    endstop_block_width = 50;
+    endstop_block_width = 48.25;
     endstop_block_depth = 6;
     endstop_block_height = 7;
     translate([46.5+endstop_block_width/2,endstop_block_depth/2,board_thickness+endstop_block_height/2]) {
@@ -217,7 +234,7 @@ module ender3_board() {
     motor_connector_height = 7;
     motor_connector_offsets_x = [4,24,45,62.5];
     for(x=motor_connector_offsets_x) {
-      translate([x+motor_connector_width/2,ender3_max_y-0.75-motor_connector_depth/2,board_thickness+motor_connector_height/2]) {
+      translate([x+motor_connector_width/2,ender3_board_max_y-0.75-motor_connector_depth/2,board_thickness+motor_connector_height/2]) {
         color("white") cube([motor_connector_width,motor_connector_depth,motor_connector_height],center=true);
       }
     }
@@ -298,6 +315,6 @@ module pi_b_plus() {
 
 electronics_mount();
 
-translate([-ender3_max_x/2,ender3_max_y/2,-ender3_max_y/2]) {
+translate([-ender3_board_max_x/2,ender3_board_max_y/2,-ender3_board_max_y/2]) {
   // % ender3_board();
 }
