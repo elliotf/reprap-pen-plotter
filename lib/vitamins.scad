@@ -592,3 +592,98 @@ module mini_v_wheel() {
     hole(mini_v_wheel_id,mini_v_wheel_thickness+1,resolution);
   }
 }
+
+buck_conv_hole_spacing_x = 16.4; // untested
+buck_conv_hole_spacing_y = 30; // untested
+buck_conv_hole_diam = 3;
+buck_conv_width = 21.2; // sample more boards
+buck_conv_length = 43.1; // sample more boards
+buck_conv_overall_height = 14; // screw on pot sticks up highest
+
+module buck_converter() {
+  board_thickness = 1.3;
+
+  cap_diam = 8;
+  cap_height = 11;
+  cap_coords = [
+    [left*2,rear*(buck_conv_length/2-cap_diam/2-1),board_thickness+cap_height/2],
+    [left*0.5,front*(buck_conv_length/2-cap_diam/2-1),board_thickness+cap_height/2],
+  ];
+
+  pot_y = 9.5;
+  pot_x = 4.5;
+  pot_z = 10;
+  pot_coord = [-buck_conv_width/2+pot_x/2,buck_conv_length/2-19+pot_y/2,board_thickness+pot_z/2];
+
+  pot_screw_diam = 2.3;
+  pot_screw_height = 1.55;
+
+  module body() {
+    translate([0,0,board_thickness/2]) {
+      color("green") cube([buck_conv_width,buck_conv_length,board_thickness],center=true);
+    }
+
+    for(coord=cap_coords) {
+      translate(coord) {
+        color("lightgrey") hole(cap_diam,cap_height,resolution);
+      }
+    }
+
+    translate(pot_coord) {
+      color("#229") cube([pot_x,pot_y,pot_z],center=true);
+
+      translate([-pot_x/2+pot_screw_diam/2,-pot_y/2+pot_screw_diam/2,pot_z/2+pot_screw_height/2]) {
+        color("gold") hole(pot_screw_diam,pot_screw_height,12);
+      }
+    }
+
+    coil_side = 12.25;
+    coil_height = 7;
+    translate([buck_conv_width/2-coil_side/2-1.5,buck_conv_length/2-coil_side/2-10.3,board_thickness+coil_height/2]) {
+      color("#555") rounded_cube(coil_side,coil_side,coil_height,3,16);
+    }
+
+    fet_width = 8.5;
+    fet_length = 9.5;
+    fet_height = 3.3;
+    fet_plate_width = fet_width + 1.3;
+    fet_plate_height = 1.3;
+    translate([-buck_conv_width/2,-buck_conv_length/2+fet_length/2+10.4,board_thickness]) {
+      translate([2.6+fet_width/2,0,fet_plate_height+fet_height/2]) {
+        color("#555") cube([fet_width,fet_length,fet_height],center=true);
+      }
+      translate([1+fet_plate_width/2,0,fet_plate_height/2]) {
+        color("lightgrey") cube([fet_plate_width,fet_length,fet_plate_height],center=true);
+      }
+    }
+  }
+
+  module holes() {
+    for(side=[front,rear]) {
+      translate([side*buck_conv_hole_spacing_x/2,side*buck_conv_hole_spacing_y/2,0]) {
+        hole(buck_conv_hole_diam,board_thickness*3,resolution);
+      }
+
+      for(x=[left,right]) {
+        translate([x*(buck_conv_width/2-2),side*(buck_conv_length/2-2),board_thickness]) {
+          hole(1,board_thickness*3,12);
+
+          color("lightgrey") cube([4,4,0.1],center=true);
+        }
+      }
+    }
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
+module position_buck_converter_holes() {
+  for(x=[left,right],y=[front,rear]) {
+    translate([x*(buck_conv_hole_spacing_x/2),y*(buck_conv_hole_spacing_y/2),0]) {
+      children();
+    }
+  }
+}

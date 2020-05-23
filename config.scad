@@ -9,7 +9,7 @@ approx_pi = 3.14159;
 inch = 25.4;
 extrude_width = 0.4;
 
-debug = 0;
+debug = 1;
 
 y_rail_len = (debug) ? 120 : 500;
 x_rail_len = (debug) ? 120 : 500;
