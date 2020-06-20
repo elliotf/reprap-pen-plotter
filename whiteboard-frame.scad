@@ -11,7 +11,7 @@ whiteboard_x = (debug) ? 200 : 580;
 whiteboard_y = (debug) ? 200 : 890;
 
 rail_extrusion_length = (debug) ? 280 : 1000;
-brace_extrusion_length = (debug) ? 280 : 650;
+brace_extrusion_length = (debug) ? 280 : 630;
 
 
 whiteboard_rim_frontside_width = 22;
@@ -98,6 +98,21 @@ for(x=[left,right]) {
 for(y=[front,0,rear]) {
   echo("overall_height: ", whiteboard_y-whiteboard_rim_backside_width+40);
   translate([0,y*(whiteboard_y/2-whiteboard_rim_backside_width/2+40/2),-20/2]) {
+    for(x=[left,right],y2=[front,rear]) {
+      mirror([0,y2-1,0]) {
+        translate([x*(frame_outer_width/2-20/2),40/2+20/2,0]) {
+          rotate([180,0,0]) {
+            corner_bracket_2020();
+          }
+        }
+        // anchor top of brace to side rail, probably don't need?
+        translate([x*(frame_outer_width/2+20/2),20/2,20]) {
+          rotate([0,0,90]) {
+            // corner_bracket_2020();
+          }
+        }
+      }
+    }
     rotate([0,90,0]) {
       rotate([0,0,90]) {
         color("lightgrey") extrusion_2040(brace_extrusion_length);
