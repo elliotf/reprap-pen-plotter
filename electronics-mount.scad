@@ -68,7 +68,7 @@ module electronics_mount() {
   screw_area_diam = m3_threaded_insert_diam+wall_thickness*4;
   screw_area_height = 8;
   room_for_screw_terminal_cables = 8;
-  room_above_ender3_board = 4;
+  room_above_ender3_board = 0;
   room_below_ender3_board = 10;
   board_space = 2;
   main_height = ender3_board_max_x + bevel_height*2 + room_below_ender3_board + room_above_ender3_board;

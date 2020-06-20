@@ -30,7 +30,8 @@ z_axis_mount_plate_thickness = 5;
 z_rod_dist_from_z_mount = z_axis_mount_plate_thickness/2 + 1.5 + z_bushing_od/2;
 
 z_lifter_arm_thickness = z_stepper_shaft_flat_length;
-z_lifter_arm_len = 7;
+z_lifter_arm_len = 8;
+z_lifter_arm_angled_to_flat = -8.5;
 z_lifter_small_diam = m3_diam_to_thread_into+extrude_width*3*4;
 z_lifter_large_diam = z_stepper_shaft_diam+tolerance+extrude_width*3*4;
 ensure_endstop_is_hit_at_top_of_travel = 1;
@@ -108,24 +109,25 @@ module z_lifter_arm() {
         }
       }
     }
-
   }
 
   module holes() {
 
     // set screw
+    /*
     translate([0,10,-z_lifter_arm_thickness/2+overall_thickness/2]) {
       rotate([90,0,0]) {
         hole(m3_diam_to_thread_into,20,8);
       }
     }
+    */
 
     // stepper shaft cavity
     translate([0,0,0]) {
       intersection() {
         hole(shaft_hole_diam,2*(z_stepper_shaft_flat_length+1),12);
         translate([0,z_stepper_shaft_flat_offset,0]) {
-          cube([shaft_hole_diam+2,z_stepper_shaft_flat_thickness+tolerance*2,z_lifter_arm_thickness*2+1],center=true);
+          cube([shaft_hole_diam+2,z_stepper_shaft_flat_thickness+tolerance*2,z_lifter_arm_thickness*3+1],center=true);
         }
       }
     }
@@ -196,6 +198,7 @@ module z_axis_mount() {
   }
 
   module profile() {
+    body_round_diam = m3_loose_hole+wall_thickness*4;
     module position_z_stepper_2d() {
       translate([z_stepper_pos_x,z_stepper_dist_from_x_rail_z,0]) {
         rotate([0,0,z_stepper_angle]) {
@@ -208,7 +211,7 @@ module z_axis_mount() {
       hull() {
         // screw hole corners
         position_mounting_screws_2d() {
-          accurate_circle(m3_loose_hole+printed_carriage_wall_thickness,resolution);
+          accurate_circle(body_round_diam,resolution);
         }
 
         position_z_bushings_2d() {
@@ -219,7 +222,7 @@ module z_axis_mount() {
         position_z_stepper_2d() {
           for(side=[left,right]) {
             translate([side*z_stepper_hole_spacing/2,0,0]) {
-              accurate_circle(m3_loose_hole+wall_thickness*4,resolution);
+              accurate_circle(body_round_diam,resolution);
             }
           }
         }
@@ -239,6 +242,12 @@ module z_axis_mount() {
       }
 
       position_z_stepper_2d() {
+        // should and arm -related room
+        room_for_arm = 1;
+        larger_diam = max(z_lifter_large_diam,z_stepper_shoulder_diam)+room_for_arm;
+        smaller_diam = z_lifter_small_diam+room_for_arm;
+        overall = larger_diam/2 + z_lifter_arm_len + smaller_diam/2;
+
         // z stepper mount screw holes
         for(side=[left,right]) {
           translate([side*z_stepper_hole_spacing/2,0,0]) {
@@ -246,35 +255,41 @@ module z_axis_mount() {
           }
         }
 
+        // round stepper opening
+        translate([larger_diam/2-overall/2,body_round_diam/2,0]) {
+          for(x=[left,right]) {
+            mirror([x-1,0,0]) {
+              translate([overall/2,0,0]) {
+                rotate([0,0,-90]) {
+                  round_corner_filler_profile(5);
+                }
+              }
+            }
+          }
+        }
+
         hull() {
           // opening for z bumper
           translate([0,-z_stepper_shaft_from_center,0]) {
-            room_for_arm = 1;
-            larger_diam = max(z_lifter_large_diam,z_stepper_shoulder_diam)+room_for_arm;
-            smaller_diam = z_lifter_small_diam+room_for_arm;
-            overall = larger_diam/2 + z_lifter_arm_len + smaller_diam/2;
 
             accurate_circle(z_stepper_shoulder_diam+tolerance,resolution);
 
             rotate([0,0,-z_stepper_angle]) {
               translate([0,0,0]) {
                 accurate_circle(larger_diam,resolution);
-                translate([-z_lifter_arm_len,0,0]) {
-                  accurate_circle(smaller_diam,resolution);
+                rotate([0,0,z_lifter_arm_angled_to_flat]) {
+                  translate([-z_lifter_arm_len,0,0]) {
+                    accurate_circle(smaller_diam,resolution);
+                  }
                 }
               }
 
-              translate([larger_diam/2-overall/2,20,0]) {
+              translate([larger_diam/2-overall/2,larger_diam/2+20,0]) {
                 square([overall,40],center=true);
               }
             }
           }
         }
-      }
-
-      // endstop/limit switch wire routing
-      translate([z_carriage_carrier_hole_spacing_x/2-4-6,z_carriage_carrier_height/2+1,0]) {
-        rounded_square(12,6,3,resolution);
       }
     }
 
@@ -346,59 +361,6 @@ module z_axis_mount() {
         hole(z_bushing_id,z_bushing_len+1,8);
       }
     }
-
-    // zip ties for endstop/limit switch cable management
-    translate([0,-1.25,z_carriage_carrier_hole_spacing_z/2-15]) {
-      rotate([0,0,180]) {
-        zip_tie_cavity(extrude_width*6,2.5,5);
-      }
-    }
-
-    // Z endstop
-    translate([0,front*(z_axis_mount_plate_thickness/2+mech_endstop_tiny_width/2),bottom_bushing_pos_z-mech_endstop_tiny_height-1]) {
-      rotate([180,0,0]) {
-        rotate([0,0,90]) {
-          % mech_endstop_tiny();
-
-          position_mech_endstop_tiny_mount_holes() {
-            hole(m2_threaded_insert_diam,30,12);
-          }
-        }
-      }
-    }
-
-    // x limit switches in front the plate
-    /*
-    for(x=[left,right]) {
-      endstop_pos_x = x_carriage_width/2+1;
-      endstop_pos_y = front*(z_axis_mount_plate_thickness/2+mech_endstop_tiny_width/2-1.5);
-      endstop_pos_z = z_carriage_carrier_hole_spacing_z/2-4-mech_endstop_tiny_length/2;
-      translate([x*(endstop_pos_x),endstop_pos_y,endstop_pos_z]) {
-        rotate([0,0,x*90]) {
-          rotate([90,0,0]) {
-            % mech_endstop_tiny();
-
-            position_mech_endstop_tiny_mount_holes() {
-              hole(m2_threaded_insert_diam,mech_endstop_tiny_width+z_axis_mount_plate_thickness*2,12);
-            }
-
-            translate([0,0,-mech_endstop_tiny_height/2]) {
-              cube([mech_endstop_tiny_width+1,mech_endstop_tiny_length+1,mech_endstop_tiny_height+1],center=true);
-            }
-          }
-        }
-      }
-    }
-    */
-
-    // holes to secure endstop wiring w/ zip tie
-    translate([z_rod_spacing/2+z_bushing_od,0,x_carriage_overall_height/2+zip_tie_width]) {
-      rotate([0,5,0]) {
-        rotate([180,0,0]) {
-          // zip_tie_cavity(wall_thickness*2,zip_tie_thickness,zip_tie_width);
-        }
-      }
-    }
   }
 
   module position_z_stepper() {
@@ -414,13 +376,15 @@ module z_axis_mount() {
   position_z_stepper() {
     translate([0,-z_stepper_shaft_from_center,z_stepper_shoulder_height+z_lifter_arm_thickness/2+1]) {
       rotate([0,0,-z_stepper_angle-90*at_top_of_travel]) { // bottom of travel (min Z)
-        % z_lifter_arm();
+        rotate([0,0,z_lifter_arm_angled_to_flat]) {
+          % z_lifter_arm();
+        }
       }
     }
     if (z_stepper_body_diam == round_nema14_body_diam) {
-      % round_nema14(0);
+      % round_nema14(z_lifter_arm_angled_to_flat);
     } else if (z_stepper_body_diam == byj_body_diam) {
-      % stepper28BYJ(0);
+      % stepper28BYJ(z_lifter_arm_angled_to_flat);
     }
   }
 
@@ -741,41 +705,24 @@ module z_carriage() {
   bridges();
 }
 
-module pen_wedge() {
-}
-
-pen_wedge();
-
 module z_axis_assembly() {
+  translate([0,0,80]) {
+    rotate([180,0,0]) {
+      z_lifter_arm();
+    }
+  }
+
   translate([0,-z_axis_mount_plate_thickness/2-0.5,0]) {
     z_axis_mount();
 
     translate([0,-z_rod_dist_from_z_mount,z_carriage_pos_z+z_carriage_desired_travel*at_top_of_travel]) {
       // color("grey", 0.4) %
-      z_carriage();
+      // z_carriage();
     }
   }
 }
 
-translate([0,0,0]) {
-  translate([0,x_carriage_overall_depth/2,0]) {
-    x_carriage();
-
-    for(x=[left,right]) {
-      mirror([x-1,0,0]) {
-        translate([x_carriage_width/2+20,10,-x_rail_extrusion_height/2]) {
-          rotate([0,90,0]) {
-            rotate([0,0,90]) {
-              endstop_flag();
-            }
-          }
-        }
-      }
-    }
-  }
-
-  z_axis_assembly();
-}
+z_axis_assembly();
 
 module to_print() {
   rotate([-90,0,0]) {

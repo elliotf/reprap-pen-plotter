@@ -11,8 +11,8 @@ extrude_width = 0.4;
 
 debug = 1;
 
-y_rail_len = (debug) ? 120 : 500;
-x_rail_len = (debug) ? 120 : 500;
+y_rail_len = (debug) ? 200 : 500;
+x_rail_len = (debug) ? 200 : 500;
 
 tolerance = 0.2;
 
@@ -30,6 +30,9 @@ desired_steps_per_mm = 140; // 200 = 16T GT2, 160 = 20T GT2
 driver_circumference = steps_per_turn/desired_steps_per_mm;
 
 driver_diam = driver_circumference/pi;
+
+gt2_16t_pulley_diam = 2*16/pi;
+gt2_20t_pulley_diam = 2*20/pi;
 
 ptfe_bushing_diam = 4;
 ptfe_bushing_preload_amount = 0.0; // undersize by this much to ensure no slop
@@ -193,7 +196,7 @@ z_carriage_carrier_room_for_nut = m3_threaded_insert_diam + wall_thickness*2 + p
 z_carriage_carrier_hole_spacing_x = round_nema14_hole_spacing - 2;// - 5;
 echo("z_carriage_carrier_hole_spacing_x: ", z_carriage_carrier_hole_spacing_x);
 z_carriage_carrier_hole_spacing_z = x_carriage_overall_height + m3_threaded_insert_diam;
-z_carriage_carrier_height = 35; //z_carriage_carrier_hole_spacing_z + m3_threaded_insert_diam + extrude_width*16;
+z_carriage_carrier_height = 36; //z_carriage_carrier_hole_spacing_z + m3_threaded_insert_diam + extrude_width*16;
 
 z_spring_wire_diam = 0.5;
 z_spring_diam = 6;
@@ -250,7 +253,7 @@ z_stepper_extra_meat_for_set_screw = -2; // for long-shaft nema14 stepper
 // z_stepper_shoulder_diam = byj_shoulder_diam;
 // z_stepper_shoulder_height = byj_shoulder_height;
 // z_stepper_shaft_from_center = byj_shaft_from_center;
-// z_stepper_dist_from_x_rail_z = x_carriage_overall_height/2 + z_stepper_body_diam/2 + 2;
+// z_stepper_dist_from_x_rail_z = z_carriage_carrier_height/2 + z_stepper_body_diam/2 + 5;
 // z_stepper_extra_meat_for_set_screw = 4; // for byj stepper
 
 z_limit_switch_pos_x = -z_carriage_carrier_hole_spacing_x/4;

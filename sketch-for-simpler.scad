@@ -1507,7 +1507,7 @@ module y_carriage() {
     // make room for stepper
     translate([20,z_stepper_pos_x,z_stepper_dist_from_x_rail_z]) {
       rotate([0,90,0]) {
-        hole(round_nema14_body_diam+1,40,resolution);
+        hole(z_stepper_body_diam+1,40,resolution);
       }
     }
     translate([y_belt_offset_x-belt_width/2,z_stepper_pos_x,y_belt_offset_z+20]) {
@@ -1763,6 +1763,13 @@ module y_dragchain_clamp() {
   }
 }
 
+module shim(id,od,thickness) {
+  difference() {
+    hole(od,thickness,resolution);
+    hole(id,thickness+1,resolution);
+  }
+}
+
 translate([0,y_rail_len/2-20,sketch_x_rail_pos_z]) {
 
   translate([0,x_belt_offset_y,x_belt_pos_z-sketch_x_rail_pos_z]) {
@@ -1903,5 +1910,83 @@ translate([-x_rail_len/2 - 10,y_rail_len/2 - extrusion_width - nema17_len - 60 ,
     rotate([0,0,180]) {
       electronics_mount();
     }
+  }
+}
+
+module whiteboard_tslot_anchor(anchor_length=m5_bolt_head_diam+4) {
+  overall_width = 14.9; // outside-to-outside, actual measurement 14.87;
+  opening_width = 9.4; // measured at 9.4
+  top_to_bottom = 3.7; // measured at 3.86
+  overhang_width = 1.5; // measured/guess of 1.5; very hard to measure, made an attempt at the corner
+  overhang_thickness = 1; // measured/guess of 0.7; also hard to measure
+  overall_depth = top_to_bottom+extrude_width*6;
+  rounded_diam = extrude_width*4;
+
+  module divider_profile() {
+    gap_width = 0.4;
+    translate([0,-extrude_width*6+overall_depth/2,0]) {
+      square([gap_width,overall_depth+1],center=true);
+    }
+  }
+
+  module profile() {
+    module body() {
+      translate([0,-overall_depth/2+top_to_bottom,0]) {
+        rounded_square(overall_width,overall_depth,rounded_diam,resolution);
+      }
+      translate([0,top_to_bottom/2,0]) {
+        % color("orange",0.2) square([overall_width,top_to_bottom],center=true);
+      }
+    }
+
+    module holes() {
+      for(x=[left,right]) {
+        translate([x*(opening_width/2+overhang_width),0,0]) {
+          rounded_square((overhang_width+tolerance)*2,overhang_thickness,overhang_thickness,resolution);
+        }
+
+        for(y=[front,rear]) {
+          mirror([x-1,0,0]) {
+            mirror([0,y-1,0]) {
+              translate([overall_width/2,overhang_thickness/2,0]) {
+                rotate([0,0,90]) {
+                  round_corner_filler_profile(rounded_diam);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    difference() {
+      body();
+      holes();
+    }
+  }
+
+  module body() {
+    linear_extrude(height=anchor_length,center=true,convexity=5) {
+      profile();
+    }
+  }
+
+  module holes() {
+    translate([0,0,0.2]) {
+      linear_extrude(height=anchor_length,center=true,convexity=5) {
+        divider_profile();
+      }
+    }
+
+    translate([0,-extrude_width*6,0]) {
+      rotate([90,0,0]) {
+        countersink_screw(m3_thread_into_plastic_hole_diam,m3_fsc_head_diam,0.5,overall_depth+1);
+      }
+    }
+  }
+
+  difference() {
+    body();
+    holes();
   }
 }
