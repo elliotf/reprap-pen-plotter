@@ -15,6 +15,11 @@ render_scads := $(foreach scad, $(wildcard for_render/*.scad),$(patsubst %.scad,
 
 $(foreach scad, $(render_scads), $(eval $(call render_template,$(scad))))
 
+
+
+
+
+
 define render_simpler_template
 
 simpler: simpler/renders/$(1)
@@ -30,6 +35,12 @@ simpler_scads := $(foreach scad, $(wildcard simpler/*.scad),$(patsubst %.scad,%,
 
 $(foreach scad, $(simpler_scads), $(eval $(call render_simpler_template,$(scad))))
 
+
+
+
+
+
+
 trial: trial-end trial-carriage trial-motor-mount trial-motor-mount-brace
 	
 trial-end:
@@ -43,3 +54,23 @@ trial-motor-mount:
 
 trial-motor-mount-brace:
 	openscad-nightly -m make -o trial/motor-mount-brace.stl for_render/motor-mount-brace-right.scad
+
+
+
+
+
+
+define render_twomotor_template
+
+twomotor: twomotor/renders/$(1)
+
+twomotor/renders/$(1) : twomotor/$(1).scad
+	openscad-nightly -m make -o $$@.stl $$^ && echo $$^
+
+.PHONY : twomotor/renders/$(1)
+
+endef
+
+twomotor_scads := $(foreach scad, $(wildcard twomotor/*.scad),$(patsubst %.scad,%,$(notdir $(scad))))
+
+$(foreach scad, $(twomotor_scads), $(eval $(call render_twomotor_template,$(scad))))

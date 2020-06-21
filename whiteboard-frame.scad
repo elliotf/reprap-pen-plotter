@@ -4,14 +4,17 @@ use <z-axis-mount.scad>;
 use <lib/vitamins.scad>;
 use <moar-wheels.scad>;
 
+sketch_pos_x = 0;
+sketch_pos_y = 0;
+
 //debug = 0;
-debug = 0;
+debug = 1;
 
-whiteboard_x = (debug) ? 200 : 580;
-whiteboard_y = (debug) ? 200 : 890;
+whiteboard_x = (debug) ? 150 : 580;
+whiteboard_y = (debug) ? 175 : 890;
 
-rail_extrusion_length = (debug) ? 280 : 1000;
-brace_extrusion_length = (debug) ? 280 : 630;
+brace_extrusion_length = (debug) ? 200 : 630;
+rail_extrusion_length = (debug) ? 290 : 1000;
 
 
 whiteboard_rim_frontside_width = 22;
@@ -92,11 +95,54 @@ for(x=[left,right]) {
         color("lightgrey") extrusion_2040(rail_extrusion_length);
       }
     }
+    translate([0,rail_extrusion_length/2,0]) {
+      rotate([0,0,180]) {
+        mirror([x+1,0,0]) {
+          motor_mount();
+        }
+      }
+    }
+    translate([0,front*rail_extrusion_length/2,0]) {
+      rotate([0,0,180]) {
+        mirror([x+1,0,0]) {
+          idler_mount();
+        }
+      }
+    }
+  }
+}
+
+// X axis
+translate([0,sketch_pos_y,0]) {
+  translate([0,0,40+mini_v_wheel_plate_above_extrusion]) {
+    translate([0,0,20+mini_v_wheel_plate_thickness]) {
+      rotate([0,90,0]) {
+        color("lightgrey") extrusion_2040(frame_outer_width+30);
+      }
+
+      translate([sketch_pos_x,0,0]) {
+        translate([0,front*(20/2+mini_v_wheel_plate_above_extrusion),0]) {
+          rotate([90,0,0]) {
+            rotate([0,0,90]) {
+              // module mini_v_wheel_plate(extrusion_width=20,wheel_spacing_y=10+20+wall_thickness*4)
+              mini_v_wheel_plate(40);
+            }
+          }
+        }
+      }
+    }
+
+    for(x=[left,right]) {
+      mirror([x-1,0,0]) {
+        translate([frame_outer_width/2-20/2,0,0]) {
+          xy_carriage();
+        }
+      }
+    }
   }
 }
 
 for(y=[front,0,rear]) {
-  echo("overall_height: ", whiteboard_y-whiteboard_rim_backside_width+40);
   translate([0,y*(whiteboard_y/2-whiteboard_rim_backside_width/2+40/2),-20/2]) {
     for(x=[left,right],y2=[front,rear]) {
       mirror([0,y2-1,0]) {
