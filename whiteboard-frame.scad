@@ -99,6 +99,8 @@ for(x=[left,right]) {
       rotate([0,0,180]) {
         mirror([x+1,0,0]) {
           motor_mount();
+
+          motor_mount_cap();
         }
       }
     }

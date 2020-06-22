@@ -64,6 +64,8 @@ for(x=[left,right]) {
   mirror([0,0,0]) {
     translate([x_rail_len/2,-y_rail_len/2,-40/2]) {
       motor_mount();
+
+      motor_mount_cap();
     }
     translate([x_rail_len/2,y_rail_len/2,-40/2]) {
       idler_mount();
@@ -71,50 +73,141 @@ for(x=[left,right]) {
   }
 }
 
+large_idler_diam = 16; // F625 bearing
+large_idler_width = 10; // F625 bearing doubled up
+
+small_idler_diam = 10; // MR105 bearing
+small_idler_width = 8; // MR105 bearing doubled up
+
+top_idler_diam = small_idler_diam;
+top_idler_width = small_idler_width;
+
+bottom_idler_diam = small_idler_diam;
+bottom_idler_width = small_idler_width;
+
+motor_pos_x = left*(20/2+nema17_shoulder_height);
+motor_pos_y = front*(motor_side/2);
+motor_pos_z = -40/2+10+m5_loose_hole/2+extrude_width*4+m3_loose_hole/2+nema17_hole_spacing/2;
+
+top_idler_pos_z = 20+belt_above_extrusion - top_idler_diam/2;
+bottom_idler_pos_z = motor_pos_z - nema17_hole_spacing/2 + bottom_idler_diam/2 + m3_loose_hole/2 + wall_thickness*2 + 3;
+idler_pos_y = motor_pos_y + front*(motor_side/2 + top_idler_diam/2 + 1);
+
+idler_shaft_diam = m3_loose_hole;
+idler_shaft_body_diam = idler_shaft_diam+wall_thickness*4;
+
+motor_mount_cap_thickness = 20/2 - top_idler_width/2 - bevel_height;
+screw_body_overhead = m3_loose_hole + wall_thickness*4;
+
+module motor_mount_cap() {
+  module profile() {
+    module body() {
+      translate([motor_pos_y,motor_pos_z]) {
+        inside_square = nema17_hole_spacing - screw_body_overhead-2;
+        hull() {
+          accurate_circle(inside_square,resolution);
+          translate([-inside_square/2,0,0]) {
+            square([10,inside_square],center=true);
+          }
+        }
+        for(y=[front,rear]) {
+          mirror([0,y-1]) {
+            translate([-nema17_hole_spacing/2+screw_body_overhead/2,inside_square/2,0]) {
+              round_corner_filler_profile(screw_body_overhead,resolution);
+            }
+          }
+        }
+      }
+      hull() {
+        translate([motor_pos_y,motor_pos_z]) {
+          translate([-nema17_hole_spacing/2,0,0]) {
+            for(y=[front,rear]) {
+              translate([0,y*nema17_hole_spacing/2,0]) {
+                accurate_circle(screw_body_overhead,resolution);
+              }
+            }
+          }
+        }
+        for(z=[top_idler_pos_z,bottom_idler_pos_z]) {
+          translate([idler_pos_y,z]) {
+            accurate_circle(idler_shaft_body_diam,resolution);
+          }
+        }
+      }
+    }
+
+    module holes() {
+      translate([motor_pos_y,motor_pos_z]) {
+        accurate_circle(top_idler_diam+0.2,16);
+        translate([-nema17_hole_spacing/2,0,0]) {
+          for(y=[front,rear]) {
+            translate([0,y*nema17_hole_spacing/2,0]) {
+              accurate_circle(m3_loose_hole,resolution);
+            }
+          }
+        }
+      }
+    }
+
+    difference() {
+      body();
+      holes();
+    }
+  }
+
+  module body() {
+    translate([20/2,0,0]) {
+      translate([0,0,30]) {
+        // profile();
+      }
+
+      rotate([0,90,0]) {
+        rotate([0,0,90]) {
+          translate([0,0,-motor_mount_cap_thickness/2]) {
+            linear_extrude(height=motor_mount_cap_thickness,center=true,convexity=2) {
+              profile();
+            }
+          }
+        }
+      }
+    }
+
+    for(z=[top_idler_pos_z,bottom_idler_pos_z]) {
+      translate([top_idler_width/2,idler_pos_y,z]) {
+        rotate([0,-90,0]) {
+          bevel(idler_shaft_body_diam,idler_shaft_diam+extrude_width*4,bevel_height);
+        }
+      }
+    }
+  }
+
+  module holes() {
+    for(z=[top_idler_pos_z,bottom_idler_pos_z]) {
+      translate([20/2,idler_pos_y,z]) {
+        rotate([0,-90,0]) {
+          hole(m3_thread_into_plastic_hole_diam,50,16);
+        }
+      }
+    }
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
 
 module motor_mount() {
-  large_idler_diam = 16; // F625 bearing
-  large_idler_width = 10; // F625 bearing doubled up
-
-  small_idler_diam = 10; // MR105 bearing
-  small_idler_width = 8; // MR105 bearing doubled up
-
-  top_idler_diam = small_idler_diam;
-  top_idler_width = small_idler_width;
-
-  bottom_idler_diam = small_idler_diam;
-  bottom_idler_width = small_idler_width;
-
-  motor_pos_x = left*(20/2+nema17_shoulder_height+3);
-  motor_pos_y = front*(motor_side/2);
-  //motor_pos_z = top_idler_pos_z - (abs(top_idler_pos_z - bottom_idler_pos_z)/2)-5;
-  motor_pos_z = -40/2+10+m5_loose_hole/2+extrude_width*4+m3_loose_hole/2+nema17_hole_spacing/2;
-
-  //top_idler_pos_z = 40/2+mini_v_wheel_belt_above_extrusion - top_idler_diam/2 + 4;
-  //top_idler_pos_z = motor_pos_z+nema17_hole_spacing/2 + 1;
-  top_idler_pos_z = 20+belt_above_extrusion - top_idler_diam/2;
-  //top_idler_pos_z = 40/2+mini_v_wheel_belt_above_extrusion -5 - top_idler_diam/2;
-  //bottom_idler_pos_z = bottom_idler_diam/2;
-  bottom_idler_pos_z = motor_pos_z - nema17_hole_spacing/2 + bottom_idler_diam/2 + m3_loose_hole/2 + wall_thickness*2 + 3;
-
-  echo("top_idler_pos_z + top_idler_diam/2: ", top_idler_pos_z + top_idler_diam/2);
-
-  idler_pos_y = motor_pos_y + front*(motor_side/2 + top_idler_diam/2 + 1);
-
   overall_depth = abs(idler_pos_y) + m5_thread_into_plastic_hole_diam/2 + wall_thickness*2;
   overall_height = 40/2+motor_pos_z + nema17_side/2;
   overall_thickness = 20/2 + abs(motor_pos_x);
 
-  screw_body_overhead = m3_loose_hole + wall_thickness*4;
   extrusion_mount_thickness = screw_body_overhead/2+(abs(motor_pos_y)-nema17_hole_spacing/2);
   extrusion_mount_rounded_diam = screw_body_overhead/2;
 
   bottom_belt_pos_z = bottom_idler_pos_z - bottom_idler_diam/2;
 
   motor_plate_thickness = abs(motor_pos_x) - top_idler_width/2 - bevel_height;
-
-  idler_shaft_diam = m5_loose_hole;
-  idler_shaft_body_diam = idler_shaft_diam+wall_thickness*4;
 
   module motor_plate_profile() {
     hull() {
@@ -228,7 +321,7 @@ module motor_mount() {
     rotate([0,90,0]) {
       hole(top_idler_diam,top_idler_width,resolution);
     }
-    translate([0,sample_belt_len/2,top_idler_diam/2+1]) {
+    translate([0,sample_belt_len/2,top_idler_diam/2+0.5]) {
       color("lightgreen", 0.2) cube([belt_width,sample_belt_len,1],center=true);
     }
   }
@@ -237,7 +330,7 @@ module motor_mount() {
     rotate([0,90,0]) {
       hole(bottom_idler_diam,bottom_idler_width,resolution);
     }
-    translate([0,sample_belt_len/2,-bottom_idler_diam/2-1]) {
+    translate([0,sample_belt_len/2,-bottom_idler_diam/2-0.5]) {
       color("lightgreen", 0.2) cube([belt_width,sample_belt_len,1],center=true);
     }
   }
@@ -276,6 +369,26 @@ module motor_mount() {
         }
       }
       hole(nema17_shoulder_diam+0.5,50,resolution);
+
+      // make room for motor cap
+      room_for_cap_x = screw_body_overhead+1;
+      room_for_cap_z = motor_mount_cap_thickness+0.1;
+      translate([0,-nema17_hole_spacing/2,overall_thickness]) {
+        cube([nema17_side+1,room_for_cap_x,2*(room_for_cap_z)],center=true);
+        for(y=[front,rear]) {
+          translate([y*nema17_hole_spacing/2,0]) {
+            for(y2=[front,rear]) {
+              mirror([y2-1,0,0]) {
+                translate([screw_body_overhead/2,room_for_cap_x/2,0]) {
+                  rotate([0,0,90]) {
+                    round_corner_filler(screw_body_overhead,room_for_cap_z*2);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
 
     // belt opening
@@ -298,6 +411,22 @@ module motor_mount() {
         translate([0,0,z]) {
           rotate([0,90,0]) {
             hole(idler_shaft_diam,50,16);
+          }
+        }
+      }
+    }
+
+    // pulley set screw access
+    set_screw_access_width = 10;
+    set_screw_access_height = 7;
+    translate([motor_pos_x+nema17_shoulder_height+set_screw_access_height/2,motor_pos_y,motor_pos_z+nema17_hole_spacing/2]) {
+      difference() {
+        cube([set_screw_access_height,set_screw_access_width+screw_body_overhead,screw_body_overhead+1],center=true);
+        for(y=[front,rear]) {
+          translate([0,y*(set_screw_access_width/2+screw_body_overhead/2),0]) {
+            rotate([0,90,0]) {
+              hole(screw_body_overhead,50,resolution);
+            }
           }
         }
       }
