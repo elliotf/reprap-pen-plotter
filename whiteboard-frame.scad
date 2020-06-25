@@ -116,10 +116,19 @@ for(x=[left,right]) {
 
 // X axis
 translate([0,sketch_pos_y,0]) {
+  x_rail_len = frame_outer_width + 35;
   translate([0,0,40+mini_v_wheel_plate_above_extrusion]) {
     translate([0,0,20+mini_v_wheel_plate_thickness]) {
       rotate([0,90,0]) {
-        color("lightgrey") extrusion_2040(frame_outer_width+30);
+        color("lightgrey") extrusion_2040(x_rail_len);
+      }
+
+      translate([x_rail_len/2,0,0]) {
+        x_motor_mount();
+      }
+
+      translate([-x_rail_len/2,0,0]) {
+        x_idler_mount();
       }
 
       translate([sketch_pos_x,0,0]) {
@@ -127,7 +136,7 @@ translate([0,sketch_pos_y,0]) {
           rotate([90,0,0]) {
             rotate([0,0,90]) {
               // module mini_v_wheel_plate(extrusion_width=20,wheel_spacing_y=10+20+wall_thickness*4)
-              mini_v_wheel_plate(40);
+              pen_carriage(40);
             }
           }
         }
