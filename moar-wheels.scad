@@ -649,7 +649,7 @@ module x_idler_mount() {
 
 module x_motor_mount() {
   % debug_axes();
-  rounded_diam = 3;
+  rounded_diam = wall_thickness*2;
 
   sample_belt_len = 200;
   belt_width = 6;
@@ -669,8 +669,8 @@ module x_motor_mount() {
 
   pulley_hole_diam = 15;
 
-  side_brace_thickness = extrude_width*8;
-  side_brace_pos_y = motor_pos_y+nema17_hole_spacing/2+m3_bolt_head_diam/2+0.3+side_brace_thickness/2;
+  side_brace_thickness = wall_thickness*2;
+  side_brace_pos_y = motor_pos_y+nema17_side/2;
 
   module position_motor() {
     translate([motor_pos_x,motor_pos_y,motor_pos_z]) {
@@ -689,7 +689,7 @@ module x_motor_mount() {
         }
         translate([0,side_brace_pos_y,0]) {
           rotate([0,90,0]) {
-            rounded_cube(40,side_brace_thickness,mount_thickness,rounded_diam);
+            rounded_cube(40,side_brace_thickness,mount_thickness,side_brace_thickness);
           }
         }
       }
