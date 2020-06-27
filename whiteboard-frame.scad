@@ -132,14 +132,7 @@ translate([0,sketch_pos_y,0]) {
       }
 
       translate([sketch_pos_x,0,0]) {
-        translate([0,front*(20/2+mini_v_wheel_plate_above_extrusion),0]) {
-          rotate([90,0,0]) {
-            rotate([0,0,90]) {
-              // module mini_v_wheel_plate(extrusion_width=20,wheel_spacing_y=10+20+wall_thickness*4)
-              pen_carriage(40);
-            }
-          }
-        }
+        wheeled_pen_carriage_assembly();
       }
     }
 

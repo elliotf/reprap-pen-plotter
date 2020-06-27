@@ -755,7 +755,6 @@ module belt_inside_extrusion_x_idler_mount() {
 }
 
 module x_motor_mount() {
-  % debug_axes();
   rounded_diam = wall_thickness*2;
 
   sample_belt_len = 200;
@@ -897,7 +896,6 @@ module x_motor_mount() {
 }
 
 module belt_inside_extrusion_x_motor_mount() {
-  % debug_axes();
   rounded_diam = wall_thickness*2;
 
   sample_belt_len = 200;
@@ -1224,56 +1222,6 @@ module xy_carriage(extrusion_width=20,wheel_spacing_y=10+20+wall_thickness*4) {
         m5_countersink_screw();
       }
     }
-
-    module zip_tie_anchor_profile() {
-      dist_from_edge = 4;
-      translate([0,-dist_from_edge,0]) {
-        difference() {
-          hull() {
-            accurate_circle(zip_tie_anchor_diam+zip_tie_thickness*2,resolution);
-            translate([0,zip_tie_anchor_diam,0]) {
-              square([zip_tie_anchor_diam+zip_tie_thickness*2,zip_tie_anchor_diam],center=true);
-            }
-          }
-          hull() {
-            accurate_circle(zip_tie_anchor_diam,resolution);
-            translate([0,dist_from_edge,0]) {
-              square([belt_width,0.2],center=true);
-            }
-          }
-        }
-      }
-    }
-
-    module belt_anchor_without_zipties() {
-      belt_thickness = 1;
-      rounded_diam = 2;
-      anchor_width = 6+rounded_diam;
-      anchor_thickness = 3;
-      anchor_depth = 4;
-      hole_depth = 4;
-      hole_thickness = 5;
-      translate([0,0,belt_thickness+anchor_thickness/2]) {
-        translate([0,front*(anchor_depth+hole_depth/2),0]) {
-          rounded_cube(anchor_width,hole_depth,anchor_thickness+1,rounded_diam);
-        }
-
-        for(z=[top,bottom]) {
-          hull() {
-            reduce_by = 2;
-            wider_height = hole_thickness-reduce_by;
-            translate([0,0,z*(anchor_thickness/2)]) {
-              translate([0,0,z*(wider_height/2)]) {
-                rounded_cube(anchor_width,(anchor_depth+hole_depth)*2,wider_height,rounded_diam);
-              }
-              translate([0,0,z*(hole_thickness/2)]) {
-                rounded_cube(anchor_width-reduce_by,(anchor_depth+hole_depth-reduce_by*2)*2,hole_thickness,rounded_diam);
-              }
-            }
-          }
-        }
-      }
-    }
   }
 
   % translate([0,0,-20/2-mini_v_wheel_plate_above_extrusion]) {
@@ -1290,114 +1238,6 @@ module xy_carriage(extrusion_width=20,wheel_spacing_y=10+20+wall_thickness*4) {
     holes();
   }
 }
-
-module pen_carriage(extrusion_width=20,wheel_spacing_y=10+20+wall_thickness*4) {
-  wheel_overhead = 11.9;
-  wheel_spacing_x = wheel_overhead+extrusion_width;
-  eccentric_shaft_diam = 7.4;
-  eccentric_head_diam = 12;
-  plain_shaft_diam = m5_loose_hole;
-  plain_head_diam = 10.1;
-  head_depth = 3;
-  rounded_diam = plain_head_diam+wall_thickness*4;
-  small_rounded_diam = 4;
-  eccentric_body_width = eccentric_head_diam + wall_thickness*4;
-  size_y = wheel_spacing_y + rounded_diam;
-
-  screw_mount_height = 20;
-  screw_mount_thickness = 6;
-
-  mounted_extrusion_offset_y = wheel_spacing_y/2-plain_head_diam/2-extrusion_width/2-screw_mount_thickness;
-
-  belt_position_x = -wheel_spacing_x/2+wheel_overhead/2+10;
-
-  overall_length = wheel_spacing_y+rounded_diam;
-
-  zip_tie_width = 4.5;
-  zip_tie_thickness = 3;
-
-  module position_eccentric_holes() {
-    translate([right*(wheel_spacing_x/2),0]) {
-      children();
-    }
-  }
-
-  module position_plain_holes() {
-    translate([left*(wheel_spacing_x/2),0]) {
-      for(y=[front,rear]) {
-        translate([0,y*wheel_spacing_y/2,0]) {
-          children();
-        }
-      }
-    }
-  }
-
-  module plate_profile() {
-    module body() {
-      hull() {
-        for(y=[front,rear]) {
-          translate([-wheel_spacing_x/2,y*wheel_spacing_y/2,0]) {
-            accurate_circle(rounded_diam,resolution);
-          }
-          translate([wheel_spacing_x/2+eccentric_body_width/2-small_rounded_diam/2,y*(size_y/2-small_rounded_diam/2),0]) {
-            accurate_circle(small_rounded_diam,resolution);
-          }
-        }
-      }
-    }
-
-    module holes() {
-      position_eccentric_holes() {
-        accurate_circle(eccentric_shaft_diam,resolution);
-      }
-      position_plain_holes() {
-        accurate_circle(plain_shaft_diam,resolution);
-      }
-    }
-
-    difference() {
-      body();
-      holes();
-    }
-  }
-
-  belt_width = 6;
-  zip_tie_anchor_diam = belt_width + 2;
-
-  module body() {
-    translate([0,0,mini_v_wheel_plate_thickness/2]) {
-      linear_extrude(height=mini_v_wheel_plate_thickness,center=true,convexity=3) {
-        plate_profile();
-      }
-    }
-  }
-
-  module holes() {
-    translate([0,0,mini_v_wheel_plate_thickness+50-head_depth]) {
-      position_eccentric_holes() {
-        hole(eccentric_head_diam,100,resolution);
-      }
-      position_plain_holes() {
-        hole(plain_head_diam,100,resolution);
-      }
-    }
-  }
-
-  % translate([0,0,-20/2-mini_v_wheel_plate_above_extrusion]) {
-    position_plain_holes() {
-      color("#444") mini_v_wheel();
-    }
-    position_eccentric_holes() {
-      color("#444") mini_v_wheel();
-    }
-  }
-
-  difference() {
-    body();
-    holes();
-  }
-}
-
 
 //linear_extrude(height=2,center=true) {
 //y_carriage();
