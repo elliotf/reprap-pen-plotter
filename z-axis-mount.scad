@@ -43,7 +43,7 @@ z_carriage_desired_travel = 5;
 z_lifter_arm_top = z_stepper_dist_from_x_rail_z - z_stepper_shaft_from_center + z_lifter_large_diam/2;
 z_carriage_height_calculated = z_carriage_top_bottom_height*2 +
                                //z_carriage_carrier_height/2 +
-                               40 +
+                               41 +
                                z_carriage_desired_travel +
                                z_lifter_arm_top +
                                m3_nut_max_diam/2 +
@@ -603,15 +603,9 @@ module wheeled_pen_carriage() {
 
 module z_carriage() {
   pen_min_diam = 5;
-  pen_max_diam = 14;
+  pen_max_diam = 15;
   pen_set_screw_height = 20;
   z_rod_len = 150;
-  bevel_offset = -20;
-  bevel_height = 15;
-
-  spring_anchor_thickness = 3;
-
-  spring_top_rotation = 0;
 
   carriage_bottom_depth = z_rod_hole_diam + wall_thickness*4;
 
@@ -626,7 +620,7 @@ module z_carriage() {
 
   set_screw_hole_diam = m5_thread_into_plastic_hole_diam;
   set_screw_body_pos_y = pen_max_pos_y+front*(pen_holder_main_body_diam/2);
-  set_screw_body_depth = wall_thickness*2;
+  set_screw_body_depth = wall_thickness*3;
   set_screw_body_height = set_screw_hole_diam+wall_thickness*4;
 
   overall_depth = pen_min_diam/2 + pen_min_to_max_dist + pen_holder_main_body_diam/2 + set_screw_body_depth/2;
@@ -668,7 +662,13 @@ module z_carriage() {
     }
 
     module holes() {
-      hulled_holes(pen_min_diam,pen_max_diam);
+      hull() {
+        hulled_holes(pen_min_diam,pen_max_diam);
+
+        translate([0,pen_max_pos_y-pen_max_diam/2+set_screw_body_depth/2,0]) {
+          rounded_square(pen_max_diam*0.6,set_screw_body_depth,wall_thickness);
+        }
+      }
     }
 
     difference() {
@@ -767,7 +767,7 @@ module z_carriage() {
 
     translate([spring_hook_gap_pos_x,spring_hook_pos_y,spring_hook_pos_z]) {
       translate([-z_spring_diam/2+z_spring_wire_diam-0.05,0,z_spring_diam/2-z_spring_wire_diam/2]) {
-        % z_spring(spring_top_rotation-90);
+        % z_spring(-90);
       }
 
       translate([0,0,0]) {
@@ -798,6 +798,7 @@ module z_carriage() {
 
   module holes() {
     // room for z stepper shaft
+    /*
     if ((z_stepper_shaft_length+z_stepper_shoulder_height) > (z_axis_mount_plate_thickness/2+z_rod_dist_from_z_mount+clearance_for_z_bushings_and_zip_ties)) {
       translate([z_stepper_pos_x,0,z_stepper_dist_from_x_rail_z-z_carriage_pos_z]) {
         hull() {
@@ -814,6 +815,7 @@ module z_carriage() {
         }
       }
     }
+    */
 
     translate([0,0,pen_holder_height/2-z_carriage_height/2]) {
       // set screw hole for pen
@@ -833,9 +835,8 @@ module z_carriage() {
               // cube to check against 45 deg angle
               //% cube([overall_depth,overall_depth,overall_depth],center=true);
             }
-
           }
-          translate([0,pen_max_pos_y+front*(half_depth),pen_set_screw_height+set_screw_body_height/2+half_depth*1.2+z_carriage_height/2]) {
+          translate([0,pen_max_pos_y+front*(half_depth),pen_set_screw_height+set_screw_body_height+half_depth*1.5+z_carriage_height/2]) {
             cube([pen_holder_main_body_diam+1,half_depth*2,z_carriage_height],center=true);
           }
         }
