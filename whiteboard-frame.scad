@@ -5,6 +5,8 @@ use <lib/vitamins.scad>;
 use <moar-wheels.scad>;
 
 sketch_pos_x = 0;
+// max for debug is ~ +110
+// min for debug is ~ -20
 sketch_pos_y = 0;
 
 //debug = 0;
@@ -107,7 +109,7 @@ for(x=[left,right]) {
     translate([0,front*rail_extrusion_length/2,0]) {
       rotate([0,0,180]) {
         mirror([x+1,0,0]) {
-          idler_mount();
+          y_idler_mount();
         }
       }
     }

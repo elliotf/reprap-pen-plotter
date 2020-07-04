@@ -68,7 +68,7 @@ for(x=[left,right]) {
       motor_mount_cap();
     }
     translate([x_rail_len/2,y_rail_len/2,-40/2]) {
-      idler_mount();
+      y_idler_mount();
     }
   }
 }
@@ -439,7 +439,7 @@ module motor_mount() {
   }
 }
 
-module idler_mount() {
+module y_idler_mount() {
   rounded_diam = 3;
   idler_diam = 10; // MR105
   idler_width = 8; // MR105 doubled up
@@ -494,17 +494,25 @@ module idler_mount() {
     }
     for(x=[left,right]) {
       translate([x*(idler_mount_width/2-idler_arm_width/2),0,0]) {
-        rotate([90,0,0]) {
-          hull() {
-            translate([0,rounded_diam/2,-extrusion_mount_thickness/2]) {
+        hull() {
+          for(z=[top_idler_pos_z,bottom_idler_pos_z]) {
+            translate([0,idler_pos_y,z]) {
+              rotate([0,90,0]) {
+                rotate_extrude($fn=64,convexity=2) {
+                  translate([idler_diam/2,0,0]) {
+                    for(y=[front,rear]) {
+                      translate([0,y*(idler_arm_width/2-rounded_diam/2),0]) {
+                        accurate_circle(rounded_diam,resolution);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          translate([0,extrusion_mount_thickness/2,rounded_diam/2]) {
+            rotate([90,0,0]) {
               rounded_cube(idler_arm_width,40+rounded_diam,extrusion_mount_thickness,rounded_diam);
-            }
-            translate([0,top_idler_pos_z,-idler_pos_y]) {
-              rounded_cube(idler_arm_width,idler_diam+rounded_diam,idler_shaft_diam+2,rounded_diam);
-              rounded_cube(idler_arm_width,idler_shaft_diam,idler_diam+rounded_diam,rounded_diam);
-            }
-            translate([0,bottom_idler_pos_z,-idler_pos_y]) {
-              rounded_cube(idler_arm_width,idler_diam+rounded_diam,idler_diam+3,rounded_diam);
             }
           }
         }
