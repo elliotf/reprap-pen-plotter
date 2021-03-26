@@ -223,7 +223,8 @@ module wheeled_pen_carriage() {
   }
 
   top_bushing_pos_z = wheel_spacing_y/2;
-  bottom_bushing_pos_z = bottom*(wheel_spacing_y/2+eccentric_body_width/2-z_bushing_holder_body_len/2);
+  //bottom_bushing_pos_z = bottom*(wheel_spacing_y/2+eccentric_body_width/2-z_bushing_holder_body_len/2);
+  bottom_bushing_pos_z = bottom*(40/2);
   bushing_body_base_width = z_bushing_holder_body_width + small_rounded_diam;
 
   module position_z_bushings_2d() {
@@ -295,6 +296,10 @@ module wheeled_pen_carriage() {
       hull() {
         position_z_bushings_2d() {
           rounded_square(z_bushing_holder_body_width+small_rounded_diam,z_bushing_holder_body_len+small_rounded_diam,small_rounded_diam);
+        }
+
+        position_eccentric_wheels_2d() {
+          accurate_circle(eccentric_body_width,resolution);
         }
       }
 
@@ -514,6 +519,18 @@ module wheeled_pen_carriage() {
       % round_nema14(z_lifter_arm_angled_to_flat);
     } else if (z_stepper_body_diam == byj_body_diam) {
       % stepper28BYJ(z_lifter_arm_angled_to_flat);
+    }
+  }
+
+  translate([0,20+mini_v_wheel_plate_above_extrusion,0]) {
+    measuring_tape_dragchain_width = 10;
+    measuring_tape_dragchain_min_diam = 35;
+    % debug_axes();
+
+    translate([0,2+measuring_tape_dragchain_width/2,measuring_tape_dragchain_min_diam/2]) {
+      rotate([90,0,0]) {
+        % hole(measuring_tape_dragchain_min_diam, measuring_tape_dragchain_width,resolution);
+      }
     }
   }
 

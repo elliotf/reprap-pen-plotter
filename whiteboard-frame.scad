@@ -1,3 +1,10 @@
+echo("BEGIN");
+echo("");
+echo("");
+echo("");
+echo("");
+echo("");
+
 include <config.scad>;
 use <sketch-for-simpler.scad>;
 use <z-axis-mount.scad>;
@@ -12,11 +19,14 @@ sketch_pos_y = 0;
 //debug = 0;
 debug = 1;
 
-whiteboard_x = (debug) ? 150 : 580;
-whiteboard_y = (debug) ? 175 : 890;
+//whiteboard_x = (debug) ? 150 : 580;
+//whiteboard_y = (debug) ? 175 : 890;
+extra_room_for_electronics = 60;
+whiteboard_x = (debug) ? 150+extra_room_for_electronics : 580;
+whiteboard_y = (debug) ? 200 : 890;
 
-brace_extrusion_length = (debug) ? 200 : 630;
-rail_extrusion_length = (debug) ? 290 : 1000;
+brace_extrusion_length = (debug) ? 200+extra_room_for_electronics : 630;
+rail_extrusion_length = (debug) ? (whiteboard_y+40) : 1000;
 
 
 whiteboard_rim_frontside_width = 22;
@@ -103,6 +113,8 @@ for(x=[left,right]) {
           motor_mount();
 
           motor_mount_cap();
+
+          endstop_flag_mount();
         }
       }
     }
@@ -127,6 +139,14 @@ translate([0,sketch_pos_y,0]) {
 
       translate([x_rail_len/2,0,0]) {
         x_motor_mount();
+
+        translate([-35,0,0]) {
+          mirror([0,1,0]) {
+            rotate([0,0,90]) {
+              endstop_flag_mount();
+            }
+          }
+        }
       }
 
       translate([-x_rail_len/2,0,0]) {
@@ -148,7 +168,8 @@ translate([0,sketch_pos_y,0]) {
   }
 }
 
-for(y=[front,0,rear]) {
+// cross braces
+for(y=[0]) {
   translate([0,y*(whiteboard_y/2-whiteboard_rim_backside_width/2+40/2),-20/2]) {
     for(x=[left,right],y2=[front,rear]) {
       mirror([0,y2-1,0]) {
@@ -162,6 +183,22 @@ for(y=[front,0,rear]) {
           rotate([0,0,90]) {
             // corner_bracket_2020();
           }
+        }
+      }
+    }
+    rotate([0,90,0]) {
+      rotate([0,0,90]) {
+        color("lightgrey") extrusion_2040(brace_extrusion_length);
+      }
+    }
+  }
+}
+for(y=[front,rear]) {
+  translate([0,y*(rail_extrusion_length/2-20),-10]) {
+    for(x=[left,right]) {
+      translate([x*(frame_outer_width/2-20/2),y*-60/2,0]) {
+        rotate([180-45-(45*y),0,0]) {
+          corner_bracket_2020();
         }
       }
     }

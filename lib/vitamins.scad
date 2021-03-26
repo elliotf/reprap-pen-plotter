@@ -1,5 +1,12 @@
 include <../lib/util.scad>;
 
+left   = -1;
+right  = 1;
+front  = -1;
+rear   = 1;
+top    = 1;
+bottom = -1;
+
 byj_body_diam = 28;
 byj_height = 19.5; // body is 19, but flanges stick up
 
@@ -337,21 +344,27 @@ module corner_bracket_2020() {
   side = 20;
   //thickness = (side - m5_fsc_head_diam) / 2 - 0.5; // 4.5mm
   thickness = 4;
+  wall_thickness = extrude_width*3*2;
+  corner_cut_depth = 3;
 
   module body() {
-    hull() {
-      translate([0,side/2-thickness/4,0]) {
-        cube([side,thickness/2,side],center=true);
+    intersection() {
+      hull() {
+        translate([0,side/2-thickness/4,0]) {
+          cube([side,thickness/2,side],center=true);
+        }
+        translate([0,0,-side/2+thickness/4]) {
+          cube([side,side,thickness/2],center=true);
+        }
       }
-      translate([0,0,-side/2+thickness/4]) {
-        cube([side,side,thickness/2],center=true);
-      }
+      rounded_cube(side,side,side,thickness,resolution);
     }
   }
 
   module holes() {
     translate([0,-side/2,side/2]) {
-      cube([side - thickness*2,(side-thickness)*2,(side-thickness)*2],center=true);
+      //cube([side - wall_thickness*2,(side-thickness)*2,(side-thickness)*2],center=true);
+      rounded_cube(side - wall_thickness*2,(side-thickness)*2,(side-thickness)*2,thickness,resolution);
     }
 
     translate([0,0,-side/2+thickness]) {
@@ -363,6 +376,13 @@ module corner_bracket_2020() {
       rotate([90,0,0]) {
         m5_countersink_screw();
         hole(5+0.4,20,resolution);
+      }
+    }
+
+    translate([0,side/2,-side/2]) {
+      rotate([45,0,0]) {
+        //cube([side+1,side+1,corner_cut_depth*2],center=true);
+        //% debug_axes();
       }
     }
   }
@@ -404,12 +424,27 @@ module ptfe_bushing_profile_for_2040_extrusion() {
   }
 }
 
-module motor_nema17() {
+nema17_side = 42;
+nema17_len = 48;
+nema17_hole_spacing = 31;
+nema17_shoulder_diam = 22;
+nema17_shoulder_height = 2;
+nema17_screw_diam = 3;
+nema17_shaft_diam = 5;
+nema17_shaft_len = 26;
+
+module motor_nema17(nema17_len) {
   difference() {
-    translate([0,0,-nema17_len/2]) cube([nema17_side,nema17_side,nema17_len],center=true);
+    //translate([0,0,-nema17_len/2]) {
+    translate([0,0,0]) {
+      intersection() {
+        cube([nema17_side,nema17_side,nema17_len],center=true);
+        hole(53,nema17_len,resolution);
+      }
+    }
     for(end=[left,right]) {
       for(side=[front,rear]) {
-        translate([nema17_hole_spacing/2*side,nema17_hole_spacing/2*end,0]) cylinder(r=motor_screw_diam/2,h=100,center=true);
+        translate([nema17_hole_spacing/2*side,nema17_hole_spacing/2*end,0]) cylinder(r=nema17_screw_diam/2,h=100,center=true);
       }
     }
   }
@@ -421,12 +456,21 @@ module motor_nema17() {
   }
 }
 
+nema14_side = 35.3;
+nema14_len = 44;
+nema14_hole_spacing = 26;
+nema14_shoulder_diam = 22;
+nema14_shoulder_height = 2;
+nema14_screw_diam = 3;
+nema14_shaft_diam = 5;
+nema14_shaft_len = 20;
+
 module motor_nema14() {
   difference() {
     translate([0,0,-nema14_len/2]) cube([nema14_side,nema14_side,nema14_len],center=true);
     for(end=[left,right]) {
       for(side=[front,rear]) {
-        translate([nema14_hole_spacing/2*side,nema14_hole_spacing/2*end,0]) cylinder(r=motor_screw_diam/2,h=100,center=true);
+        translate([nema14_hole_spacing/2*side,nema14_hole_spacing/2*end,0]) cylinder(r=nema14_screw_diam/2,h=100,center=true);
       }
     }
   }
@@ -732,11 +776,30 @@ mini_v_wheel_plate_above_extrusion = -10 + mini_v_wheel_thickness/2 + 1 + 6;
 // mini_v_wheel_belt_above_extrusion = -v_slot_cavity_depth+10+6/2+1.3; // 8.2
 mini_v_wheel_belt_above_extrusion = 8.2;
 
+m2_threaded_insert_diam = 3.4;
+m2_5_threaded_insert_diam = 3.6;
+m3_threaded_insert_diam = 5.4;
+m2_5_loose_hole = 2.5 + 0.3;
+m3_loose_hole = 3.4;
+m5_tight_hole = 5;
+m5_loose_hole = 5.2;
+m5_thread_into_plastic_hole_diam = 4.65;
+m4_thread_into_plastic_hole_diam = 3.7;
+m3_thread_into_plastic_hole_diam = 2.8;
+m2_5_thread_into_plastic_hole_diam = 2.5-0.2;
+m2_thread_into_plastic_hole_diam = 2-0.2;
+
 m3_diam = 3;
 m3_socket_head_height = 3.25;
 m3_socket_head_diam = 5.6;
 m3_nut_diam = 5.5;
 m3_fsc_head_diam = 6;
+
+m4_diam = 4;
+//m4_socket_head_height = 4;
+//m4_socket_head_diam = 7.25;
+//m4_nut_diam = 8;
+m4_fsc_head_diam = 8;
 
 m5_diam = 5;
 m5_socket_head_height = 6;
@@ -748,6 +811,8 @@ m6_diam = 6;
 m6_socket_head_height = 7;
 m6_nut_diam = 0;
 m6_fsc_head_diam = 12;
+
+countersink_default_length = 30;
 
 module countersink_screw(actual_shaft_diam,head_diam,head_depth,length) {
   loose_tolerance = 0.4;
@@ -761,14 +826,14 @@ module countersink_screw(actual_shaft_diam,head_diam,head_depth,length) {
   }
 }
 
-module m3_countersink_screw(length) {
+module m3_countersink_screw(length=countersink_default_length) {
   countersink_screw(3,m3_fsc_head_diam,0.5,length);
 }
 
-module m5_countersink_screw(length) {
+module m5_countersink_screw(length=countersink_default_length) {
   countersink_screw(5,m5_fsc_head_diam,0.5,length);
 }
 
-module m6_countersink_screw(length) {
+module m6_countersink_screw(length=countersink_default_length) {
   countersink_screw(6,m6_fsc_head_diam,0.5,length);
 }

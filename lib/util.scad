@@ -236,11 +236,28 @@ module printed_extrusion_carriage_profile(body_width,body_height) {
 
 module bevel(outer,inner,height) {
   hull() {
-    translate([0,0,-height-0.1]) {
-      hole(outer,0.2,resolution);
+    translate([0,0,-height-0.05]) {
+      hole(outer,0.1,resolution);
     }
-    translate([0,0,-0.1]) {
-      hole(inner,0.2,resolution);
+    translate([0,0,-0.05]) {
+      hole(inner,0.1,resolution);
+    }
+  }
+}
+
+module mid_air_hole(shaft_diam,head_diam,layer_height=0.2,depth=50,resolution=32) {
+  translate([0,0,-depth/2]) {
+    hole(shaft_diam,depth,resolution);
+  }
+  translate([0,0,depth/2]) {
+    hole(head_diam,depth,resolution);
+  }
+  intersection() {
+    hole(head_diam,layer_height*8,resolution);
+    union() {
+      cube([shaft_diam,head_diam+1,layer_height*2],center=true);
+      cube([shaft_diam,shaft_diam,layer_height*4],center=true);
+      hole(shaft_diam,layer_height*6,8);
     }
   }
 }

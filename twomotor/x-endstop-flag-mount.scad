@@ -1,5 +1,5 @@
 use <../moar-wheels.scad>;
 
 rotate([90,0,0]) {
-  y_idler_mount();
+  endstop_flag_mount();
 }

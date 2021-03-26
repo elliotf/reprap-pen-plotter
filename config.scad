@@ -86,7 +86,7 @@ front   = -1;
 rear    = 1;
 top     = 1;
 bottom  = -1;
-m3_diam = 3.3;
+//m3_diam = 3.3;
 m3_nut_diam = 5.7; // actually 5.5, but add fudge
 m3_nut_max_diam = 6.2;
 m3_nut_height = 5; // theoretically actually only 4mm
@@ -104,23 +104,23 @@ m3_bolt_head_diam   = 6;
 
 spacer  = 1;
 
-nema17_side = 42;
-nema17_len = 48;
-nema17_hole_spacing = 31;
-nema17_shoulder_diam = 22;
-nema17_shoulder_height = 2;
-nema17_screw_diam = m3_diam;
-nema17_shaft_diam = 5;
-nema17_shaft_len = 26;
-
-nema14_side = 35.3;
-nema14_len = 44;
-nema14_hole_spacing = 26;
-nema14_shoulder_diam = 22;
-nema14_shoulder_height = 2;
-nema14_screw_diam = m3_diam;
-nema14_shaft_diam = 5;
-nema14_shaft_len = 20;
+//nema17_side = 42;
+////nema17_len = 48;
+//nema17_hole_spacing = 31;
+//nema17_shoulder_diam = 22;
+//nema17_shoulder_height = 2;
+//nema17_screw_diam = 3.3;
+//nema17_shaft_diam = 5;
+//nema17_shaft_len = 26;
+//
+//nema14_side = 35.3;
+//nema14_len = 44;
+//nema14_hole_spacing = 26;
+//nema14_shoulder_diam = 22;
+//nema14_shoulder_height = 2;
+//nema14_screw_diam = 3.3;
+//nema14_shaft_diam = 5;
+//nema14_shaft_len = 20;
 
 motor_side = nema17_side;
 motor_len = nema17_len;
