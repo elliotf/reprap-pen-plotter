@@ -98,6 +98,7 @@ motor_pos_z = -40/2+10+m5_loose_hole/2+extrude_width*4+m3_loose_hole/2+nema17_ho
 top_idler_pos_z = 20+belt_above_extrusion - top_idler_diam/2;
 bottom_idler_pos_z = motor_pos_z - nema17_hole_spacing/2 + bottom_idler_diam/2 + m3_loose_hole/2 + wall_thickness*2 + 3;
 idler_pos_y = motor_pos_y + front*(motor_side/2 + top_idler_diam/2 + 1);
+idler_distance_z = top_idler_pos_z-bottom_idler_pos_z;
 
 idler_shaft_diam = m3_loose_hole;
 idler_shaft_body_diam = idler_shaft_diam+wall_thickness*4;
@@ -138,6 +139,10 @@ module motor_mount_cap() {
           translate([idler_pos_y,z]) {
             accurate_circle(idler_shaft_body_diam,resolution);
           }
+        }
+        translate([idler_pos_y-idler_shaft_body_diam,bottom_idler_pos_z+idler_distance_z/2+idler_shaft_body_diam/2]) {
+          // make it so that the plotter can be placed on the floor without the belts rubbing
+          accurate_circle(idler_shaft_body_diam,resolution);
         }
       }
     }
@@ -225,6 +230,10 @@ module motor_mount() {
         translate([0,bottom_idler_pos_z,0]) {
           accurate_circle(idler_shaft_body_diam,resolution);
         }
+        translate([-idler_shaft_body_diam,bottom_idler_pos_z+idler_distance_z/2+idler_shaft_body_diam/2]) {
+          // make it so that the plotter can be placed on the floor without the belts rubbing
+          accurate_circle(idler_shaft_body_diam,resolution);
+        }
       }
       // motor screw mounts
       translate([motor_pos_y-nema17_hole_spacing/2,motor_pos_z,0]) {
@@ -279,8 +288,8 @@ module motor_mount() {
   }
 
   module position_motor() {
-    translate([motor_pos_x-24.5,motor_pos_y,motor_pos_z]) {
-      rotate([0,-90,0]) {
+    translate([motor_pos_x,motor_pos_y,motor_pos_z]) {
+      rotate([0,90,0]) {
         children();
       }
     }
@@ -342,9 +351,11 @@ module motor_mount() {
   }
 
   position_motor() {
-    # motor_nema17(nema17_len);
+    translate([0,0,-24.5]) {
+      % motor_nema17(nema17_len);
+    }
 
-    translate([0,0,24.5]) {
+    translate([0,0,-motor_pos_x]) {
       % hole(pulley_diam,belt_width,resolution);
     }
   }
@@ -828,7 +839,7 @@ module belt_inside_extrusion_x_idler_mount() {
     for(z=[top,bottom]) {
       translate([left*mount_thickness,0,z*20/2]) {
         rotate([0,90,0]) {
-          # m5_countersink_screw();
+          m5_countersink_screw();
           hole(5.4,30,resolution);
         }
       }

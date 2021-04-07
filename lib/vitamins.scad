@@ -340,12 +340,11 @@ module extrusion_2040_profile() {
   }
 }
 
-module corner_bracket_2020() {
+module corner_bracket_2020_base() {
   side = 20;
   //thickness = (side - m5_fsc_head_diam) / 2 - 0.5; // 4.5mm
   thickness = 4;
   wall_thickness = extrude_width*3*2;
-  corner_cut_depth = 3;
 
   module body() {
     intersection() {
@@ -366,7 +365,51 @@ module corner_bracket_2020() {
       //cube([side - wall_thickness*2,(side-thickness)*2,(side-thickness)*2],center=true);
       rounded_cube(side - wall_thickness*2,(side-thickness)*2,(side-thickness)*2,thickness,resolution);
     }
+  }
 
+  difference() {
+    body();
+    holes();
+  }
+}
+
+module corner_bracket_2020_m3() {
+  side = 20;
+  //thickness = (side - m5_fsc_head_diam) / 2 - 0.5; // 4.5mm
+  thickness = 4;
+
+  module body() {
+    corner_bracket_2020_base();
+  }
+
+  module holes() {
+    translate([0,0,-side/2+thickness]) {
+      hole(3+0.4,20,resolution);
+    }
+
+    translate([0,side/2-thickness,0]) {
+      rotate([90,0,0]) {
+        hole(3+0.4,20,resolution);
+      }
+    }
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
+module corner_bracket_2020() {
+  side = 20;
+  //thickness = (side - m5_fsc_head_diam) / 2 - 0.5; // 4.5mm
+  thickness = 4;
+
+  module body() {
+    corner_bracket_2020_base();
+  }
+
+  module holes() {
     translate([0,0,-side/2+thickness]) {
       m5_countersink_screw();
       hole(5+0.4,20,resolution);
@@ -376,13 +419,6 @@ module corner_bracket_2020() {
       rotate([90,0,0]) {
         m5_countersink_screw();
         hole(5+0.4,20,resolution);
-      }
-    }
-
-    translate([0,side/2,-side/2]) {
-      rotate([45,0,0]) {
-        //cube([side+1,side+1,corner_cut_depth*2],center=true);
-        //% debug_axes();
       }
     }
   }
