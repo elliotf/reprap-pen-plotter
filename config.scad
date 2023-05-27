@@ -8,6 +8,7 @@ pi = 3.141592;
 approx_pi = 3.14159;
 inch = 25.4;
 extrude_width = 0.4;
+extrude_height = 0.2;
 
 debug = 1;
 
@@ -93,14 +94,6 @@ m3_nut_height = 5; // theoretically actually only 4mm
 
 //base_plate_thickness = 3/4*inch;
 base_plate_thickness = 1/2*inch;
-
-m5_bolt_diam        = 5.25;
-m5_bolt_head_height = 5;
-m5_bolt_head_diam   = 9;
-m5_nut_thickness    = 5;
-m3_bolt_diam        = 3.25;
-m3_bolt_head_height = 5;
-m3_bolt_head_diam   = 6;
 
 spacer  = 1;
 

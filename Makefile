@@ -65,7 +65,7 @@ define render_twomotor_template
 twomotor: twomotor/renders/$(1)
 
 twomotor/renders/$(1) : twomotor/$(1).scad
-	openscad-nightly -m make -o $$@.stl $$^ && echo $$^
+	openscad-nightly --enable=fast-csg -m make -o $$@.stl $$^ && echo $$^
 
 .PHONY : twomotor/renders/$(1)
 

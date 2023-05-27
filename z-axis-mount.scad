@@ -185,6 +185,8 @@ module wheeled_pen_carriage() {
   x_belt_offset_y = -10+v_slot_cavity_depth/2-0.5;
   belt_above_extrusion = z_axis_mount_plate_thickness/2+mini_v_wheel_plate_above_extrusion+x_belt_offset_y;
 
+  x_belt_offset_z = 10;
+
   zip_tie_width = 4.5;
   zip_tie_thickness = 3;
 
@@ -248,7 +250,7 @@ module wheeled_pen_carriage() {
     for(x=[left,right]) {
       // belt attachment area
       mirror([x-1,0,0]) {
-        translate([z_rod_spacing/2+bushing_body_base_width/2,-10,0]) {
+        translate([z_rod_spacing/2+bushing_body_base_width/2,x_belt_offset_z,0]) {
           children();
         }
       }
@@ -287,7 +289,7 @@ module wheeled_pen_carriage() {
         // round the area between the top wheels and the body
         translate([x*(z_rod_spacing/2+bushing_body_base_width/2),wheel_spacing_y/2-rounded_diam/2,0]) {
           rotate([0,0,-135+x*45]) {
-            round_corner_filler_profile(rounded_diam);
+            round_corner_filler_profile(small_rounded_diam);
           }
         }
       }
@@ -433,7 +435,7 @@ module wheeled_pen_carriage() {
       rotate([90,0,0]) {
         for(x=[left,right]) {
           // belt attachment area
-          translate([x*(z_rod_spacing/2+bushing_body_base_width/2),-10,0]) {
+          translate([x*(z_rod_spacing/2+bushing_body_base_width/2),x_belt_offset_z,0]) {
             for(y=[front,rear]) {
               translate([0,y*(belt_anchor_width/2-belt_anchor_post_width/2),0]) {
                 rounded_cube(belt_anchor_depth*2,belt_anchor_post_width,z_axis_mount_plate_thickness,wall_thickness*2);
