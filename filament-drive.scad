@@ -96,7 +96,7 @@ module motor_mount(side) {
         square([pulley_idler_diam,idler_body_depth],center=true);
       }
       // inside of idler mount
-      translate([-abs(idler_pulley_pos_y),,0]) {
+      translate([-abs(idler_pulley_pos_y),0,0]) {
         translate([idler_body_width/4,-idler_body_depth/2,0]) {
           rounded_square(idler_body_width/2,idler_body_depth,large_diam);
         }

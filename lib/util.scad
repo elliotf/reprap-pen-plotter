@@ -14,10 +14,10 @@ module accurate_circle(diam,sides=8) {
   }
 }
 
-module debug_axes() {
-  color("red") translate([50,0,0]) cube([100,.2,.2],center=true);
-  color("green") translate([0,50,0]) cube([.2,100,.2],center=true);
-  color("blue") translate([0,0,50]) cube([.2,.2,100],center=true);
+module debug_axes(sides=0.2) {
+  color("red") translate([50,0,0]) cube([100,sides,sides],center=true);
+  color("green") translate([0,50,0]) cube([sides,100,sides],center=true);
+  color("blue") translate([0,0,50]) cube([sides,sides,100],center=true);
 }
 
 module ring(id,thickness,height,fn=16) {
@@ -234,13 +234,13 @@ module printed_extrusion_carriage_profile(body_width,body_height) {
   }
 }
 
-module bevel(outer,inner,height) {
+module bevel(outer,inner,height,res=resolution) {
   hull() {
     translate([0,0,-height-0.05]) {
-      hole(outer,0.1,resolution);
+      hole(outer,0.1,res);
     }
     translate([0,0,-0.05]) {
-      hole(inner,0.1,resolution);
+      hole(inner,0.1,res);
     }
   }
 }

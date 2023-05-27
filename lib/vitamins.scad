@@ -1,5 +1,26 @@
 include <../lib/util.scad>;
 
+m5_bolt_diam        = 5.25;
+m5_bolt_head_height = 5;
+m5_bolt_head_diam   = 9;
+m5_nut_thickness    = 5;
+m3_bolt_diam        = 3.25;
+m3_bolt_head_height = 5;
+m3_bolt_head_diam   = 6;
+
+m2_threaded_insert_diam = 3.4;
+m2_5_threaded_insert_diam = 3.6;
+m3_threaded_insert_diam = 5.4;
+m2_5_loose_hole = 2.5 + 0.3;
+m3_loose_hole = 3.4;
+m5_tight_hole = 5;
+m5_loose_hole = 5.2;
+m5_thread_into_plastic_hole_diam = 4.65;
+m4_thread_into_plastic_hole_diam = 3.7;
+m3_thread_into_plastic_hole_diam = 2.8;
+m2_5_thread_into_plastic_hole_diam = 2.5-0.2;
+m2_thread_into_plastic_hole_diam = 2-0.2;
+
 left   = -1;
 right  = 1;
 front  = -1;
@@ -439,7 +460,7 @@ module ptfe_bushing_profile_for_2040_extrusion() {
   width = 40;
   height = 20;
   bushing_from_extrusion_corner = ptfe_bushing_diam/2+0.5;
-  
+
   // PTFE bushings
   // short side bushings
   for(x=[left,right]) {
@@ -470,25 +491,32 @@ nema17_shaft_diam = 5;
 nema17_shaft_len = 26;
 
 module motor_nema17(nema17_len) {
-  difference() {
-    //translate([0,0,-nema17_len/2]) {
-    translate([0,0,0]) {
+  module body() {
+    translate([0,0,-nema17_len/2]) {
       intersection() {
         cube([nema17_side,nema17_side,nema17_len],center=true);
-        hole(53,nema17_len,resolution);
+        hole(53,nema17_len+1,resolution*2);
       }
     }
+    hole(nema17_shoulder_diam,nema17_shoulder_height*2,resolution);
+
+    translate([0,0,nema17_shaft_len/2]) {
+      hole(nema17_shaft_diam,nema17_shaft_len,16);
+      // hole(line_pulley_diam,line_pulley_height,16);
+    }
+  }
+
+  module holes() {
     for(end=[left,right]) {
       for(side=[front,rear]) {
         translate([nema17_hole_spacing/2*side,nema17_hole_spacing/2*end,0]) cylinder(r=nema17_screw_diam/2,h=100,center=true);
       }
     }
   }
-  hole(nema17_shoulder_diam,nema17_shoulder_height*2,16);
 
-  translate([0,0,nema17_shaft_len/2]) {
-    hole(nema17_shaft_diam,nema17_shaft_len,16);
-    // hole(line_pulley_diam,line_pulley_height,16);
+  difference() {
+    body();
+    holes();
   }
 }
 
@@ -800,6 +828,7 @@ module buck_converter() {
 }
 
 module position_buck_converter_holes() {
+
   for(x=[left,right],y=[front,rear]) {
     translate([x*(buck_conv_hole_spacing_x/2),y*(buck_conv_hole_spacing_y/2),0]) {
       children();
@@ -811,19 +840,6 @@ mini_v_wheel_plate_thickness = 8;
 mini_v_wheel_plate_above_extrusion = -10 + mini_v_wheel_thickness/2 + 1 + 6;
 // mini_v_wheel_belt_above_extrusion = -v_slot_cavity_depth+10+6/2+1.3; // 8.2
 mini_v_wheel_belt_above_extrusion = 8.2;
-
-m2_threaded_insert_diam = 3.4;
-m2_5_threaded_insert_diam = 3.6;
-m3_threaded_insert_diam = 5.4;
-m2_5_loose_hole = 2.5 + 0.3;
-m3_loose_hole = 3.4;
-m5_tight_hole = 5;
-m5_loose_hole = 5.2;
-m5_thread_into_plastic_hole_diam = 4.65;
-m4_thread_into_plastic_hole_diam = 3.7;
-m3_thread_into_plastic_hole_diam = 2.8;
-m2_5_thread_into_plastic_hole_diam = 2.5-0.2;
-m2_thread_into_plastic_hole_diam = 2-0.2;
 
 m3_diam = 3;
 m3_socket_head_height = 3.25;

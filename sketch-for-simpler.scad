@@ -671,7 +671,7 @@ module x_max_endcap() {
         }
         translate([left*(idler_arm_pos_x+idler_arm_thickness/2),overall_height/2]) {
           rotate([0,0,45-left*45]) {
-            round_corner_filler_profile(3,endcap_thickness);
+            # round_corner_filler_profile(3,endcap_thickness);
           }
         }
       }
